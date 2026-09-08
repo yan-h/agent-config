@@ -1,10 +1,15 @@
-# Agent Skills
+# Agent Config
 
-This repository is the source of truth for skills that are useful in more
-than one project or agent host. Project-specific skills stay in the project
-that owns their commands, paths, and operating history.
+This repository is the source of truth for personal agent configuration and
+skills shared across projects and agent hosts. Project-specific instructions
+and skills stay in the project that owns them.
 
 ## Layout
+
+- `global/codex/AGENTS.md` — personal defaults loaded by Codex across projects.
+- `skills/` — reusable skills shared by agent hosts.
+- `scripts/` — repository maintenance helpers.
+- Root `AGENTS.md` — instructions for maintaining this repository.
 
 Each immediate child of `skills/` is one skill:
 
@@ -21,6 +26,28 @@ skills/
 The shared contract belongs in `SKILL.md`. Host-specific metadata may be
 added alongside it, but do not maintain separate Claude and Codex copies of
 the same instructions.
+
+## Install global Codex instructions
+
+Clone this repository to a stable local directory:
+
+```sh
+git clone https://github.com/yan-h/agent-config.git ~/projects/agent-config
+```
+
+Back up any existing `~/.codex/AGENTS.md`, then link the versioned file:
+
+```sh
+mkdir -p ~/.codex
+ln -s ~/projects/agent-config/global/codex/AGENTS.md ~/.codex/AGENTS.md
+```
+
+Use the actual checkout path if it differs from the example.
+Start a new Codex session to load the instructions.
+Edits through the link change the versioned file; commit and push them to
+save them on GitHub. Other machines receive updates when you pull this repository.
+Keep credentials, session history, caches, and private information out of
+this public repository.
 
 ## Included skills
 

@@ -1,6 +1,13 @@
-# Shared skill authoring contract
+# Agent configuration authoring contract
 
-This repository contains agent skills shared across projects and host tools.
+This repository contains personal agent defaults and skills shared across
+projects and host tools.
+
+- Put host-specific global defaults in `global/<host>/AGENTS.md`.
+- Keep this root file focused on maintaining the repository; it is not the
+  file installed as global user guidance.
+- Keep credentials, session history, caches, and private information out of
+  this public repository.
 
 - Put one skill in each `skills/<name>/` directory, with `SKILL.md` as its
   required entrypoint.
