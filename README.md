@@ -51,8 +51,6 @@ this public repository.
 
 ## Included skills
 
-- `delegate-with-subagents` — decide when and how to split work across
-  bounded subagents.
 - `audit-merges` — inspect a combined merge range for defects that emerge
   only when otherwise-correct branches interact.
 
