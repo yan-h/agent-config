@@ -58,9 +58,44 @@ This keeps speculative repairs separate from demonstrated defects.
 
 Follow the repository's local contract for worktrees, validation, commits, and pull requests.
 
+### Repair the prose agents execute; only report the rest
+
+Stale prose divides by who acts on it, and only one half is worth a hunk in this diff.
+
+**Repair** the prose a session runs on:
+`AGENTS.md`, `CLAUDE.md`, the agent configuration directory, the skills, and the helper scripts.
+These are loaded or executed every session, so a wrong path or a falsified claim in them misroutes the next agent —
+they are code with no compiler, and this audit is the only gate they have.
+
+**Report, and do not fix,** drift in reference documentation and long-form design notes.
+List it under a **Documentation drift** heading with the file and the claim that no longer holds, so it is on the record and cheap to pick up.
+Left to itself this half grows to dominate the finding count —
+it is the easiest thing to find and the least likely to be read,
+and an audit that spends its pull request on it buries the defects it exists to catch.
+
+Comments in source files follow the code they sit beside:
+repair one in a file the audit is already changing, report it otherwise.
+
+## Lead every finding with what someone would have noticed
+
+Each finding opens with one line naming what a person using the software would have observed —
+the wrong picture, the wrong number, the failed export, the session that could not run its own checks.
+Write it as the symptom, not the mechanism:
+the reader decides whether to care from that line alone, and a mechanism they have to translate is a decision they will skip.
+
+**A finding with no such line is filed as an issue rather than fixed here.**
+That is the test for whether a defect belongs in this pull request at all.
+A reachable defect earns the audit's failing test and its fix;
+one that needs a state nobody reaches is real but unranked, and it competes better as an issue than as a hunk in a diff about something else.
+Say in the issue what it would take to reach it, so triage has the thing the audit already knows.
+
+This is the rule the audit exists to serve.
+A reviewer who merges the result without reading it gets no value from a finding list they cannot rank,
+and a list that opens with mechanism reads as uniform whether it holds six live defects or none.
+
 ## Report the result
 
-If there are findings, describe each one with what breaks, the real-world trigger, the reproduction, and the fix.
+If there are findings, describe each one with the observable line above, then what breaks, the real-world trigger, the reproduction, and the fix.
 Also name the areas and hypotheses checked clean, and record the `<since>..HEAD` range and the pull requests or merges it contains.
 
 If nothing is found, report the range and the specific clean list and make no code change.
