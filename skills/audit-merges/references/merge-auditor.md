@@ -47,6 +47,13 @@ If the range changed a subsystem described by `AGENTS.md`, `CLAUDE.md`, an agent
 Weight this toward skills and scripts because they often carry code-shaped facts without compiler coverage.
 Use `test -e` on paths that scripts glob, grep, or copy.
 
+Separate the two audiences as you report.
+Prose a session loads or executes — `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, skills, scripts — is a finding, because a wrong fact there misroutes the next agent.
+Reference documentation and design notes go under **Documentation drift** instead:
+name the file and the claim that no longer holds and move on.
+Do not let that second list set the size of your report;
+it is the cheapest thing here to find and the least likely to be read.
+
 ## Evidence bar
 
 Nothing is a candidate finding until you can name the concrete input or state that breaks it and the wrong output it produces.
@@ -57,7 +64,11 @@ The calling agent writes the failing test or reproduction and the fix.
 
 ## Return to the caller
 
-- **Findings** — for each, give what breaks, the exact input or state, the real-world trigger a person would hit, and where you would fix it.
+- **Findings** — open each with one line naming what a person using the software would have observed, written as the symptom rather than the mechanism.
+Then give what breaks, the exact input or state, the real-world trigger a person would hit, and where you would fix it.
+If you cannot write that first line, say so plainly and say what state the defect needs;
+the caller files those rather than fixing them, so an honest "only reachable at X" is more useful than a symptom you had to invent.
 - **Suspicions** — separate and explicitly unproven.
+- **Documentation drift** — stale reference documentation and design notes, named but not proposed for repair.
 - **Also checked, clean** — name the areas and hypotheses examined.
 - **Range** — give the `<since>..HEAD` range and the pull requests or merges it contains.
