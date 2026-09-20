@@ -1,25 +1,16 @@
 ---
 name: audit-merges
-description: Audit a batch of merges for defects created where otherwise-correct branches interact. Started only by the repository owner invoking it explicitly; a session never reaches for it on its own, however well a batch of landed branches seems to fit.
+description: Audit a batch of merges for defects created where otherwise-correct branches interact. Started only by the repository owner invoking it explicitly.
+disable-model-invocation: true
 ---
 
 # Audit the combined merge range
 
-## The owner starts this, and nothing else does
+**The owner starts this.** A session that has just watched branches land says the range looks worth auditing and stops there;
+it does not run the procedure below by hand instead.
+Whether a batch is worth a multi-agent run is a judgement about what the owner is spending.
 
-Run this only when the repository owner invokes it by name.
-A session that has just watched several branches land does not start one for itself, and does not run the procedure below by hand or point the survey agents at a range instead.
-When a range looks worth auditing, say so in the reply and leave the call there.
-
-That is a rule about cost rather than about correctness.
-An audit spends a multi-agent run on a judgement — whether this batch is worth reading now — and the judgement belongs to whoever is paying for it.
-The description above used to end with when to use the skill, and a session reading it right after a batch of merges landed was reading an instruction;
-every audit nobody asked for started exactly there.
-
-A host that can enforce this should, because prose is the weaker half.
-In Claude a `PreToolUse` hook on the `Skill` tool denies the invocation while the owner's typed `/audit-merges` loads this file directly and never reaches the hook, so the gate costs the owner nothing;
-harmonigraph carries one at `.claude/owner-only-skills.sh`.
-A host without that seam is left with this section.
+`disable-model-invocation` is what enforces that in hosts that honour it (Claude does; Codex does not), so harmonigraph also gates the one route left — reading this file with a shell command.
 
 Audit the code that has landed on the repository's primary branch since the last audit, looking for bugs that no single branch could have contained.
 
