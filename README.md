@@ -6,7 +6,8 @@ and skills stay in the project that owns them.
 
 ## Layout
 
-- `global/codex/AGENTS.md` — personal defaults loaded by Codex across projects.
+- `global/AGENTS.md` — shared personal defaults for coding agents across projects.
+- `global/codex/AGENTS.md` — symlink to the shared defaults, preserving existing installs.
 - `skills/` — reusable skills shared by agent hosts.
 - `scripts/` — repository maintenance helpers.
 - Root `AGENTS.md` — instructions for maintaining this repository.
@@ -27,7 +28,7 @@ The shared contract belongs in `SKILL.md`. Host-specific metadata may be
 added alongside it, but do not maintain separate Claude and Codex copies of
 the same instructions.
 
-## Install global Codex instructions
+## Install shared global instructions
 
 Clone this repository to a stable local directory:
 
@@ -35,16 +36,31 @@ Clone this repository to a stable local directory:
 git clone https://github.com/yan-h/agent-config.git ~/projects/agent-config
 ```
 
-Back up any existing `~/.codex/AGENTS.md`, then link the versioned file:
+Back up any existing instruction files and merge their contents into the shared
+source before replacing them. Link the same file into each host you use:
 
 ```sh
-mkdir -p ~/.codex
-ln -s ~/projects/agent-config/global/codex/AGENTS.md ~/.codex/AGENTS.md
+mkdir -p ~/.codex ~/.claude ~/.gemini ~/.config/zed
+ln -s ~/projects/agent-config/global/AGENTS.md ~/.codex/AGENTS.md
+ln -s ~/projects/agent-config/global/AGENTS.md ~/.claude/CLAUDE.md
+ln -s ~/projects/agent-config/global/AGENTS.md ~/.gemini/GEMINI.md
+ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
 ```
 
 Use the actual checkout path if it differs from the example.
-Start a new Codex session to load the instructions.
-Edits through the link change the versioned file; commit and push them to
+The Gemini path is also used by Antigravity.
+An existing Codex link to `global/codex/AGENTS.md` still resolves to the shared source.
+Start a new agent session to load the instructions.
+These paths configure local coding agents, not ordinary web chats or cloud jobs.
+Claude Cowork skips user instruction symlinks outside its working directory.
+
+There is no universal global instruction path across agent hosts.
+When adding another agent, connect its supported global rules mechanism to
+`global/AGENTS.md`; do not assume it reads another host's configuration.
+If a host requires settings-backed text instead of a file, keep the shared
+source authoritative and refresh that setting when the source changes.
+
+Edits through any link change the versioned file; commit and push them to
 save them on GitHub. Other machines receive updates when you pull this repository.
 Keep credentials, session history, caches, and private information out of
 this public repository.

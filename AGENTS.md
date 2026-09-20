@@ -3,7 +3,10 @@
 This repository contains personal agent defaults and skills shared across
 projects and host tools.
 
-- Put host-specific global defaults in `global/<host>/AGENTS.md`.
+- Put shared global defaults in `global/AGENTS.md` and link each host's
+  supported global instruction file to that source.
+- Put host-specific global defaults in `global/<host>/AGENTS.md` only when
+  needed; do not duplicate shared guidance there.
 - Keep this root file focused on maintaining the repository; it is not the
   file installed as global user guidance.
 - Keep credentials, session history, caches, and private information out of
