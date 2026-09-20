@@ -10,7 +10,8 @@ disable-model-invocation: true
 it does not run the procedure below by hand instead.
 Whether a batch is worth a multi-agent run is a judgement about what the owner is spending.
 
-`disable-model-invocation` is what enforces that in hosts that honour it (Claude does; Codex does not), so harmonigraph also gates the one route left — reading this file with a shell command.
+`disable-model-invocation` above enforces that in hosts that honour it.
+Claude does, and Codex does not — and Codex reaches a skill by reading this file, so in Codex these three lines are the rule itself rather than a description of one.
 
 Audit the code that has landed on the repository's primary branch since the last audit, looking for bugs that no single branch could have contained.
 
