@@ -1,9 +1,16 @@
 ---
 name: audit-merges
-description: Audit a batch of merges for defects created where otherwise-correct branches interact. Use after several branches have landed together, not as a per-PR review.
+description: Audit a batch of merges for defects created where otherwise-correct branches interact. Started only by the repository owner invoking it explicitly.
+disable-model-invocation: true
 ---
 
 # Audit the combined merge range
+
+**The owner starts this.** A session that has just watched branches land says the range looks worth auditing and stops there;
+it does not run the procedure below by hand instead.
+Whether a batch is worth a multi-agent run is a judgement about what the owner is spending.
+
+`disable-model-invocation` is what enforces that in hosts that honour it (Claude does; Codex does not), so harmonigraph also gates the one route left — reading this file with a shell command.
 
 Audit the code that has landed on the repository's primary branch since the last audit, looking for bugs that no single branch could have contained.
 

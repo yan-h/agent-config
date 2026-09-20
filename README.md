@@ -52,7 +52,8 @@ this public repository.
 ## Included skills
 
 - `audit-merges` — inspect a combined merge range for defects that emerge
-  only when otherwise-correct branches interact.
+  only when otherwise-correct branches interact. Owner-invoked: a session
+  never starts one for itself, and a host that can enforce that should.
 
 ## Add a skill
 
