@@ -15,6 +15,19 @@ In implementation and review, push back when the overall tradeoff is negative, i
 Briefly explain the costs and recommend a better alternative or a documented limitation.
 Do not silently drop explicit requirements or conceal known defects; surface changes to the agreed outcome for a decision.
 
+## Code review
+
+Treat ordinary code-review requests as covering correctness, performance, simplicity, and maintainability.
+Evaluate whether the approach itself is appropriate, including state ownership, unnecessary machinery, duplicated work, and opportunities to reuse existing code.
+
+Always include a brief engineering assessment in the initial review alongside actionable defects, even when no defects are found.
+Identify worthwhile simpler or faster alternatives, explain their concrete benefit and cost, and distinguish necessary fixes from optional improvements.
+When several defects share a design cause, explain that cause and consider whether one focused simplification would address them together.
+
+Keep recommendations proportional to the product's actual usage.
+Avoid cosmetic churn, speculative abstractions, and unsupported performance claims.
+If the current approach is sound, say so.
+
 ## Subagent delegation
 
 Proactively delegate useful, independent subtasks to subagents at your discretion when doing so can improve speed or quality.
