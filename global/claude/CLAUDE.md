@@ -1,4 +1,8 @@
-# Subagent waits
+@../AGENTS.md
+
+# Claude Code only
+
+## Subagent waits
 
 A subagent's prompt cache expires after five idle minutes, while the main session's lasts an hour.
 When a subagent idles past that, its next request rewrites its whole context; in one measurement these rewrites were about a quarter of all subagent usage, mostly spent sitting on long commands.

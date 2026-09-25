@@ -8,7 +8,7 @@ and skills stay in the project that owns them.
 
 - `global/AGENTS.md` — shared personal defaults for coding agents across projects.
 - `global/codex/AGENTS.md` — symlink to the shared defaults, preserving existing installs.
-- `global/claude/rules/` — Claude-only defaults, one rule file each, loaded alongside the shared file.
+- `global/claude/CLAUDE.md` — imports the shared defaults, then adds Claude-only sections.
 - `skills/` — reusable skills shared by agent hosts.
 - `scripts/` — repository maintenance helpers.
 - Root `AGENTS.md` — instructions for maintaining this repository.
@@ -38,25 +38,21 @@ git clone https://github.com/yan-h/agent-config.git ~/projects/agent-config
 ```
 
 Back up any existing instruction files and merge their contents into the shared
-source before replacing them. Link the same file into each host you use:
+source before replacing them. Link the shared file into each host you use,
+and Claude's file, which imports it, into Claude:
 
 ```sh
 mkdir -p ~/.codex ~/.claude ~/.gemini ~/.config/zed
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.codex/AGENTS.md
-ln -s ~/projects/agent-config/global/AGENTS.md ~/.claude/CLAUDE.md
+ln -s ~/projects/agent-config/global/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.gemini/GEMINI.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
 ```
 
-Claude also loads every file in `~/.claude/rules/` in every project.
-Link each Claude-only rule individually:
-
-```sh
-mkdir -p ~/.claude/rules
-ln -s ~/projects/agent-config/global/claude/rules/subagent-waits.md ~/.claude/rules/subagent-waits.md
-```
-
 Use the actual checkout path if it differs from the example.
+The import resolves relative to the linked file's real location, so it follows the checkout.
+An older `~/.claude/CLAUDE.md` link straight to `global/AGENTS.md` still loads the shared
+defaults but misses the Claude-only sections; re-link it with `ln -sfn`.
 The Gemini path is also used by Antigravity.
 An existing Codex link to `global/codex/AGENTS.md` still resolves to the shared source.
 Start a new agent session to load the instructions.
