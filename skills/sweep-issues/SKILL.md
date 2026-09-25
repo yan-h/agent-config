@@ -48,8 +48,11 @@ Record which merges must precede which, including dependencies on PRs outside th
 One issue, or one tight group, per branch.
 Delegate by the global subagent guidance; implementers run fast checks, and the coordinating session runs the full gates.
 
-Stay inside each issue's scope.
-Other problems found along the way are filed as issues or listed in the report, not fixed in passing.
+Keep each branch to its issue.
+Implementers and reviewers report other problems they find to the coordinating session rather than fixing them in passing.
+The coordinating session triages each one by the same bar:
+a small no-input fix joins the sweep on its own branch, or rides along when it is a line or two in code the branch already changes;
+anything else is filed as an issue.
 
 If a fix turns out to need a decision after all, stop that issue, leave its branch as a draft PR, and ask.
 Do not guess and merge.
@@ -64,7 +67,7 @@ Review changes with real logic, shared state, concurrency, persistence, or an im
 Skip it for mechanical, documentation-only, or obviously correct one-line changes.
 
 A review is independent: a different agent from the implementer, using the tool the project contract names.
-Its fixes stay within the diff under review; anything else it finds goes to the report.
+Its fixes stay within the diff under review; anything else it finds goes to the coordinating session, as above.
 
 ## Merge
 
@@ -77,7 +80,7 @@ Clean up worktrees and branches as the project contract says.
 
 ## Report
 
-- **Merged:** each PR with the issues it closes.
+- **Merged:** each PR with the issues it closes, and any problems it fixed that had no issue.
 - **Open:** each PR left unmerged and what blocks it.
 - **Needs input:** each skipped issue with the specific question that blocks it.
 - **Other:** issues that look already fixed or obsolete, and issues filed during the sweep.
