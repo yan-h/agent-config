@@ -11,6 +11,8 @@ and skills stay in the project that owns them.
 - `global/claude/CLAUDE.md` — imports the shared defaults, then adds Claude-only sections.
 - `global/claude/statusline.sh` — Claude Code status line: location, model, effort, running
   agents, context, and the 5h/7d quota meters, which it also logs to `~/.claude/quota-probe.jsonl`.
+- `global/claude/remote-control-at-login.sh` and `com.yan.claude-remote-control.plist` — macOS
+  LaunchAgent that starts `claude remote-control` in listed projects at login, inside tmux.
 - `skills/` — reusable skills shared by agent hosts.
 - `scripts/` — repository maintenance helpers.
 - Root `AGENTS.md` — instructions for maintaining this repository.
@@ -64,6 +66,22 @@ ln -s ~/projects/agent-config/global/claude/statusline.sh ~/.claude/statusline.s
 
 It needs `jq`; the optional `ant` CLI refreshes its context-window table.
 `QUOTA_PROBE=0` turns off the quota log.
+
+To restart `claude remote-control` servers at login on macOS, link the script,
+list one project per line (optionally followed by `claude remote-control` flags),
+and load the LaunchAgent. It needs `tmux`.
+
+```sh
+ln -s ~/projects/agent-config/global/claude/remote-control-at-login.sh ~/.claude/remote-control-at-login.sh
+printf '%s\n' '~/projects/app --spawn worktree' > ~/.claude/remote-control-projects
+cp ~/projects/agent-config/global/claude/com.yan.claude-remote-control.plist ~/Library/LaunchAgents/
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.yan.claude-remote-control.plist
+```
+
+Each server runs in its own window of the tmux session `claude-rc`; see them with
+`tmux attach -t claude-rc`. The project list stays on the machine, out of this repository.
+Rerun the script to start servers for newly listed projects; it skips running ones.
+Its log is `~/.claude/remote-control-at-login.log`.
 
 Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.

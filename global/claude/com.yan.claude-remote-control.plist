@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.yan.claude-remote-control</string>
+
+	<!-- launchd does not expand ~ or $HOME, so a shell resolves the linked script. -->
+	<key>ProgramArguments</key>
+	<array>
+		<string>/bin/zsh</string>
+		<string>-c</string>
+		<string>exec "$HOME/.claude/remote-control-at-login.sh"</string>
+	</array>
+
+	<!-- Run once at login; the Remote Control servers live on in tmux, not under launchd. -->
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
+</plist>
