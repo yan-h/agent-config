@@ -6,7 +6,9 @@ projects and host tools.
 - Put shared global defaults in `global/AGENTS.md` and link each host's
   supported global instruction file to that source.
 - Put host-specific global defaults in `global/<host>/AGENTS.md` only when
-  needed; do not duplicate shared guidance there.
+  needed; do not duplicate shared guidance there. Claude's are rule files in
+  `global/claude/rules/`, because `~/.claude/CLAUDE.md` is already the shared
+  file and Claude Code loads `~/.claude/rules/` beside it.
 - Keep this root file focused on maintaining the repository; it is not the
   file installed as global user guidance.
 - Keep credentials, session history, caches, and private information out of

@@ -8,6 +8,7 @@ and skills stay in the project that owns them.
 
 - `global/AGENTS.md` — shared personal defaults for coding agents across projects.
 - `global/codex/AGENTS.md` — symlink to the shared defaults, preserving existing installs.
+- `global/claude/rules/` — Claude-only defaults, one rule file each, loaded alongside the shared file.
 - `skills/` — reusable skills shared by agent hosts.
 - `scripts/` — repository maintenance helpers.
 - Root `AGENTS.md` — instructions for maintaining this repository.
@@ -45,6 +46,14 @@ ln -s ~/projects/agent-config/global/AGENTS.md ~/.codex/AGENTS.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.claude/CLAUDE.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.gemini/GEMINI.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
+```
+
+Claude also loads every file in `~/.claude/rules/` in every project.
+Link each Claude-only rule individually:
+
+```sh
+mkdir -p ~/.claude/rules
+ln -s ~/projects/agent-config/global/claude/rules/subagent-waits.md ~/.claude/rules/subagent-waits.md
 ```
 
 Use the actual checkout path if it differs from the example.
