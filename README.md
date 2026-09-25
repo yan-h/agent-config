@@ -109,6 +109,9 @@ this public repository.
 - `audit-merges` — inspect a combined merge range for defects that emerge
   only when otherwise-correct branches interact. Owner-invoked: a session
   never starts one for itself, and a host that can enforce that should.
+- `sweep-issues` — fix and merge every open issue that needs no owner input,
+  asking simple decisions up front and reporting the rest. Owner-invoked, and
+  invoking it grants merge permission for the run.
 
 ## Add a skill
 
