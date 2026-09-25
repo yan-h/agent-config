@@ -9,6 +9,8 @@ and skills stay in the project that owns them.
 - `global/AGENTS.md` — shared personal defaults for coding agents across projects.
 - `global/codex/AGENTS.md` — symlink to the shared defaults, preserving existing installs.
 - `global/claude/CLAUDE.md` — imports the shared defaults, then adds Claude-only sections.
+- `global/claude/statusline.sh` — Claude Code status line: location, model, effort, running
+  agents, context, and the 5h/7d quota meters, which it also logs to `~/.claude/quota-probe.jsonl`.
 - `skills/` — reusable skills shared by agent hosts.
 - `scripts/` — repository maintenance helpers.
 - Root `AGENTS.md` — instructions for maintaining this repository.
@@ -48,6 +50,20 @@ ln -s ~/projects/agent-config/global/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.gemini/GEMINI.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
 ```
+
+For Claude's status line, link the script and point `statusLine` in
+`~/.claude/settings.json` at the link:
+
+```sh
+ln -s ~/projects/agent-config/global/claude/statusline.sh ~/.claude/statusline.sh
+```
+
+```json
+"statusLine": { "type": "command", "command": "~/.claude/statusline.sh", "refreshInterval": 2 }
+```
+
+It needs `jq`; the optional `ant` CLI refreshes its context-window table.
+`QUOTA_PROBE=0` turns off the quota log.
 
 Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.
