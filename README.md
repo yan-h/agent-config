@@ -112,9 +112,14 @@ this public repository.
 - `sweep-issues` — fix and merge every open issue that needs no owner input,
   asking simple decisions up front and reporting the rest. Owner-invoked, and
   invoking it grants merge permission for the run.
-- `review-and-merge` — review one PR if its diff warrants it, fix what the
-  review confirms, wait for its checks, then merge. Owner-invoked, and
-  invoking it grants merge permission for that PR.
+- `review-and-merge` — review one PR for correctness and design if its diff
+  warrants it, fix what the review confirms, wait for its checks, then merge.
+  Makes design adjustments itself; a verdict to rethink the approach stops it
+  for the owner. Owner-invoked, and invoking it grants merge permission for
+  that PR.
+- `design-review` — review a change for correctness and for whether another
+  design would leave less long-term debt, weighing upfront cost against
+  maintainability. Read-only; the owner picks which alternatives to take.
 
 ## Add a skill
 
