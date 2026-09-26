@@ -1,6 +1,6 @@
 ---
 name: review-and-merge
-description: Review one pull request if its diff warrants a review, fix what the review confirms, wait for its checks, then merge it. Started only by the repository owner invoking it explicitly.
+description: Review one pull request for correctness and design if its diff warrants a review, fix what the review confirms, wait for its checks, then merge it. Started only by the repository owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
@@ -35,10 +35,18 @@ a different agent from whoever wrote the change, reading the whole diff for corr
 Use the review tool the project contract names;
 if it names none, use whatever review command the host provides, or else a fresh subagent briefed with the diff and the project contract.
 
+Alongside it, run the design pass of the `design-review` skill:
+a fresh subagent on the strongest model, briefed with the PR, the project contract and that skill's Design section, returning its verdict and alternatives.
+
 Fix every finding the review confirms, and fix or answer the uncertain ones in the PR description.
 Keep fixes inside the PR's scope; anything else found along the way is reported, not fixed here.
 A finding that is a design question rather than a defect stops the run and goes to the owner.
 Commit and push the fixes, and redo any build or check the project contract owes for them.
+
+The design verdict decides whether the run continues.
+Merge as is: continue.
+Merge and follow up: file each follow-up as an issue, link them from the PR, and continue.
+Adjust within this change, or rethink: stop, leave the PR open, and report the alternatives with the recommendation, for the owner to choose.
 
 ## Wait for the checks
 
@@ -55,5 +63,5 @@ Confirm the merge landed on the remote primary branch before reporting, and clea
 
 ## Report
 
-The merge commit, whether the PR was reviewed and why, and what the review changed.
+The merge commit, whether the PR was reviewed and why, what the review changed, the design verdict, and any follow-up issues filed.
 If the PR is left open, say so and name what blocks it.
