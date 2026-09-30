@@ -115,8 +115,8 @@ this public repository.
 - `review-and-merge` — review one PR for correctness and design if its diff
   warrants it, fix what the review confirms, wait for its checks, then merge.
   Makes design adjustments itself; a verdict to rethink the approach stops it
-  for the owner. Owner-invoked, and invoking it grants merge permission for
-  that PR.
+  for the owner. Owner-requested: the owner's own message naming it, alone or
+  chained after other work, grants merge permission for that PR.
 - `design-review` — review a change for correctness and for whether another
   design would leave less long-term debt, weighing upfront cost against
   maintainability. Read-only; the owner picks which alternatives to take.
