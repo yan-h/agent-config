@@ -120,6 +120,11 @@ this public repository.
 - `design-review` — review a change for correctness and for whether another
   design would leave less long-term debt, weighing upfront cost against
   maintainability. Read-only; the owner picks which alternatives to take.
+- `audit-drift` — audit every area of a project, or one named area, for drift
+  from the owner's intent: machinery whose reason has gone, frozen values,
+  tests guarding a mechanism, stale prose. Reports a few yes/no questions per
+  area in a piecemeal tracking issue and records the owner's answers in
+  per-area intent records. Owner-invoked.
 
 ## Add a skill
 
