@@ -80,8 +80,12 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.yan.claude-remote-co
 
 Each server runs in its own window of the tmux session `claude-rc`; see them with
 `tmux attach -t claude-rc`. The project list stays on the machine, out of this repository.
-Rerun the script to start servers for newly listed projects; it skips running ones.
-Its log is `~/.claude/remote-control-at-login.log`.
+launchd reruns the script every 5 minutes, which starts servers for newly listed projects
+and brings back the whole set if the tmux server is gone; it skips every window that exists,
+so a server that exited leaves its window with its last output rather than restarting.
+To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-control` rather than
+running the script from a Claude session, where tmux would belong to the app.
+Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing.
 
 Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.
