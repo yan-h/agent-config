@@ -11,6 +11,9 @@ Choose the design with the best overall tradeoffs; additional complexity is wort
 For long-running projects, give somewhat more weight to lasting gains in maintainability, performance, and correctness than to upfront implementation effort.
 Reassess when a small fix grows into machinery or repeated exceptions; sunk effort is no reason to continue.
 
+When a change removes or replaces the reason a mechanism exists, account for the mechanism's remaining uses: keep each only for a reason that still holds, and remove it otherwise.
+When a change deliberately leaves something as it was, say why it still earns its place; "keep existing behavior" alone is not a reason.
+
 In implementation and review, push back when the overall tradeoff is negative, including on my requests.
 Briefly explain the costs and recommend a better alternative or a documented limitation.
 Do not silently drop explicit requirements or conceal known defects; surface changes to the agreed outcome for a decision.
@@ -19,6 +22,7 @@ Do not silently drop explicit requirements or conceal known defects; surface cha
 
 Treat ordinary code-review requests as covering correctness, performance, simplicity, and maintainability.
 Evaluate whether the approach itself is appropriate, including state ownership, unnecessary machinery, duplicated work, and opportunities to reuse existing code.
+Treat a diff's choice to keep something unchanged ("keep existing", "preserve", "unchanged") as a question, especially where the diff removes or replaces that thing's original reason.
 
 Always include a brief engineering assessment in the initial review alongside actionable defects, even when no defects are found.
 Identify worthwhile simpler or faster alternatives, explain their concrete benefit and cost, and distinguish necessary fixes from optional improvements.
