@@ -9,7 +9,9 @@ Run from inside the repository:
 Each change landing on the branch counts once: merges are read as their whole
 first-parent diff, under their PR's title, so a merged branch and a squashed PR
 count the same. Each path is followed through renames to the file it is now;
-a path that was deleted or replaced counts for nothing.
+a path that was deleted or replaced counts for nothing. A change that moves a
+file AND adds a new one at the old path shows to git as an edit plus an add,
+so that one change is not followed.
 """
 
 from __future__ import annotations
@@ -23,6 +25,7 @@ import subprocess
 import sys
 
 FIX = re.compile(r"\b(fix|fixes|fixed|bug|bugs)\b", re.IGNORECASE)
+MERGE = re.compile(r"^Merge (pull request|branch|remote-tracking branch) ")
 GONE = None  # an older path whose file no longer exists under any name
 
 
@@ -68,7 +71,9 @@ def changes(ref: str, window: list[str]) -> list[tuple[str, str, list[str]]]:
         if line.startswith("@@"):
             settle()
             sha, _, subject = line[2:].partition(" ")
-            commits.append((sha, titles.get(sha, subject), []))
+            if MERGE.match(subject):
+                subject = titles.get(sha, subject)
+            commits.append((sha, subject, []))
         elif line.strip() and commits:
             fields = line.split("\t")
             status, path = fields[0], fields[-1]
@@ -82,6 +87,11 @@ def changes(ref: str, window: list[str]) -> list[tuple[str, str, list[str]]]:
                 gone.append(path)
     settle()
     return commits
+
+
+def line_count(ref: str, path: str) -> str:
+    result = subprocess.run(["git", "cat-file", "-p", f"{ref}:{path}"], capture_output=True)
+    return str(result.stdout.count(b"\n")) if result.returncode == 0 else "?"
 
 
 def main() -> int:
@@ -119,7 +129,7 @@ def main() -> int:
         if not files:
             continue
         hot.update(files)
-        if FIX.search(subject):
+        if FIX.search(subject) and not MERGE.match(subject):
             fixes.update(files)
         if 2 <= len(files) <= args.max_files:
             for a, b in itertools.combinations(files, 2):
@@ -133,8 +143,8 @@ def main() -> int:
         print(f"# limited to: {', '.join(prefixes)}")
     print("\n## Hotspots (changes, of them with a fix-like subject, lines now)")
     for path, count in hot.most_common(args.top):
-        lines = git("cat-file", "-p", f"{args.ref}:{path}").count("\n")
-        print(f"{count:5} {fixes[path]:4} {lines:6}  {path}")
+        lines = line_count(args.ref, path)
+        print(f"{count:5} {fixes[path]:4} {lines:>6}  {path}")
     print("\n## Change coupling across directories (changes together)")
     for (a, b), count in pairs.most_common(args.top):
         print(f"{count:5}  {a}  +  {b}")
