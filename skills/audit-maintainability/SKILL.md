@@ -49,20 +49,21 @@ and the open tracking issues and rework issues from earlier audits, so a candida
 
 Before any auditor reads code, survey the history of the primary branch, over the last year or the last few hundred commits,
 whichever the project's pace makes more telling.
-Fetch first, then name the remote primary branch explicitly, as below; in a feature worktree `HEAD` is the wrong history, and a local primary branch may be stale.
+Fetch first, then name the remote primary branch explicitly, as below, or the local one if the project has no remote;
+in a feature worktree `HEAD` is the wrong history, and a local primary branch may be stale.
 This is bounded, mechanical work: do it in the calling session or in one agent on a fast model.
 
 - **Hotspots:** the files changed most often, read beside their size.
 - **Change coupling:** files, especially in different areas, that keep changing in the same commit.
 - **Fix clusters:** where fixes land.
   Prefer the project's bug label or linked bug issues where it has them;
-  subject-line words are a rough signal, since "fix" is also an everyday verb.
+  subject-line words are a rough signal, since "fix" is also an everyday verb, so read each commit before citing it.
 - **Scattered changes:** PRs that touched many files to change one concept.
 
 ```sh
 git log origin/<primary> --since=1.year --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
 git log origin/<primary> --since=1.year --format='%H %s' | grep -iwE 'fix(es|ed)?|bug' | cut -d' ' -f1 \
-  | xargs -n1 git show --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
+  | xargs -r -n1 git show --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
 ```
 
 Split the map by area.

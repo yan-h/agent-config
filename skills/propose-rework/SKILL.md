@@ -83,8 +83,8 @@ Then:
 
 - **Problem:** the cost today, with evidence.
 - **Designs:** target, cheaper alternative and doing nothing, each with what it removes and what it costs.
-- **Behaviour changes:** the owner's yes/no questions, each with a recommendation.
 - **Spike:** what it tested and what it showed, or why none was needed.
+- **Behaviour changes:** the owner's yes/no questions, each with a recommendation.
 - **Migration:** the steps, each sized roughly as a PR, and the point of no return.
 - **Cost and risk:** total upfront cost, what is left if the work stops after any step,
   and the signs during the migration that should stop it.
