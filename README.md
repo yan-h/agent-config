@@ -184,3 +184,26 @@ to a sibling checkout outside the consumer repository.
 A skill belongs here when its behavior is shared. Exact package names,
 build commands, artifact locations, and repository history normally belong
 in the consuming project's `AGENTS.md`, `CLAUDE.md`, or local skill.
+
+## Session lifecycle installation
+
+`skills/session-lifecycle` is the shared completion procedure and executable implementation.
+Projects declare builds and deliverables in `.agent-lifecycle.json` and provide their own loader integration.
+After installing the global instruction revision, new sessions of every linked host follow the same procedure.
+Already-running sessions need an explicit update; cloud jobs need the project-local contract.
+
+Install the skill links and hourly deterministic macOS fallback with:
+
+```sh
+python3 skills/session-lifecycle/scripts/install.py --repo /path/to/project --repo /path/to/another-project
+```
+
+This installs `com.yan.agent-lifecycle` and a local project list; it does not modify unrelated agent hooks.
+The job waits until each main checkout contains the lifecycle integration, so installing before project PRs merge is safe.
+Its runtime remains linked to this source checkout: after installing from a PR worktree, reinstall from main before removing that worktree.
+The log is `~/Library/Logs/agent-lifecycle.log`.
+To stop it, use `launchctl bootout gui/$(id -u)/com.yan.agent-lifecycle`.
+
+Run `python3 -B skills/session-lifecycle/scripts/test_lifecycle.py` alongside `python3 scripts/check.py` when changing the lifecycle.
+The completion command is for the owning agent; the fallback is a backstop, not permission to discard active work.
+Codex source release remains an app action, and protected work can exceed the artifact budget.
