@@ -30,6 +30,7 @@ Whether a mechanism's reason still holds is drift; when a finding turns out to b
 It is not a style review either: naming, formatting and local tidiness are out of scope.
 
 **Debt counts only when it taxes changes that happened or that the roadmap commits to.**
+A project with no roadmap still has its history: weigh debt by how often the area changed over the last year.
 Every finding cites the commits or PRs that paid for it — edits repeated in several places, fixes landing in the same spot —
 or the roadmap item it would make costly.
 Structure that looks wrong but has cost nothing and blocks nothing is listed as seen and left, not proposed for change.
@@ -42,6 +43,8 @@ With none, audit every area.
 Use the area map from the last area-based audit's tracking issue if there is one, so findings from different audits line up;
 otherwise map the project as the `audit-drift` skill's "Choose the scope" section describes.
 Read each area's intent record if it exists.
+Earlier audits' "checked and healthy" lists hold only for what they checked:
+a performance audit's clean list says nothing about structure, so pass an auditor only what bears on its question.
 Read the last maintainability audit's tracking issue too, for its seen-and-left list,
 and the open tracking issues and rework issues from earlier audits, so a candidate already listed is linked rather than listed twice.
 
@@ -49,22 +52,35 @@ and the open tracking issues and rework issues from earlier audits, so a candida
 
 Before any auditor reads code, survey the history of the primary branch, over the last year or the last few hundred commits,
 whichever the project's pace makes more telling.
-Fetch first, then name the remote primary branch explicitly, as below, or the local one if the project has no remote;
+Fetch first, then name the remote primary branch explicitly, or the local one if the project has no remote;
 in a feature worktree `HEAD` is the wrong history, and a local primary branch may be stale.
-This is bounded, mechanical work: do it in the calling session or in one agent on a fast model.
 
-- **Hotspots:** the files changed most often, read beside their size.
-- **Change coupling:** files, especially in different areas, that keep changing in the same commit.
-- **Fix clusters:** where fixes land.
-  Prefer the project's bug label or linked bug issues where it has them;
-  subject-line words are a rough signal, since "fix" is also an everyday verb, so read each commit before citing it.
-- **Scattered changes:** PRs that touched many files to change one concept.
+Run [`scripts/history-map.py`](scripts/history-map.py) from inside the project, once for the whole project and once per area with `--path`:
 
 ```sh
-git log origin/<primary> --since=1.year --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
-git log origin/<primary> --since=1.year --format='%H %s' | grep -iwE 'fix(es|ed)?|bug' | cut -d' ' -f1 \
-  | xargs -r -n1 git show --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
+python3 <this skill's directory>/scripts/history-map.py origin/<primary> --since "1 year ago" \
+  --exclude '^docs/' --exclude '\.lock$' [--path <file or directory> ...]
 ```
+
+It follows renames to each file's current path, which plain `git log --name-only` does not:
+a project that renamed its crates otherwise splits each file's history in two and hides its hotspots.
+It counts each change that landed once, whether merged or squashed, under its PR's title.
+`--max-count N` takes the last N changes instead of a date. It reports:
+
+- **Hotspots:** the files changed most often, beside their size.
+- **Change coupling:** files in different directories that keep changing together.
+- **Fix clusters:** changes with a fix-like subject.
+  A rough signal at best — in the first trial most hits were feature PRs or predated a rewrite.
+  Prefer the project's bug label or linked bug issues where it has them, and read each commit before citing it.
+- **Widest changes:** the changes that touched the most files.
+  The ones that changed a single concept, such as adding or removing one setting, are the most telling evidence the audit gets:
+  hand the auditor their file lists.
+
+Exclude generated files, lockfiles and prose the project regenerates.
+For an area's slice pass every file and directory it spans; an area that does not map onto paths gets the whole map, and the auditor picks its files from it.
+A file that only lists submodules can rank as a hotspot on history from before it was split up;
+follow it into its directory before reading anything into it.
+This is bounded, mechanical work: do it in the calling session or in one agent on a fast model.
 
 Split the map by area.
 It tells each auditor where reading will pay, and it is the evidence the findings cite.
