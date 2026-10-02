@@ -12,6 +12,10 @@ Build only in a temporary directory of your own, removed when you finish, and ne
 ## Start from the profile, not the code
 
 Read the profile you were given and name where the time and memory go for this workload.
+Check what each profiled variant actually changed before trusting its delta:
+a setting that no longer exists, or a configuration that fell back to defaults, measures something else.
+Then establish which stages of the pipeline overlap and which one the user waits on;
+a stage's share of the frame says nothing until you know whether it is on the critical path.
 Read the code on that path first.
 A slow pattern off the hot path is not a finding, however slow it looks.
 
@@ -32,6 +36,9 @@ A slow pattern off the hot path is not a finding, however slow it looks.
    Lock contention, independent work done serially, more threads than cores.
 6. **Startup.**
    Work done eagerly for features the session may never use.
+7. **GPU work.**
+   Overdraw from padded or overlapping geometry, full-screen passes that could be skipped or run at lower resolution,
+   a pass redrawing pixels an earlier one already produced, and bandwidth from large or high-precision targets.
 
 ## Evidence
 

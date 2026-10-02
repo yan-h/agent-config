@@ -1,7 +1,8 @@
 # Maintainability auditor brief
 
 Find structure in one area that makes this project's actual changes more costly than they need to be.
-Debt counts only when it taxes changes that happened or that the roadmap commits to.
+Debt counts only when it taxes changes that happened or that the roadmap commits to;
+with no roadmap, weigh it by how often the area changed over the last year.
 Read the area's intent record and the project contract you were given.
 
 Audit the primary branch, read-only.
@@ -11,9 +12,14 @@ use the issues only at the end, to drop findings already filed.
 
 ## Start from the history
 
-You were given where change lands in this area: hotspots, coupled files, fix clusters, scattered changes.
+You were given where change lands in this area: hotspots, coupled files, fix clusters, and the widest changes.
 For each, read the commits and PRs behind it and ask why that change had to touch those places, or had to be fixed again.
 The answer names the structure.
+
+The most telling evidence is the file list of a change that added or removed one concept, such as one setting:
+every file it had to touch is a hop that concept costs, and the hops it did not need are the finding.
+Read those changes' `git show --stat` first.
+A file that only lists submodules counts every change below it; follow it into its directory.
 Spend most of your time here; structure no change has paid for is the least valuable thing to find.
 
 ## What to look for on those paths
@@ -39,6 +45,9 @@ The shapes that cost most across a whole area:
 When a finding is really a reason that moved — a mechanism kept after its case went — mark it as drift and keep going.
 
 ## Evidence bar
+
+Sample before counting.
+A raw count of pattern matches — struct literals, call sites — misleads until a sample shows what the matches are.
 
 Each finding names the commits or PRs that paid for it, or the roadmap item it would make costly,
 and says what the next likely change in the area would cost now and after the fix.

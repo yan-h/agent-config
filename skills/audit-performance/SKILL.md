@@ -44,15 +44,33 @@ and the open tracking issues and rework issues from earlier audits, so a candida
 ## Measure first
 
 Before anyone reads code for slow patterns, build per the contract, run each workload, and profile it.
+
+**Measure the whole task the user waits for before any stage of it**:
+the export with its real encoder, the request through its real database, the launch to the first usable frame.
+Then break it into stages and find which ones overlap.
+A stage off the critical path is not a finding however much it speeds up;
+in the first trial a 34% faster drawing loop vanished behind an encoder fifteen times slower,
+and an earlier audit had measured the drawing with the encoder deliberately removed.
+
 Record wall time, memory, and where the time goes.
 Run each measurement enough times to know its noise, and report the median and spread;
 a difference inside the noise is not a finding.
+Compare A against B in alternating back-to-back pairs rather than in separate rounds,
+and record the machine's load beside every number.
+On a shared machine the load can swing tenfold within an hour; if the noise is larger than the effect, say so rather than ranking by it.
+
+**Check that every variant changed only what it claims.**
+Read its whole output for warnings and fallbacks, not just the timing line, and confirm each setting still exists:
+options named in earlier audits get renamed or deleted, and a configuration that fails to parse may silently run at defaults.
+In the first trial a deleted style fell back to the default look at a smaller size and passed for a 3 ms saving.
 
 If the project has no repeatable way to run a workload, the first deliverable is a minimal harness that does.
 It is what makes every later finding provable, and it stays useful after the audit.
 
-**Only the calling agent takes timings that decide anything, one at a time, and not while a surveyor is building or profiling.**
+**Only the calling agent takes timings that decide anything, one at a time,
+and not while a surveyor or any process of the caller's own is building, profiling or encoding.**
 Parallel agents running builds and benchmarks on the same machine distort each other's numbers.
+Stop the caller's own background runs by PID, children included, and check they are gone before the next timing.
 Surveyors may profile to locate cost; they do not produce the numbers a finding rests on.
 
 ## Survey, in parallel
