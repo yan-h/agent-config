@@ -129,6 +129,19 @@ this public repository.
   tests guarding a mechanism, stale prose. Reports a few yes/no questions per
   area in a piecemeal tracking issue and records the owner's answers in
   per-area intent records. Owner-invoked.
+- `audit-performance` — audit every workload of a project, or one named area
+  or workload, for costs a user would notice. Measures before reading code,
+  proves each finding with a measurement, fixes the local ones with numbers
+  before and after, and reports behaviour-changing trades as questions and
+  larger changes as rework candidates. Owner-invoked.
+- `audit-maintainability` — audit every area of a project, or one named area,
+  for structure that makes its actual changes costly, citing the commits that
+  paid for it. Files mechanical cleanups and ranks rework candidates by net
+  benefit. Owner-invoked.
+- `propose-rework` — design one large rework, from an audit's candidate or a
+  named problem, as a costed proposal: target and cheaper alternative,
+  behaviour changes as owner questions, an incremental migration, and a spike
+  of the riskiest assumption. Changes no code beyond the spike.
 
 ## Add a skill
 
