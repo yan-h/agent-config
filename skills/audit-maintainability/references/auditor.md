@@ -1,7 +1,8 @@
 # Maintainability auditor brief
 
 Find structure in one area that makes this project's actual changes more costly than they need to be.
-Read this skill's `SKILL.md` for what counts, and the area's intent record and the project contract you were given.
+Debt counts only when it taxes changes that happened or that the roadmap commits to.
+Read the area's intent record and the project contract you were given.
 
 Audit the primary branch, read-only.
 Do not edit files, commit, or open a pull request.

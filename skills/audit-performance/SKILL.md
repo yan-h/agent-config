@@ -17,7 +17,7 @@ where it says nothing about intent records, use `docs/intent/<area>.md`.
 Measure the build users run, not a debug build, unless the contract says otherwise.
 
 This audit shares its area map, report layout and answer records with the `audit-drift` skill, installed beside this one.
-Read that skill's `SKILL.md` for the sections named below; if it is not installed, say so and lay the report out as an index followed by one self-contained section per workload.
+Read that skill's `SKILL.md` for the sections named below; if it is not installed, say so and stop.
 
 ## What counts
 
@@ -37,7 +37,7 @@ Usually three to eight.
 Put the list at the top of the report so the owner can correct it next time.
 
 Intent records are kept per area, so place each workload in the areas its hot path crosses:
-use the area map from the last audit's tracking issue if there is one, otherwise map the project as `audit-drift`'s "Choose the scope" section describes.
+use the area map from the last area-based audit's tracking issue if there is one, otherwise map the project as `audit-drift`'s "Choose the scope" section describes.
 Read those areas' intent records, so a trade the owner has already declined is not asked again,
 and the open tracking issues and rework issues from earlier audits, so a candidate already listed is linked rather than listed twice.
 
@@ -51,7 +51,7 @@ a difference inside the noise is not a finding.
 If the project has no repeatable way to run a workload, the first deliverable is a minimal harness that does.
 It is what makes every later finding provable, and it stays useful after the audit.
 
-**Only the calling agent takes timings that decide anything, one at a time.**
+**Only the calling agent takes timings that decide anything, one at a time, and not while a surveyor is building or profiling.**
 Parallel agents running builds and benchmarks on the same machine distort each other's numbers.
 Surveyors may profile to locate cost; they do not produce the numbers a finding rests on.
 
@@ -68,7 +68,9 @@ Surveyors are read-only: they return candidates and suspicions, and do not edit,
 A candidate becomes a finding only when a measurement on a realistic workload shows its cost.
 Anything unmeasured is listed under **Suspicions** with the measurement that would settle it, and not fixed.
 
-Sort the findings:
+Sort the findings.
+Local fixes are made in the run because the baseline and harness that prove them exist only then;
+they go up as PRs and are not merged here.
 
 - **Behaviour-preserving and local:** fix it, measure again, and keep the fix only if the gain clears the noise and justifies its complexity.
   The project's tests must still pass; a fix that changes what a user sees belongs in the next group instead.

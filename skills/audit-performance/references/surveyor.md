@@ -7,7 +7,7 @@ You are read-only.
 Do not edit files, commit, or open a pull request.
 You may profile to locate cost, but the calling agent takes the timings that decide findings;
 do not report your own timings as a finding's numbers.
-Build only in a directory of your own, and never swap any shared installed build.
+Build only in a temporary directory of your own, removed when you finish, and never swap any shared installed build.
 
 ## Start from the profile, not the code
 

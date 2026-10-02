@@ -39,7 +39,7 @@ Structure that looks wrong but has cost nothing and blocks nothing is listed as 
 The text after the invocation names one area (`$ARGUMENTS` in Claude, the text after `$audit-maintainability` in Codex).
 
 With none, audit every area.
-Use the area map from the last audit's tracking issue if there is one, so findings from different audits line up;
+Use the area map from the last area-based audit's tracking issue if there is one, so findings from different audits line up;
 otherwise map the project as the `audit-drift` skill's "Choose the scope" section describes.
 Read each area's intent record if it exists.
 Read the last maintainability audit's tracking issue too, for its seen-and-left list,
@@ -49,17 +49,20 @@ and the open tracking issues and rework issues from earlier audits, so a candida
 
 Before any auditor reads code, survey the history of the primary branch, over the last year or the last few hundred commits,
 whichever the project's pace makes more telling.
-Name the primary branch's ref explicitly, as below; in a feature worktree `HEAD` is the wrong history.
+Fetch first, then name the remote primary branch explicitly, as below; in a feature worktree `HEAD` is the wrong history, and a local primary branch may be stale.
 This is bounded, mechanical work: do it in the calling session or in one agent on a fast model.
 
 - **Hotspots:** the files changed most often, read beside their size.
 - **Change coupling:** files, especially in different areas, that keep changing in the same commit.
-- **Fix clusters:** where commits and PRs described as fixes land.
+- **Fix clusters:** where fixes land.
+  Prefer the project's bug label or linked bug issues where it has them;
+  subject-line words are a rough signal, since "fix" is also an everyday verb.
 - **Scattered changes:** PRs that touched many files to change one concept.
 
 ```sh
-git log <primary> --since=1.year --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
-git log <primary> --since=1.year -i -E --grep='fix|bug' --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
+git log origin/<primary> --since=1.year --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
+git log origin/<primary> --since=1.year --format='%H %s' | grep -iwE 'fix(es|ed)?|bug' | cut -d' ' -f1 \
+  | xargs -n1 git show --format= --name-only | sed '/^$/d' | sort | uniq -c | sort -rn | head -40
 ```
 
 Split the map by area.
@@ -97,4 +100,4 @@ Lay the report out as the `audit-drift` skill's "Report so it can be taken piece
 with the rework candidates ranked together after the index, by net benefit, since they often cross areas.
 List the auditors' drift items in their area's section, for the next drift audit.
 Record the owner's answers as that skill's "Record the answers" section describes;
-a rework the owner has declined is recorded with the reason, so it is not proposed again unchanged.
+a rework the owner has declined is recorded with the reason in every area it touches, so it is not proposed again unchanged.
