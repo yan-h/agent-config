@@ -44,3 +44,13 @@ Keep simple tasks local when delegation would add more overhead than value.
 
 Follow each project's rules for worktrees and concurrent edits, and avoid overlapping writes.
 The main agent remains responsible for integrating and verifying delegated results and completing the task.
+
+## Session lifecycle
+
+The owning session finishes its workspace as part of finishing the task.
+Use the shared `session-lifecycle` skill when handing over completed work or releasing a resolved worktree.
+Keep project-specific build commands and required deliverables in that project's lifecycle configuration.
+Preserve loadable deliverables before reclaiming compilation output; keep unfinished source and paused work.
+Subagents sharing a checkout leave cleanup to their owner.
+Release worktrees through their host's ownership mechanism, and never create a permanent manual worktree lock.
+Report any blocked owner release rather than silently leaving cleanup unfinished.
