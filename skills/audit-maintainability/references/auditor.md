@@ -19,7 +19,7 @@ The answer names the structure.
 The most telling evidence is the file list of a change that added or removed one concept, such as one setting:
 every file it had to touch is a hop that concept costs, and the hops it did not need are the finding.
 Read those changes' `git show --stat` first.
-A file that only lists submodules counts every change below it; follow it into its directory.
+A file that only lists submodules can rank as a hotspot on history from before it was split up; follow it into its directory.
 Spend most of your time here; structure no change has paid for is the least valuable thing to find.
 
 ## What to look for on those paths

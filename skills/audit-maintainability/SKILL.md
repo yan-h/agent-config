@@ -59,12 +59,13 @@ Run [`scripts/history-map.py`](scripts/history-map.py) from inside the project, 
 
 ```sh
 python3 <this skill's directory>/scripts/history-map.py origin/<primary> --since "1 year ago" \
-  --exclude '^docs/' --exclude '\.lock$' [--path <area prefix> ...]
+  --exclude '^docs/' --exclude '\.lock$' [--path <file or directory> ...]
 ```
 
 It follows renames to each file's current path, which plain `git log --name-only` does not:
 a project that renamed its crates otherwise splits each file's history in two and hides its hotspots.
-It counts each change that landed once, whether merged or squashed, and reports:
+It counts each change that landed once, whether merged or squashed, under its PR's title.
+`--max-count N` takes the last N changes instead of a date. It reports:
 
 - **Hotspots:** the files changed most often, beside their size.
 - **Change coupling:** files in different directories that keep changing together.
@@ -75,8 +76,10 @@ It counts each change that landed once, whether merged or squashed, and reports:
   The ones that changed a single concept, such as adding or removing one setting, are the most telling evidence the audit gets:
   hand the auditor their file lists.
 
-Exclude generated files, lockfiles and prose the project regenerates, and pass the area's path prefixes for its slice.
-A file that is only a list of submodules counts every change below it; follow it into its directory before reading anything into it.
+Exclude generated files, lockfiles and prose the project regenerates.
+For an area's slice pass every file and directory it spans; an area that does not map onto paths gets the whole map, and the auditor picks its files from it.
+A file that only lists submodules can rank as a hotspot on history from before it was split up;
+follow it into its directory before reading anything into it.
 This is bounded, mechanical work: do it in the calling session or in one agent on a fast model.
 
 Split the map by area.
