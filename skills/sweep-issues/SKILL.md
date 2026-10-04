@@ -13,6 +13,9 @@ Codex does not, so in Codex this paragraph is the rule itself.
 **Invoking this skill is the owner's permission to merge.**
 It overrides a project default that nothing merges unless the owner asks, for this run only,
 and only for changes this procedure classifies as needing no owner input.
+Its review and merge steps follow sections of the `review-and-merge` skill, installed beside this one;
+following them does not invoke that skill, so they need no further permission.
+If it is not installed, say so and stop.
 
 Scope is every open issue, unless the invocation names issues or a label.
 In Claude that text is `$ARGUMENTS`; in Codex it is the text following `$sweep-issues`.
@@ -62,21 +65,20 @@ Sibling worktrees run the same gates, and a pattern kill such as `pkill -f` stop
 
 ## Review
 
-Review is at your discretion.
-Review changes with real logic, shared state, concurrency, persistence, or an implementer who reported uncertainty.
-Skip it for mechanical, documentation-only, or obviously correct one-line changes.
-
-A review is independent: a different agent from the implementer, using the tool the project contract names.
+Decide whether each branch needs a review as `review-and-merge`'s "Decide whether to review" section describes;
+an implementer who reported uncertainty is a reason to review.
+A review is the correctness review from that skill's "Review" section, without its design pass:
+a sweep takes only issues whose fix is already clear, so a design question means the issue was misclassified, and it goes to the owner as above.
 Its fixes stay within the diff under review; anything else it finds goes to the coordinating session, as above.
 
 ## Merge
 
 Merge one PR at a time, in the planned order.
-Rebase onto the current primary branch, rerun the gates on the rebased branch, merge by the project's method, and confirm the merge landed before starting the next.
+Before each, bring the current primary branch in by the project's method and rerun the gates;
+then wait for the checks and merge as `review-and-merge`'s "Wait for the checks" and "Merge" sections describe,
+starting the next only once it has landed.
 
-If the rebase conflicts beyond the change's own scope, or the gates fail for a reason outside it, leave the PR open and report it.
-
-Clean up worktrees and branches as the project contract says.
+If bringing the primary branch in conflicts beyond the change's own scope, or the gates fail for a reason outside it, leave the PR open and report it.
 
 ## Report
 
