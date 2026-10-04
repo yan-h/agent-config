@@ -2,6 +2,7 @@
 # Start `claude remote-control` in each project listed in ~/.claude/remote-control-projects,
 # one window per project in the tmux session `claude-rc`. Run at login and every 5 minutes by
 # com.yan.claude-remote-control.plist; safe to rerun, since it skips projects whose window exists.
+# Each window restarts its server a minute after it exits; the rerun only replaces closed windows.
 # Start it through launchd (`launchctl kickstart`), not from a Claude session's shell: a tmux
 # server started there belongs to that app and can go down with it.
 # List format: one directory per line, optionally followed by `claude remote-control` flags
@@ -54,8 +55,12 @@ while IFS= read -r line || [[ -n $line ]]; do
     waited=1
   fi
 
-  # Leave a shell behind when the server exits, so its last output stays readable in the window.
-  cmd="claude remote-control ${(j: :)${(@q)words[2,-1]}}; exec \"\$SHELL\" -l"
+  # The server exits on its own (e.g. "Persistent errors for 10 minutes, giving up"), and the
+  # rerun skips a window that exists, so the window restarts it rather than idling in a shell.
+  # Earlier output stays in the scrollback; each exit is also noted in the log.
+  cmd="while :; do claude remote-control ${(j: :)${(@q)words[2,-1]}}; s=\$?"
+  cmd+="; echo \"--- \$(date '+%F %T') \"${(q)name}\": remote-control exited (\$s), restarting in 60s\""
+  cmd+=" | tee -a ${(q)HOME}/.claude/remote-control-at-login.log; sleep 60; done"
   if tmux has-session -t "$session" 2>/dev/null; then
     tmux new-window -d -t "$session:" -n "$name" -c "$dir" "$cmd"
   else
