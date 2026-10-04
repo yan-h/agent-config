@@ -48,6 +48,13 @@ Keep simple tasks local when delegation would add more overhead than value.
 Follow each project's rules for worktrees and concurrent edits, and avoid overlapping writes.
 The main agent remains responsible for integrating and verifying delegated results and completing the task.
 
+## Pull requests
+
+Combine related changes into one pull request when they serve one purpose, touch the same code, or would be reviewed together; do not split one piece of work into a pull request per step.
+When an unmerged pull request for the same work is already open, add to it instead of opening another.
+Keep unrelated changes in separate pull requests so each can be reviewed, reverted, and merged on its own.
+Keep commits logically separated within a combined pull request.
+
 ## Session lifecycle
 
 The owning session finishes its workspace as part of finishing the task.
