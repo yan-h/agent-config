@@ -76,12 +76,11 @@
 #
 # COST. A `df` check gates everything and takes a few ms, so a session with
 # room to spare pays that and exits. Only under FREE_LOW_WATER_GB does the scan
-# run (~0.2s per worktree). Cache deletion is detached: a `target/debug` holds
-# tens of thousands of files, so deleting several synchronously would stall
-# session start for tens of seconds. Each dir is renamed aside (atomic, same
-# volume) and deleted by a background process; a leftover staging dir from a
-# killed run is swept by the next one. When session-lifecycle's `prune-cache`
-# is available it does the deletion instead, under the Cargo build locks.
+# run (~0.2s per worktree). Cache deletion goes through session-lifecycle's
+# `prune-cache`, synchronously and under the Cargo build locks. A `target/debug`
+# holds tens of thousands of files, so a run that prunes several can take tens
+# of seconds; the SessionStart hook's timeout allows for that, and the hourly
+# sweep does most of the pruning anyway.
 #
 # A worktree is REMOVED (tier 2) only when ALL of these hold:
 #   - it is REGISTERED, and a direct child of .claude/worktrees/ (never touch a
@@ -155,13 +154,14 @@
 # direct-child ownership also protects a Codex root configured below
 # `.claude/worktrees`: its `<id>/<repo>` worktrees are not Claude's to release.
 #
-# WIRING. A repository runs this through a thin `.claude/reclaim-worktrees.sh`
-# wrapper that does `exec bash <this file> "$@"`, passing stdin and the
-# environment through. The SessionStart hook runs that wrapper (JSON payload
-# on stdin, CLAUDE_PROJECT_DIR set), and session-lifecycle's `sweep` calls it
-# as the owner adapter (RECLAIM_FORCE=1, empty stdin, cwd the main checkout).
-# Also safe to run by hand, from the main checkout OR any worktree — it locates
-# the main checkout through `git worktree list` rather than trusting $PWD:
+# WIRING. session-lifecycle's `sweep` runs this file directly for every
+# repository with `.agent-lifecycle.json` (RECLAIM_FORCE=1, empty stdin, cwd
+# the main checkout). A repository's SessionStart hook and hand-runs go through
+# a thin `.claude/reclaim-worktrees.sh` wrapper that does
+# `exec bash <this file> "$@"`, passing stdin (the hook's JSON payload) and the
+# environment (CLAUDE_PROJECT_DIR) through. It is safe to run by hand from the
+# main checkout OR any worktree — it locates the main checkout through
+# `git worktree list` rather than trusting $PWD:
 #
 #   RECLAIM_DRY_RUN=1 .claude/reclaim-worktrees.sh   # explain, change nothing
 #   RECLAIM_FORCE=1   .claude/reclaim-worktrees.sh   # ignore the df gate
@@ -186,16 +186,14 @@
 set -uo pipefail
 
 # The lifecycle helper ships beside this file, so the default follows the
-# script wherever it is installed or invoked from.
+# script wherever it is installed or invoked from. Every removal and prune
+# goes through it, under its workspace lock and Cargo's build locks; there is
+# no path around it to keep tested.
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 LIFECYCLE_TOOL="${AGENT_LIFECYCLE_TOOL:-$SCRIPT_DIR/lifecycle.py}"
 remove_owned_worktree() {
   local path="$1"; shift
-  if [ -f "$LIFECYCLE_TOOL" ]; then
-    python3 "$LIFECYCLE_TOOL" --repo "$path" run -- git -C "$ROOT" worktree remove "$@" "$path"
-  else
-    git -C "$ROOT" worktree remove "$@" "$path"
-  fi
+  python3 "$LIFECYCLE_TOOL" --repo "$path" run -- git -C "$ROOT" worktree remove "$@" "$path"
 }
 
 MIN_IDLE_MINUTES=${RECLAIM_MIN_IDLE_MINUTES:-120}
@@ -298,11 +296,12 @@ if [ ! -d "$WT_DIR" ]; then
   exit 0
 fi
 
-# Sweep staging dirs a previous run left behind BEFORE the df gate: a killed
-# background delete is exactly the case where space is still held, so exiting
-# early on a "roomy" reading would strand it forever.
-# Only tier 1 stages anything, and it stages inside the worktree's own
-# `target/`. A `"$WT_DIR"/.reclaiming-*` arm was tried and removed: it would
+# TRANSITIONAL: earlier versions pruned by renaming a cache to
+# `target/.reclaiming-*` and deleting it in the background. Sweep any staging
+# dir such a run left behind, BEFORE the df gate: a killed background delete is
+# exactly the case where space is still held. Nothing creates these any more,
+# so this loop can go once no worktree on any machine holds one.
+# A `"$WT_DIR"/.reclaiming-*` arm was tried and removed: it would
 # have `rm -rf`'d anything at the top level whose NAME began `.reclaiming-`,
 # before every registration, session, lock and age check, so a Codex root
 # configured at `.claude/worktrees/.reclaiming-codex` would be deleted with all
@@ -507,20 +506,13 @@ open_pr_holds() {
   return 1
 }
 
-# Rename aside, then delete detached. The rename is atomic within the volume,
-# so cargo never observes a half-deleted cache even though the delete outlives
-# this script.
-detach_delete() {
+# session-lifecycle's `prune-cache` deletes the cache synchronously, holding the
+# workspace lock and Cargo's own lock for that profile, so it never deletes
+# from under a running build.
+prune_cache() {
   victim=$1
-  if [ -f "$LIFECYCLE_TOOL" ]; then
-    local cache_root="${victim%/target/*}" cache_path="target/${victim##*/}"
-    python3 "$LIFECYCLE_TOOL" --repo "$cache_root" prune-cache "$cache_path"
-    return $?
-  fi
-  staging="$(dirname "$victim")/.reclaiming-$$-$(basename "$victim")"
-  mv "$victim" "$staging" 2>/dev/null || return 1
-  nohup rm -rf "$staging" >/dev/null 2>&1 &
-  return 0
+  local cache_root="${victim%/target/*}" cache_path="target/${victim##*/}"
+  python3 "$LIFECYCLE_TOOL" --repo "$cache_root" prune-cache "$cache_path"
 }
 
 # The cwd of every process this user owns, read once per run and only when a
@@ -737,7 +729,7 @@ prune_caches() {
       continue
     fi
 
-    if detach_delete "$victim"; then
+    if prune_cache "$victim"; then
       pruned=$((pruned + 1))
       freed_kb=$((freed_kb + size_kb))
     fi

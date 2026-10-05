@@ -857,14 +857,16 @@ check_missing_git_link() {
   fi
 }
 
-# Repositories run this script through a thin `.claude/reclaim-worktrees.sh`
-# that does `exec bash <shared> "$@"`. ROOT, the main checkout and the
-# session's cwd must resolve the same through it in all three ways it is run:
-#   hook   SessionStart: JSON on stdin naming the session's cwd (here, inside
-#          the worktree), CLAUDE_PROJECT_DIR set, invoked from elsewhere
-#   sweep  session-lifecycle's owner adapter: empty stdin, no
-#          CLAUDE_PROJECT_DIR, cwd the main checkout
-#   hand   a hand-run from inside a worktree, which is then the session's own
+# ROOT, the main checkout and the session's cwd must resolve the same in all
+# three ways this script is run:
+#   hook   SessionStart, through a repository's thin `.claude/reclaim-worktrees.sh`
+#          that does `exec bash <shared> "$@"`: JSON on stdin naming the
+#          session's cwd (here, inside the worktree), CLAUDE_PROJECT_DIR set,
+#          invoked from elsewhere
+#   sweep  session-lifecycle's sweep, which runs this file directly: empty
+#          stdin, no CLAUDE_PROJECT_DIR, cwd the main checkout
+#   hand   a hand-run through the wrapper from inside a worktree, which is
+#          then the session's own
 check_wrapper() {
   work="$TMP/wrapper"
   main="$work/main"
@@ -898,11 +900,11 @@ check_wrapper() {
 
   out=$(cd "$main" && printf '' | env -u CLAUDE_PROJECT_DIR RECLAIM_DRY_RUN=1 \
     RECLAIM_FORCE=1 RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
-    bash "$wrapper" 2>&1)
+    bash "$SCRIPT" 2>&1)
   if grep -q "would remove .*w1" <<<"$out"; then
-    echo "✓ through a wrapper, the sweep's call resolves the main checkout"
+    echo "✓ the sweep's direct call resolves the main checkout"
   else
-    fail "through a wrapper, the sweep's call did not reach the worktree"
+    fail "the sweep's direct call did not reach the worktree"
     printf '%s\n' "$out" | sed 's/^/    /' >&2
   fi
 

@@ -291,7 +291,9 @@ def registered(repo):
 def resolved_heads(repo):
     # Network failure means retain publications; a budget is not permission to
     # discard a build awaiting review. Query by commit rather than branch name.
-    text = command(['gh', 'pr', 'list', '--state', 'all', '--limit', '1000',
+    # The limit is a ceiling on PR history, kept equal to GH_PR_LIMIT in
+    # reclaim-worktrees.sh; an older PR is invisible and its build is retained.
+    text = command(['gh', 'pr', 'list', '--state', 'all', '--limit', '3000',
                     '--json', 'state,headRefOid'], cwd=repo, timeout=45)
     return {p['headRefOid'] for p in json.loads(text) if p['state'] in ('MERGED', 'CLOSED')}
 
@@ -353,16 +355,18 @@ def sweep(repo, store, apply, budget, age_days):
                     print('owner release pending: ' + str(path))
             except (Refused, OSError, ValueError) as err:
                 print('keep ' + str(path) + ': ' + str(err))
-    # Preserve each repository's tested ownership/lock rules. The adapter may
-    # remove resolved Claude worktrees, but never Codex-managed worktrees.
-    adapter = repo / '.claude' / 'reclaim-worktrees.sh'
-    if adapter.is_file():
+    # The reclaimer ships beside this file, so the sweep and the rules it
+    # applies always move together, and a configured repository needs no file
+    # of its own for the sweep to reach it. It may remove resolved Claude
+    # worktrees, but never Codex-managed worktrees.
+    reclaimer = Path(__file__).with_name('reclaim-worktrees.sh')
+    if (repo / '.agent-lifecycle.json').is_file() and reclaimer.is_file():
         env = dict(os.environ, RECLAIM_FORCE='1', RECLAIM_GH_TIMEOUT_S='30')
         env.pop('CLAUDE_PROJECT_DIR', None)
         env.pop('RECLAIM_DRY_RUN', None)
         if not apply:
             env['RECLAIM_DRY_RUN'] = '1'
-        subprocess.run(['bash', str(adapter)], cwd=repo, env=env, input='', text=True, check=True)
+        subprocess.run(['bash', str(reclaimer)], cwd=repo, env=env, input='', text=True, check=True)
     retention(repo, store, budget, age_days, apply)
 
 
@@ -379,7 +383,7 @@ def main():
     p.add_argument('command', nargs=argparse.REMAINDER)
     p = sub.add_parser('load', help='hold the catalog lock throughout a loader invocation')
     p.add_argument('command', nargs=argparse.REMAINDER)
-    p = sub.add_parser('prune-cache', help='owner adapter: safely prune an eligible debug/doc cache')
+    p = sub.add_parser('prune-cache', help='reclaimer helper: safely prune an eligible debug/doc cache')
     p.add_argument('path', choices=('target/debug', 'target/doc'))
     p = sub.add_parser('sweep', help='reclaim completed work; dry run unless --apply')
     p.add_argument('--apply', action='store_true')

@@ -138,6 +138,28 @@ class LifecycleTests(unittest.TestCase):
         self.assertFalse(first.exists())
         self.assertTrue(second.exists())
 
+    def test_sweep_runs_the_shipped_reclaimer_only_for_configured_repos(self):
+        # Intercept only the reclaimer call; git and everything else run for real.
+        reclaimer = str(TOOL.with_name('reclaim-worktrees.sh'))
+        real_run, calls = subprocess.run, []
+
+        def run(args, *rest, **kwargs):
+            if list(args[:2]) == ['bash', reclaimer]:
+                calls.append(kwargs)
+                return subprocess.CompletedProcess(args, 0)
+            return real_run(args, *rest, **kwargs)
+
+        with patch.object(lc.subprocess, 'run', side_effect=run):
+            lc.sweep(self.repo, self.store, False, 5 << 30, 14)
+            self.assertEqual(len(calls), 1)
+            env = calls[0]['env']
+            self.assertEqual((env['RECLAIM_FORCE'], env['RECLAIM_DRY_RUN']), ('1', '1'))
+            self.assertNotIn('CLAUDE_PROJECT_DIR', env)
+            self.assertEqual(Path(calls[0]['cwd']), self.repo)
+            (self.repo / '.agent-lifecycle.json').unlink()
+            lc.sweep(self.repo, self.store, True, 5 << 30, 14)
+            self.assertEqual(len(calls), 1)
+
     def test_loader_holds_catalog_lock_through_child_and_checksums(self):
         self.run_tool('handoff')
         self.run_tool('load', '--', sys.executable, str(TOOL), '--repo', str(self.repo), 'catalog')
