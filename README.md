@@ -207,6 +207,6 @@ Its runtime remains linked to this source checkout: after installing from a PR w
 The log is `~/Library/Logs/agent-lifecycle.log`.
 To stop it, use `launchctl bootout gui/$(id -u)/com.yan.agent-lifecycle`.
 
-Run `python3 -B skills/session-lifecycle/scripts/test_lifecycle.py` alongside `python3 scripts/check.py` when changing the lifecycle.
+`python3 scripts/check.py` runs the lifecycle and reclaimer tests along with the skill checks.
 The completion command is for the owning agent; the fallback is a backstop, not permission to discard active work.
 Codex source release remains an app action, and protected work can exceed the artifact budget.

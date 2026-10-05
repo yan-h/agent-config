@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Validate the portable core of every skill in this repository."""
+"""Validate the portable core of every skill in this repository, then run
+each skill's own tests (skills/*/scripts/test_*.py and test_*.sh)."""
 
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -110,6 +112,32 @@ def main() -> int:
     count = len(skill_directories)
     noun = "skill" if count == 1 else "skills"
     print(f"Validated {count} {noun}.")
+    return run_skill_tests()
+
+
+def run_skill_tests() -> int:
+    """Run each skill's own tests, so a skill script is gated where it lives."""
+    runners = {".py": [sys.executable], ".sh": ["bash"]}
+    tests = [
+        test
+        for test in sorted(SKILLS.glob("*/scripts/test_*"))
+        if test.suffix in runners
+    ]
+    failed = 0
+    for test in tests:
+        result = subprocess.run(
+            [*runners[test.suffix], str(test)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode:
+            failed += 1
+            print(f"error: {test.relative_to(ROOT)} failed", file=sys.stderr)
+            print(result.stdout + result.stderr, file=sys.stderr)
+    if failed:
+        return 1
+    print(f"Passed {len(tests)} skill test file(s).")
     return 0
 
 

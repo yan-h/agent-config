@@ -51,15 +51,16 @@ If it cannot archive a primary, pinned or shared checkout, report owner release 
 Do not delete it with Git or modify Codex's private state.
 Archive the chat only when that is wanted; retaining chat history does not require retaining compilation caches.
 
-For a Claude-owned worktree, use the repository's existing reclaimer.
-It retains the tested lock, clean-tree and merge checks.
+For a Claude-owned worktree, use the reclaimer this skill ships at `scripts/reclaim-worktrees.sh`.
+The sweep runs it directly for each configured repository; a repository's SessionStart hook and hand-runs reach it through a thin `.claude/reclaim-worktrees.sh` wrapper.
+Its lock, clean-tree and merge gates are tested by `scripts/test_reclaim_worktrees.sh`, which agent-config's `scripts/check.py` runs.
 Unknown/manual locks remain protected and need the owner's decision.
 Use the native owner mechanism for other hosts; unsupported ownership is a reported limitation, not permission to force removal.
 Do not delete another agent's worktree because your work has finished.
 
 ## Fallback and retention
 
-`sweep` is a preview; `sweep --apply` reclaims completed caches and invokes the repository's owner adapter.
+`sweep` is a preview; `sweep --apply` reclaims completed caches and runs the shipped reclaimer.
 The installed macOS job runs this hourly without an AI session and only for explicitly registered projects with lifecycle support on their main checkout.
 It leaves source release for Codex pending; there is no supported shell replacement for the app archive tool.
 

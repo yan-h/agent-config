@@ -1,0 +1,1018 @@
+#!/usr/bin/env bash
+#
+# Reclaim disk from Claude-owned git worktrees without taxing every session
+# start. Shared by every repository that wires it up; nothing in here may be
+# specific to one of them.
+#
+# TWO TIERS, because "reclaim disk" and "remove a worktree" are different
+# questions and only the second one needs to know whether work is merged:
+#
+#   1. PRUNE `target/debug` and `target/doc` from any idle Claude worktree.
+#      They are regenerable build caches that hold no work, and they are the
+#      bulk of a Rust worktree's footprint. Needing no merge detection is the
+#      whole point — see WHY TIER 1 below.
+#
+#   2. REMOVE a whole worktree once its work is provably resolved — merged, or
+#      its PR closed — and its tree is clean. Tier 1 has usually reclaimed the
+#      space by then, so this is a tidiness and inode win more than a disk win.
+#
+# TIER 1 CANNOT BREAK THE HANDOVER CONTRACT, which is what makes it safe to
+# run on worktrees whose work is unfinished. A paused session leaves its
+# loadable build under `target/release` (and a bundling step's output beside
+# it), never under `debug`, so nothing in `target/` other than `debug` and
+# `doc` is ever pruned here. `debug` holds test and clippy output and `doc`
+# the rustdoc that only CI consumes, both regenerated on the next run. Release
+# intermediates are pruned by session-lifecycle's `handoff` after it preserves
+# the deliverables, not here.
+#
+# HOW TIER 2 SEES A SQUASH MERGE, which is the thing that made merged
+# worktrees pile up. `git merge-base --is-ancestor` cannot see one, so in a
+# repository that squash-merges by default nearly every merged worktree read
+# as "unmerged, keep" to every ancestor-based gate.
+# Tier 2 therefore takes THREE signals, and a worktree needs any one of:
+#   - HEAD is an ancestor of main. Offline, instant, covers merge-commit PRs.
+#   - a MERGED PR's head sha EQUALS this worktree's HEAD, from one `gh pr list`
+#     call (seconds, once per run, lazy). Sha equality is the safety:
+#     the worktree holds exactly what merged and nothing newer, so main's
+#     squash commit supersedes it.
+#   - every commit reachable from HEAD is reachable from main or from some
+#     RESOLVED PR head — merged or closed. See CONTAINMENT below.
+# Rejected alternatives: patch-id containment missed merges whose files main
+# had edited since, and cost about two seconds. "The remote branch is gone"
+# says almost nothing, because `--delete-branch` mostly does not run and nearly
+# every merged branch stays on the remote.
+#
+# CONTAINMENT, because equality alone left most resolved worktrees standing on
+# a nearly full disk. Equality answers "did exactly this merge?", which is
+# narrower than the question tier 2 is asking, and it misses in two directions:
+#   - BEHIND a merge. The worktree holds a strict ANCESTOR of the sha that
+#     merged: the branch was pushed to, or amended, after the worktree last
+#     built, so the local ref trails the remote. Every commit in the tree is in
+#     main, and equality still says no.
+#   - CLOSED unmerged. Under a merged-only rule a rejected PR's worktree is a
+#     PERMANENT resident — no future event can make it eligible — so rejected
+#     experiments accumulate forever, one `target/release` apiece.
+# A closed PR is as final a verdict as a merged one; both mean nobody is coming
+# back to that worktree. What makes acting on either safe is that removal loses
+# no commits at all: `git worktree remove` KEEPS the branch ref, the remote
+# still has the branch, and GitHub keeps `refs/pull/<n>/head` even for a closed
+# PR. The only things a removal can destroy are uncommitted files and the built
+# `target/release` — which is why the clean-tree gate below stays strict, and
+# why a branch with no PR at all is still kept: an unresolved branch is work in
+# flight, and there is no verdict to read.
+#
+# Containment is ONE `git rev-list --ignore-missing --stdin --count` per
+# worktree, negating main and every resolved PR head at once. `--ignore-missing`
+# is what makes it safe to feed shas this clone may never have fetched (a
+# deleted remote branch), and `--stdin` keeps hundreds of shas off the argv
+# limit. Zero means the tree adds nothing to what is already resolved. A
+# per-sha `merge-base --is-ancestor` loop answers the same question at hundreds
+# of git invocations per worktree, which is why it is not what runs here.
+#
+# WHY TIER 1 STILL EXISTS once tier 2 can see squashes: an UNFINISHED branch —
+# no PR yet, or an open one — is never removable, and its cache is still dead
+# weight, often gigabytes of `debug`. Tier 1 also needs no network, so it keeps
+# working when gh is unavailable.
+#
+# COST. A `df` check gates everything and takes a few ms, so a session with
+# room to spare pays that and exits. Only under FREE_LOW_WATER_GB does the scan
+# run (~0.2s per worktree). Cache deletion goes through session-lifecycle's
+# `prune-cache`, synchronously and under the Cargo build locks. A `target/debug`
+# holds tens of thousands of files, so a run that prunes several can take tens
+# of seconds; the SessionStart hook's timeout allows for that, and the hourly
+# sweep does most of the pruning anyway.
+#
+# A worktree is REMOVED (tier 2) only when ALL of these hold:
+#   - it is REGISTERED, and a direct child of .claude/worktrees/ (never touch a
+#     hand-made or Codex-managed worktree), and its `.git` link still exists.
+#     Nothing unregistered is ever removed by this script at all — see ORPHANS
+#   - it is not the main checkout
+#   - it is not the worktree this session is running in
+#   - its work is RESOLVED by one of the three signals above, so the commits
+#     survive the removal in main, on the remote, or on the kept branch ref,
+#     and, when a gh-backed signal decided it, no OPEN PR has its head sha or
+#     its branch
+#   - `git status --porcelain` is empty: no uncommitted and no untracked files,
+#     and no submodule with either, whatever the user's status config says
+#   - it is not locked by a live SESSION — a lock whose pid is sitting in the
+#     `claude bg-spare` pool, which its claim socket still being on disk is
+#     what says, is stale and does not protect anything. Every other reading
+#     of a live pid counts as live; `test_reclaim_worktrees.sh` beside this
+#     script is the gate on that, because getting it wrong deletes a directory
+#   - it is not locked by a live REMOTE CONTROL session — its `claude agent
+#     bridge-<id>` lock names the long-lived daemon's pid, so liveness there
+#     is read from process cwds instead; see the lock check
+#   - it is not locked by anything this script did not write; a hand-written
+#     lock stands until a human clears it
+#   - nothing near its top level was touched in the last MIN_IDLE_MINUTES
+#
+# A worktree's cache is PRUNED (tier 1) on the same ownership, session and
+# live-lock checks, plus: `target/debug` itself has not been written in
+# PRUNE_IDLE_MINUTES. Merge state is deliberately not consulted.
+#
+# `git status --porcelain` does not list IGNORED files, so a removed worktree
+# takes its gitignored outputs (renders, logs, scratch builds) with it. That is
+# the right trade: tier 2 only fires once the work is resolved and has sat idle
+# for MIN_IDLE_MINUTES, and anything worth keeping longer belongs outside the
+# worktree.
+#
+# ORPHANS are NAMED last and removed by nobody, and they are the miss no gate
+# above could catch: both tiers walk `git worktree list`, so a directory git no
+# longer counts as a worktree is not skipped for a reason — it is never looked
+# at, and was once invisible to every dry-run line. They arise when the admin
+# entry in .git/worktrees is pruned while the directory survives: a `git
+# worktree prune` after the tree was moved or partly deleted, or a session
+# killed mid-teardown.
+#
+# THIS TIER DELETES NOTHING, and the asymmetry is the point. Orphans typically
+# hold little, while an `rm -rf` aimed by nothing but "git does not list it"
+# was worth three separate ways to destroy live work, all found in review of a
+# version that did delete:
+#   - a nested worktree of ANOTHER repository. `worktree list` names only THIS
+#     repo's worktrees, so a Codex `<id>/<other-repo>` leaves `<id>` matching
+#     no registration and holding no `.git` — an orphan by every test, and
+#     another repo's live session.
+#   - a symlinked `.claude/worktrees`. The registration is canonical and the
+#     candidate path is textual, so the containment guard compares two spellings
+#     of one directory, matches neither, and deletes through the alias.
+#   - uncommitted files. Tier 2 refuses on a dirty tree, but a directory git has
+#     forgotten cannot answer `status --porcelain` at all, so the check tier 2
+#     leans on is exactly the one unavailable here. A kept branch ref does not
+#     bring back an uncommitted edit.
+# Every one of those is a deletion bug and none of them survives not deleting.
+# What the miss actually cost was VISIBILITY, so naming them is the whole fix,
+# and `rm -rf` stays a human decision.
+#
+# `git worktree remove` keeps the branch ref, so resolved commits stay
+# reachable and the branch can be checked out again later. It also REFUSES any
+# worktree containing a populated submodule, so tier 2 retries with `--force`
+# once its own clean-tree check has passed a second time. See the removal
+# itself for why `submodule deinit` is not the alternative it looks like.
+#
+# Codex owns cleanup and snapshots for its managed worktrees, so both tiers
+# leave those alone even though `git worktree list` includes them. Exact
+# direct-child ownership also protects a Codex root configured below
+# `.claude/worktrees`: its `<id>/<repo>` worktrees are not Claude's to release.
+#
+# WIRING. session-lifecycle's `sweep` runs this file directly for every
+# repository with `.agent-lifecycle.json` (RECLAIM_FORCE=1, empty stdin, cwd
+# the main checkout). A repository's SessionStart hook and hand-runs go through
+# a thin `.claude/reclaim-worktrees.sh` wrapper that does
+# `exec bash <this file> "$@"`, passing stdin (the hook's JSON payload) and the
+# environment (CLAUDE_PROJECT_DIR) through. It is safe to run by hand from the
+# main checkout OR any worktree — it locates the main checkout through
+# `git worktree list` rather than trusting $PWD:
+#
+#   RECLAIM_DRY_RUN=1 .claude/reclaim-worktrees.sh   # explain, change nothing
+#   RECLAIM_FORCE=1   .claude/reclaim-worktrees.sh   # ignore the df gate
+#   RECLAIM_DRY_RUN=1 RECLAIM_FORCE=1 RECLAIM_PRUNE_IDLE_MINUTES=1 \
+#     .claude/reclaim-worktrees.sh                   # see it find things NOW
+#
+# DRY_RUN prints one line per decision, on stderr, because stdout is reserved
+# for the systemMessage JSON. It is verbose on purpose: the failure mode this
+# guards against is a hand-run that silently does nothing and gives no clue
+# why. It also changes NOTHING — not even git's own metadata: it skips `git
+# worktree prune`, and status runs without optional locks so no index is
+# refreshed.
+#
+# A no-op prints nothing, so a session that reclaims nothing stays quiet; when
+# it does free something it reports the total as a systemMessage. A removal git
+# REFUSED is reported there too, even on a run that freed nothing: a refusal
+# after every gate said yes is the one outcome a silent run cannot be told
+# apart from, and DRY_RUN is no help because the dry run never attempts one.
+#
+# Written for bash 3.2 (macOS system bash): no mapfile, no associative arrays.
+
+set -uo pipefail
+
+# The lifecycle helper ships beside this file, so the default follows the
+# script wherever it is installed or invoked from. Every removal and prune
+# goes through it, under its workspace lock and Cargo's build locks; there is
+# no path around it to keep tested.
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+LIFECYCLE_TOOL="${AGENT_LIFECYCLE_TOOL:-$SCRIPT_DIR/lifecycle.py}"
+remove_owned_worktree() {
+  local path="$1"; shift
+  python3 "$LIFECYCLE_TOOL" --repo "$path" run -- git -C "$ROOT" worktree remove "$@" "$path"
+}
+
+MIN_IDLE_MINUTES=${RECLAIM_MIN_IDLE_MINUTES:-120}
+# The prune gate is depth behind the live-lock check (see prune_caches), so it
+# only has to outlast one build step, and a running build keeps writing under
+# target/debug. An hour clears that easily. An eight-hour gate once let a disk
+# sit near-full while idle debug caches waited it out. Pruning a paused
+# worktree costs it a debug rebuild (mostly compiler-cache hits) and leaves
+# nothing for a sibling-cache seeder to clone; target/release is never pruned,
+# so its handover build survives.
+PRUNE_IDLE_MINUTES=${RECLAIM_PRUNE_IDLE_MINUTES:-60}
+# 80G is roughly ten concurrent Rust release builds' headroom, and a disk-full
+# mid-build fails every running agent, not just the newest. It is deliberately
+# above that floor: the gate's job is not only to avert a disk-full but to let
+# tier 2 retire resolved worktrees as a matter of routine. Above it the scan is
+# not worth its cost per worktree; lower it far and resolved worktrees
+# accumulate until the disk is nearly gone.
+FREE_LOW_WATER_GB=${RECLAIM_FREE_LOW_WATER_GB:-80}
+DRY_RUN=${RECLAIM_DRY_RUN:-0}
+FORCE=${RECLAIM_FORCE:-0}
+
+# The squash-merge answer, and the only thing here that touches the network.
+# One `gh pr list` call per run resolves every RESOLVED PR's head sha — merged
+# and closed alike — which is what makes a squash-merged or explicitly rejected
+# worktree removable rather than merely prunable.
+# It is lazy (nothing asks until a worktree fails the ancestor check), bounded
+# (killed after GH_TIMEOUT_S), and fail-safe: any failure falls back to
+# ancestor-only, so a flaky network makes the script conservative, never wrong.
+#
+# The limit is a CEILING ON HISTORY, not a page size, and setting it too low
+# fails silently in the one direction that matters: a PR older than the newest
+# GH_PR_LIMIT is simply invisible, and its worktree reads as unresolved
+# forever. A limit of 300 once hid every PR before the newest 300, and 1000
+# later fell just short of a repository with 1010. Keep it comfortably above
+# the repository's total PR count.
+#
+# The call's cost grows with that count — about 6.5s for 1000 PRs — so a large
+# history can outrun GH_TIMEOUT_S at session start. That is the fail-safe
+# direction: the run falls back to ancestor-only, and the hourly sweep, which
+# passes a longer timeout, resolves what the session start could not.
+NO_NETWORK=${RECLAIM_NO_NETWORK:-0}
+GH_TIMEOUT_S=${RECLAIM_GH_TIMEOUT_S:-8}
+GH_PR_LIMIT=${RECLAIM_GH_PR_LIMIT:-3000}
+
+# SessionStart delivers its payload as JSON on stdin; a hand-run has a tty and
+# must not block waiting for input that never comes.
+SESSION_CWD=""
+if [ ! -t 0 ]; then
+  payload=$(cat 2>/dev/null || true)
+  if [ -n "$payload" ] && command -v jq >/dev/null 2>&1; then
+    SESSION_CWD=$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null || true)
+  fi
+fi
+[ -n "$SESSION_CWD" ] || SESSION_CWD=$PWD
+# Physical, like every path git prints: the session check below compares it
+# textually against `git worktree list`, so a cwd reached through a symlink
+# (or $PWD's logical spelling of one) would otherwise fail to protect the
+# worktree the session is running in.
+if real_cwd=$(cd "$SESSION_CWD" 2>/dev/null && pwd -P); then
+  SESSION_CWD=$real_cwd
+fi
+
+ROOT=${CLAUDE_PROJECT_DIR:-$SESSION_CWD}
+git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1 || exit 0
+
+WOULD_DO=0
+HELD_LOCKED_KB=0
+HELD_RECENT_KB=0
+
+# Diagnostics for a hand-run. Silence is the right behaviour for the hook —
+# SessionStart fires on every session — but it is a terrible answer to
+# "why did nothing happen?", so DRY_RUN explains every decision it makes.
+# These go to stderr; stdout stays reserved for the systemMessage JSON.
+note() {
+  [ "$DRY_RUN" = 1 ] || return 0
+  printf '%s\n' "$1" >&2
+}
+
+# A note that also counts as "this run would have changed something", which is
+# what separates "examined everything, all of it in use" from "did nothing".
+act() {
+  WOULD_DO=$((WOULD_DO + 1))
+  note "$1"
+}
+
+# The first record `git worktree list` prints is always the main checkout, and
+# that holds from ANY worktree of the repo. Derive both paths from it rather
+# than from ROOT: ROOT falls back to $PWD, so a hand-run from inside
+# .claude/worktrees/<branch>/ would otherwise look for
+# <branch>/.claude/worktrees and find nothing.
+MAIN_WT=$(git -C "$ROOT" worktree list --porcelain | awk '/^worktree /{print substr($0, 10); exit}')
+if [ -z "$MAIN_WT" ]; then
+  note 'could not resolve the main checkout from git worktree list'
+  exit 0
+fi
+
+WT_DIR="$MAIN_WT/.claude/worktrees"
+if [ ! -d "$WT_DIR" ]; then
+  note "no worktree dir at $WT_DIR — nothing this script manages"
+  exit 0
+fi
+
+# TRANSITIONAL: earlier versions pruned by renaming a cache to
+# `target/.reclaiming-*` and deleting it in the background. Sweep any staging
+# dir such a run left behind, BEFORE the df gate: a killed background delete is
+# exactly the case where space is still held. Nothing creates these any more,
+# so this loop can go once no worktree on any machine holds one.
+# A `"$WT_DIR"/.reclaiming-*` arm was tried and removed: it would
+# have `rm -rf`'d anything at the top level whose NAME began `.reclaiming-`,
+# before every registration, session, lock and age check, so a Codex root
+# configured at `.claude/worktrees/.reclaiming-codex` would be deleted with all
+# its live worktrees on a name collision alone.
+for stale in "$WT_DIR"/*/target/.reclaiming-*; do
+  [ -d "$stale" ] || continue
+  if [ "$DRY_RUN" = 1 ]; then
+    act "would sweep leftover $stale"
+  else
+    nohup rm -rf "$stale" >/dev/null 2>&1 &
+  fi
+done
+
+# The cheap gate. Everything below costs real time, so a roomy disk stops here.
+free_gb=$(df -k "$ROOT" 2>/dev/null | awk 'NR==2 {printf "%d", $4 / 1048576}')
+[ -n "$free_gb" ] || free_gb=0
+if [ "$FORCE" != 1 ] && [ "$free_gb" -ge "$FREE_LOW_WATER_GB" ]; then
+  note "df gate: ${free_gb}G free >= ${FREE_LOW_WATER_GB}G low water, so nothing to do (RECLAIM_FORCE=1 overrides)"
+  exit 0
+fi
+note "df gate: ${free_gb}G free, low water ${FREE_LOW_WATER_GB}G$([ "$FORCE" = 1 ] && printf ' (forced)')"
+
+# Resolve main once. Without it "merged" is unanswerable, so tier 2 is skipped
+# while tier 1 — which never asks — still runs.
+MAIN_REF=""
+for ref in main origin/main; do
+  if git -C "$ROOT" rev-parse --verify --quiet "$ref" >/dev/null 2>&1; then
+    MAIN_REF=$ref
+    break
+  fi
+done
+
+freed_kb=0
+removed=0
+pruned=0
+names=""
+
+# A removal git refuses after every gate here said yes. Counted separately from
+# "kept for a reason" because it is the shape that reads as a no-op run and is
+# not one: eligible worktrees were once refused silently for weeks, the dry run
+# promising removals the real run never took. These feed the closing
+# systemMessage, which is the only channel a hook run has.
+REFUSED_N=0
+REFUSED_NAMES=""
+REFUSED_WHY=""
+
+human() {
+  awk -v kb="$1" 'BEGIN {
+    if (kb >= 1048576) printf "%.1fG", kb / 1048576
+    else if (kb >= 1024) printf "%.0fM", kb / 1024
+    else printf "%dK", kb
+  }'
+}
+
+# The clean-tree question, asked identically by the first check and by the
+# recheck before `--force`, so the two cannot drift apart. Every flag is
+# spelled out because user config can otherwise make a dirty tree read clean:
+#   --untracked-files=normal  status.showUntrackedFiles=no would hide a stray
+#                             scratch file, and a stray scratch file saves it.
+#   --ignore-submodules=none  diff.ignoreSubmodules or submodule.<name>.ignore
+#                             would hide a submodule with modified or untracked
+#                             content, or with a HEAD moved off its gitlink.
+#   --no-optional-locks       status would otherwise refresh the index, which
+#                             is a write — to a dry run, and to a worktree a
+#                             concurrent git command may be using.
+# The caller reads the exit status: empty output means "clean" OR "status
+# failed", and only the first may count as clean.
+porcelain() {
+  git --no-optional-locks -C "$1" status --porcelain \
+    --untracked-files=normal --ignore-submodules=none 2>/dev/null
+}
+
+# One sha per line for every merged PR, and one per line for every resolved PR
+# (merged or closed). OPEN_HEADS and OPEN_BRANCHES list every open PR's head sha
+# and head branch, which veto a resolved verdict (see open_pr_holds). Loaded at
+# most once per run.
+MERGED_HEADS=""
+RESOLVED_HEADS=""
+OPEN_HEADS=""
+OPEN_BRANCHES=""
+MERGED_TRIED=0
+
+load_merged_heads() {
+  [ "$MERGED_TRIED" = 1 ] && return 0
+  MERGED_TRIED=1
+
+  if [ "$NO_NETWORK" = 1 ]; then
+    note 'gh lookup disabled (RECLAIM_NO_NETWORK=1) — ancestor-only, so squash merges stay'
+    return 0
+  fi
+  if ! command -v gh >/dev/null 2>&1; then
+    note 'gh not on PATH — ancestor-only, so squash merges stay'
+    return 0
+  fi
+
+  tmp=$(mktemp) || return 0
+  # Head shas only, NOT "<branch> <sha>" pairs: keying on the branch name misses
+  # a branch that was renamed, or a second local branch pointing at the same
+  # merged commit. The sha alone is the whole claim — if HEAD *is* a merged
+  # PR's head commit, that work merged, whatever the branch is called.
+  # --jq uses gh's embedded jq, so this needs no external jq. `--state all`
+  # rather than separate calls: one round trip carries every verdict. OPEN
+  # rows never count as resolved; they are kept, with their branch, as vetoes.
+  # From $ROOT, because gh takes its repository from the process cwd: the
+  # sweep or a hand-run from another checkout would otherwise resolve THAT
+  # repo's PRs, match no sha here, and fall back to ancestor-only. `exec` keeps
+  # $! the gh process itself, so the timeout below kills gh and not a shell.
+  (cd "$ROOT" && exec gh pr list --state all --limit "$GH_PR_LIMIT" \
+    --json state,headRefOid,headRefName \
+    --jq '.[] | "\(.state) \(.headRefOid) \(.headRefName)"') >"$tmp" 2>/dev/null &
+  gh_pid=$!
+
+  # Bound it by hand: macOS ships no `timeout`, and a hung network call must not
+  # stall session start. Counted in half-seconds.
+  halves=0
+  limit=$((GH_TIMEOUT_S * 2))
+  while kill -0 "$gh_pid" 2>/dev/null && [ "$halves" -lt "$limit" ]; do
+    sleep 0.5
+    halves=$((halves + 1))
+  done
+  if kill -0 "$gh_pid" 2>/dev/null; then
+    kill "$gh_pid" 2>/dev/null
+    wait "$gh_pid" 2>/dev/null
+    note "gh pr list exceeded ${GH_TIMEOUT_S}s — ancestor-only for this run"
+    rm -f "$tmp"
+    return 0
+  fi
+  wait "$gh_pid" 2>/dev/null
+  gh_rc=$?
+
+  # A gh that fails partway through its pages can still have written the pages
+  # it got. A short resolved list only keeps worktrees, but a short OPEN list
+  # would drop a veto, so a failed call is discarded whole.
+  if [ "$gh_rc" != 0 ]; then
+    note "gh pr list failed (exit $gh_rc) — ancestor-only for this run"
+    rm -f "$tmp"
+    return 0
+  fi
+
+  if [ -s "$tmp" ]; then
+    MERGED_HEADS=$(awk '$1 == "MERGED" {print $2}' "$tmp")
+    RESOLVED_HEADS=$(awk '$1 == "MERGED" || $1 == "CLOSED" {print $2}' "$tmp")
+    OPEN_HEADS=$(awk '$1 == "OPEN" {print $2}' "$tmp")
+    OPEN_BRANCHES=$(awk '$1 == "OPEN" && NF >= 3 {print $3}' "$tmp")
+    note "gh: $(printf '%s\n' "$RESOLVED_HEADS" | wc -l | tr -d ' ') resolved PR head(s) ($(printf '%s\n' "$MERGED_HEADS" | wc -l | tr -d ' ') merged)"
+  else
+    note 'gh returned nothing (offline, or not authenticated) — ancestor-only for this run'
+  fi
+  rm -f "$tmp"
+}
+
+# True when a MERGED PR's head sha is exactly this worktree's HEAD. Equality is
+# the safety: it means the worktree holds the work that merged and nothing
+# newer, so the squash commit on main supersedes it completely. A worktree that
+# has moved on past its merge fails this and is kept.
+# -F -x: the sha is data, not a pattern.
+pr_merged_at_head() {
+  [ -n "$MERGED_HEADS" ] || return 1
+  # Herestring, not `printf | grep -q`, for the reason given at the orphan
+  # guard: under pipefail a hit can report 141 once the list outgrows the pipe
+  # buffer, and a thousand shas is ~41K. A false here is the safe direction —
+  # containment is asked next and subsumes this test — but one shape for every
+  # guard beats a working one and a latent one that look alike.
+  grep -Fxq "$1" <<<"$MERGED_HEADS"
+}
+
+# True when every commit reachable from HEAD is already reachable from main or
+# from some resolved PR head — the worktree adds nothing unresolved to the
+# repo. This is what catches a branch that trails the sha which merged, and a
+# branch whose PR was closed unmerged; see CONTAINMENT in the header.
+#
+# The head sha is verified to EXIST first, and that guard is load-bearing:
+# `--ignore-missing` drops an unknown POSITIVE rev as readily as an unknown
+# negative one, so an unresolvable HEAD (an unborn branch reads as the null
+# sha) would otherwise count zero commits and read as fully contained — the
+# one input that turns this test into a rubber stamp. Bad sha in, "keep" out.
+head_contained_in_resolved() {
+  head=$1
+  [ -n "$RESOLVED_HEADS" ] || return 1
+  git -C "$ROOT" cat-file -e "$head^{commit}" 2>/dev/null || return 1
+
+  count=$( { printf '%s\n' "$head"
+             [ -n "$MAIN_REF" ] && printf '^%s\n' "$MAIN_REF"
+             printf '^%s\n' $RESOLVED_HEADS
+           } | git -C "$ROOT" rev-list --ignore-missing --stdin --count 2>/dev/null )
+  [ "$count" = 0 ]
+}
+
+# True when an OPEN PR still claims this worktree: its HEAD is an open PR's
+# head sha, or its branch is an open PR's head branch. Either vetoes the two
+# gh-backed signals, because "resolved" is read from closed and merged PRs
+# alone, and the same work can be closed in one PR and live in another: a
+# branch closed and re-opened as a new PR, or a closed PR's head reused by an
+# open stacked one. Removal would lose no commits there, but it would take the
+# worktree and its build from under a PR still in review.
+#
+# The branch test matches by name only, so a same-named branch from a fork
+# also vetoes. That is the conservative direction.
+open_pr_holds() {
+  [ -n "$1" ] && grep -Fxq "$1" <<<"$OPEN_HEADS" && return 0
+  [ -n "$2" ] && grep -Fxq "$2" <<<"$OPEN_BRANCHES" && return 0
+  return 1
+}
+
+# session-lifecycle's `prune-cache` deletes the cache synchronously, holding the
+# workspace lock and Cargo's own lock for that profile, so it never deletes
+# from under a running build.
+prune_cache() {
+  victim=$1
+  local cache_root="${victim%/target/*}" cache_path="target/${victim##*/}"
+  python3 "$LIFECYCLE_TOOL" --repo "$cache_root" prune-cache "$cache_path"
+}
+
+# The cwd of every process this user owns, read once per run and only when a
+# Remote Control lock asks (see usable): `p<pid>` and `n<path>` lines, the
+# paths physical. Another user's processes are left out because a non-root
+# lsof cannot read their cwds anyway, and sessions, builds and terminals are
+# all this user's. -n -P -w skip DNS, port names and warnings; -b keeps lsof
+# from blocking on a stale network mount at session start.
+LSOF_OUT=""
+LSOF_TRIED=0
+
+# 0 when some process has its cwd at or below $1, 1 when none does, 2 when the
+# cwds could not be read — which the caller treats as held.
+#
+# $2 is the positive control: a pid whose cwd lsof must list before its
+# silence about the worktree means anything, since an empty or failed listing
+# would otherwise read every lock as stale. It is the lock's daemon while ps
+# shows it alive and this user's, which also proves lsof sees past this
+# script's own process tree; otherwise this script itself, which proves only
+# that lsof works. A recycled pid owned by someone else is the reason for the
+# owner test — its cwd is unreadable, and the control would never pass. An
+# environment that hides other processes from ps and lsof alike is not
+# detected; the SessionStart hook does not run in one.
+cwd_inside() {
+  if [ "$LSOF_TRIED" = 0 ]; then
+    LSOF_TRIED=1
+    command -v lsof >/dev/null 2>&1 &&
+      LSOF_OUT=$(lsof -nP -w -b -a -u "$(id -u)" -d cwd -Fpn 2>/dev/null)
+  fi
+  ctl=$2
+  [ "$(ps -p "$ctl" -o uid= 2>/dev/null | tr -d ' ')" = "$(id -u)" ] || ctl=$$
+  real=$(cd "$1" 2>/dev/null && pwd -P) || return 2
+  # The control needs a PATH under its pid, not just the pid: a listing whose
+  # `n` lines went missing would otherwise pass it and find nothing inside.
+  # ENVIRON rather than -v, which would read backslashes in the path as escapes.
+  P=$real C=$ctl awk 'BEGIN { p = ENVIRON["P"]; c = "p" ENVIRON["C"] }
+    /^p/ { cur = $0 }
+    /^n/ { n = substr($0, 2); if (cur == c) ctl = 1
+           if (n == p || index(n, p "/") == 1) found = 1 }
+    END { if (!ctl) exit 2; exit !found }' <<<"$LSOF_OUT"
+}
+
+# The cache a skipped worktree goes on holding, for the dry run's closing tally.
+note_held() {
+  [ "$DRY_RUN" = 1 ] || return 0
+  kb=$(du -sk "$2/target/debug" "$2/target/doc" 2>/dev/null | awk '{s+=$1} END{print s+0}')
+  HELD_LOCKED_KB=$((HELD_LOCKED_KB + ${kb:-0}))
+  note "skip $1: $3 (holding $(human "${kb:-0}") of cache)"
+}
+
+# Ownership checks shared by both tiers. Non-zero means leave this worktree
+# completely alone.
+usable() {
+  path=$1
+  locked=$2
+  reason=$3
+  name=$(basename "$path")
+
+  [ -d "$path" ] || return 1
+  [ "$path" = "$MAIN_WT" ] && return 1
+
+  # Claude owns exactly the direct children of this directory. A broader path
+  # prefix also catches Codex's `<id>/<repo>` shape when its configurable root
+  # sits below .claude/worktrees, and would let this hook prune or remove a
+  # worktree whose lifecycle belongs to the app.
+  if [ "$(dirname "$path")" != "$WT_DIR" ]; then
+    note "skip $name: not a direct Claude-owned worktree"
+    return 1
+  fi
+
+  # A registered worktree whose `.git` link is gone (partly deleted, or killed
+  # mid-teardown) is not a repository any more, so every `git -C "$path"` and
+  # every `lifecycle.py --repo "$path"` below would walk up and answer for the
+  # MAIN checkout: its status read as this tree's clean check, its build cache
+  # pruned as this tree's. Leave it; the real run's `worktree prune` turns it
+  # into an orphan the last tier names.
+  if [ ! -e "$path/.git" ]; then
+    note "skip $name: registered, but its .git is gone — git would answer for the main checkout"
+    return 1
+  fi
+
+  # Never saw off the branch we are sitting on.
+  case "$SESSION_CWD/" in
+    "$path"/*)
+      note_held "$name" "$path" "this session is running in it"
+      return 1 ;;
+  esac
+
+  # A lock naming a live pid means a session still owns this worktree, unless
+  # that pid is one whose liveness says nothing about the session (below). A
+  # lock we cannot attribute to a pid is left alone rather than guessed at.
+  #
+  # Attributable means written by the harness, in its own format, and the whole
+  # string has to match — a bare `pid <n>` anywhere in the reason is not enough.
+  # The harness writes `claude session|agent <name> (pid <n> start <date>)`,
+  # dropping ` start <date>` when it cannot read the process start time; this
+  # is the harness's own pattern. Prose naming a number is what a PERSON
+  # writes, and a person's lock is the one this script must never answer for:
+  # a hand-written lock stands until a human clears it, so reading a pid out of
+  # its prose and finding it dead would delete the worktree that promise covers.
+  if [ "$locked" = 1 ]; then
+    pid=$(printf '%s' "$reason" | sed -nE \
+      's/^ *claude (agent|session) .+ \(pid ([0-9]+)( start .+)?\)$/\2/p')
+    if [ -z "$pid" ]; then
+      note "skip $name: locked by a reason this script did not write"
+      return 1
+    fi
+
+    # `claude agent bridge-<id>` is Remote Control's lock, for a worktree
+    # `claude remote-control --spawn worktree` creates, and its pid is the
+    # DAEMON's, not the session's. The daemon outlives every session it spawns,
+    # so that pid is alive for as long as the phone bridge is up — read like
+    # any other pid it made each of these locks permanent, and one such lock
+    # once held gigabytes of cache on a nearly full disk, its HEAD already
+    # merged, with nothing running in it.
+    #
+    # So the question is asked of the worktree itself: does any process have
+    # its cwd there? The daemon runs each session as a child process in the
+    # worktree and keeps it for the session's life, and the cargo build it
+    # starts and a terminal left open in it count too, which is why this asks
+    # every process and not only `claude`.
+    #
+    # Only the `bridge-` name means this. The Agent tool's `isolation:
+    # "worktree"` writes the same `claude agent` shape, as `agent-a<hex>`, with
+    # the PARENT session's pid — and the subagent runs inside that process, so
+    # its worktree holds no cwd between commands. For that lock the pid is the
+    # signal, and it takes the session path below.
+    #
+    # A wrong "stale" here still passes the idle, resolved and clean gates, but
+    # resolved includes a worktree still sitting on main's own commit, so a
+    # session that had made no commit could lose its worktree. That needs its
+    # child process gone while the session lives on, which the daemon does not
+    # do: it keeps each child unless told to exit on idle (`idleExitAfterMs`,
+    # zero for these). A listing that cannot show the control reads live.
+    if [ -n "$(printf '%s' "$reason" | sed -n '/^ *claude agent bridge-/p')" ]; then
+      cwd_inside "$path" "$pid"
+      case $? in
+        0) note_held "$name" "$path" "Remote Control lock, and a process is running in it"
+           return 1 ;;
+        1) note "stale lock $name: Remote Control lock, and no process has its cwd inside"
+           return 0 ;;
+        *) note "skip $name: Remote Control lock, and lsof cannot show process cwds"
+           return 1 ;;
+      esac
+    fi
+    if ps -p "$pid" >/dev/null 2>&1; then
+      # The pid being alive does NOT make the lock live. Every local session
+      # runs as a `claude bg-spare` process taken from a warm pool, and a spare
+      # that goes back to the pool keeps its pid, so a dead session's lock is
+      # indistinguishable from a live one by pid alone.
+      #
+      # ARGV CANNOT SETTLE IT, and reaching for a flag is the trap here: argv
+      # is fixed at exec, and a spare is claimed afterwards over the socket it
+      # already names, so a claimed spare's cmdline is byte-identical to an
+      # unclaimed one's. There is no `--session-id` to key on — a test for one
+      # matches nothing and calls EVERY live session's lock stale, which is how
+      # a worktree gets removed from under a session paused on a question.
+      #
+      # The SOCKET is the signal, because it records the claim that argv
+      # missed: a spare advertises itself on the `.claim.sock` its own argv
+      # names, and claiming it unlinks that socket. Still on disk means still
+      # in the pool, so the lock protects nothing.
+      #
+      # This errs live in every case it cannot read — an unrecognised holder,
+      # an unparseable path, a spare returned to the pool without re-
+      # advertising. Holding disk costs a `rm -rf` later; releasing a live
+      # session's lock costs the branch it was about to hand over.
+      cmd=$(ps -p "$pid" -o command= 2>/dev/null)
+      case "$cmd" in
+        *--bg-spare*)
+          sock=${cmd##*--bg-spare }
+          sock=${sock%% *}
+          if [ -n "$sock" ] && [ -e "$sock" ]; then
+            note "stale lock $name: pid $pid is an unclaimed bg-spare, not a session"
+            return 0
+          fi ;;
+      esac
+      note_held "$name" "$path" "locked by live pid $pid"
+      return 1
+    fi
+  fi
+  return 0
+}
+
+# Tier 1: regenerable caches out of an idle worktree. Never touches release.
+prune_caches() {
+  path=$1
+  found=0
+  for sub in debug doc; do
+    victim="$path/target/$sub"
+    [ -d "$victim" ] || continue
+    found=1
+
+    # Idle by the cache's own recent writes, which is a truer "nobody is using
+    # this" signal than the worktree's top level. maxdepth 2 rather than 0
+    # because an incremental build can touch only `deps/` or `.fingerprint/`
+    # without ever updating `debug/`'s own mtime, and pruning mid-build would
+    # break that build. The live-lock check above is the primary guard; this is
+    # depth behind it, and `-quit` keeps it to a few hundred stats.
+    if [ -n "$(find "$victim" -maxdepth 2 -newermt "-${PRUNE_IDLE_MINUTES} minutes" -print -quit 2>/dev/null)" ]; then
+      if [ "$DRY_RUN" = 1 ]; then
+        kb=$(du -sk "$victim" 2>/dev/null | awk '{print $1}')
+        HELD_RECENT_KB=$((HELD_RECENT_KB + ${kb:-0}))
+        note "keep $(basename "$path")/target/$sub ($(human "${kb:-0}")): written in the last ${PRUNE_IDLE_MINUTES}m"
+      fi
+      continue
+    fi
+
+    size_kb=$(du -sk "$victim" 2>/dev/null | awk '{print $1}')
+    [ -n "$size_kb" ] || size_kb=0
+
+    if [ "$DRY_RUN" = 1 ]; then
+      act "would prune $victim ($(human "$size_kb"))"
+      continue
+    fi
+
+    if prune_cache "$victim"; then
+      pruned=$((pruned + 1))
+      freed_kb=$((freed_kb + size_kb))
+    fi
+  done
+
+  # Say so explicitly. Printing nothing here is what made a correct run look
+  # like a broken one: already-pruned worktrees produced no line at all, and
+  # the closing summary then guessed a reason that did not apply to them.
+  [ "$found" = 0 ] && note "clean $(basename "$path"): no target/debug or target/doc to reclaim"
+  return 0
+}
+
+# Tier 2: the whole worktree, only when the work is provably safe to lose.
+remove_worktree() {
+  path=$1
+  head=$2
+  locked=$3
+  branch=$4
+
+  name=$(basename "$path")
+  [ -n "$MAIN_REF" ] || { note "no-remove $name: could not resolve main"; return 1; }
+
+  # Three independent resolved-signals, widening in cost order. Each is only
+  # consulted when the cheaper one above it says no, so a repo that
+  # merge-commits everything never touches the network at all.
+  #   ancestor    — covers merge-commit PRs, works offline, always tried first.
+  #   gh sha      — covers squash merges, which the ancestor test reads as
+  #                 unmerged forever.
+  #   containment — covers a branch trailing the sha that merged, and a PR
+  #                 closed unmerged. One rev-list; see CONTAINMENT in the header.
+  how=""
+  if git -C "$ROOT" merge-base --is-ancestor "$head" "$MAIN_REF" 2>/dev/null; then
+    how="ancestor of $MAIN_REF"
+  else
+    load_merged_heads
+    if pr_merged_at_head "$head"; then
+      how="merged PR, head sha matches"
+    elif head_contained_in_resolved "$head"; then
+      how="every commit is in $MAIN_REF or a resolved PR"
+    fi
+    if [ -n "$how" ] && open_pr_holds "$head" "$branch"; then
+      note "no-remove $name: an open PR still has this head or branch"
+      return 1
+    fi
+  fi
+  if [ -z "$how" ]; then
+    note "no-remove $name: unresolved — not in $MAIN_REF and not covered by any merged or closed PR"
+    return 1
+  fi
+
+  # Clean? Fail closed: a status that errors keeps the worktree.
+  status=$(porcelain "$path") || return 1
+  if [ -n "$status" ]; then
+    # grep -c counts LINES; wc -l would count newlines, and $( ) has already
+    # stripped the trailing one, so a single dirty file reported as 0.
+    note "no-remove $name: $(printf '%s\n' "$status" | grep -c '') uncommitted/untracked file(s)"
+    return 1
+  fi
+
+  # Belt and braces for work that is committed but still being used: maxdepth
+  # keeps this cheap, and catches both source edits and a running build's
+  # writes to target/{debug,release}.
+  if [ -n "$(find "$path" -maxdepth 2 -newermt "-${MIN_IDLE_MINUTES} minutes" -print -quit 2>/dev/null)" ]; then
+    note "no-remove $name: touched in the last ${MIN_IDLE_MINUTES}m"
+    return 1
+  fi
+
+  size_kb=$(du -sk "$path" 2>/dev/null | awk '{print $1}')
+  [ -n "$size_kb" ] || size_kb=0
+
+  if [ "$DRY_RUN" = 1 ]; then
+    act "would remove $path ($(human "$size_kb")) — $how"
+    return 0
+  fi
+
+  [ "$locked" = 1 ] && git -C "$ROOT" worktree unlock "$path" >/dev/null 2>&1
+
+  # THE PLAIN REMOVE IS TRIED FIRST because git's own refusals are a second
+  # opinion worth having: it re-checks the clean tree this function checked a
+  # few lines up, and only `--force` gives that up. So force is the retry, not
+  # the call — and it runs only after a fresh porcelain check says the tree is
+  # still clean, because `du` of a multi-gigabyte worktree sits between the two
+  # checks and `--force` is the one command here that cannot be taken back.
+  #
+  # What forces the retry at all is a SUBMODULE: `git worktree remove` refuses
+  # any worktree containing a populated one ("working trees containing
+  # submodules cannot be moved or removed").
+  #
+  # `submodule deinit -f` first, then a plain remove, is NOT the alternative it
+  # looks like: git also refuses on the worktree's own `.git/worktrees/<n>/
+  # modules` directory, which deinit leaves behind, so the plain remove fails
+  # exactly as before (measured with git 2.50). --force is the only way past.
+  # It takes the worktree's submodule gitdir with it and leaves the main
+  # checkout's own submodule untouched.
+  #
+  # The retry does NOT reach a locked worktree — that needs `--force` twice,
+  # and the unlock above is the only thing here allowed to clear a lock.
+  #
+  # `2>&1 >/dev/null` keeps git's stderr and drops its stdout, and `rc` is read
+  # into a variable at each step: `$?` after the `if` below would be the IF's
+  # status, which is 0 whenever its condition is merely false.
+  err=$(remove_owned_worktree "$path" 2>&1 >/dev/null)
+  rc=$?
+  if [ "$rc" != 0 ]; then
+    # FAIL CLOSED, like the first clean check: an empty capture means "clean"
+    # OR "the command failed", and only one of those may reach `--force`. A
+    # `git status` that errors in this window — an unreadable path, a
+    # concurrent git operation, a transient index failure — would otherwise
+    # read as a clean tree and license the one irreversible command here.
+    recheck=$(porcelain "$path")
+    recheck_rc=$?
+    if [ "$recheck_rc" = 0 ] && [ -z "$recheck" ]; then
+      err=$(remove_owned_worktree "$path" --force 2>&1 >/dev/null)
+      rc=$?
+    fi
+  fi
+  if [ "$rc" = 0 ]; then
+    removed=$((removed + 1))
+    freed_kb=$((freed_kb + size_kb))
+    names="$names $(basename "$path" | tr -cd 'A-Za-z0-9._-')"
+    return 0
+  fi
+
+  # Audible, because this is the case that looked like nothing happening. The
+  # caller still falls through to tier 1, so a refused worktree keeps getting
+  # its build cache pruned.
+  REFUSED_N=$((REFUSED_N + 1))
+  REFUSED_NAMES="$REFUSED_NAMES $(basename "$path" | tr -cd 'A-Za-z0-9._-')"
+  # First refusal only, and scrubbed to what can sit inside the systemMessage's
+  # JSON string: a quote or a backslash from git would corrupt the object.
+  [ -n "$REFUSED_WHY" ] || REFUSED_WHY=$(printf '%s' "$err" | head -1 |
+    tr -cd 'A-Za-z0-9 ._:/(),-' | cut -c1-120)
+  return 1
+}
+
+consider() {
+  path=$1
+  head=$2
+  locked=$3
+  reason=$4
+  branch=$5
+
+  usable "$path" "$locked" "$reason" || return 0
+
+  # Tier 2 first: a full removal makes tier 1 moot for this worktree, and
+  # sizing the whole tree once beats sizing it and then its caches.
+  remove_worktree "$path" "$head" "$locked" "$branch" && return 0
+  prune_caches "$path"
+}
+
+# --porcelain emits one blank-line-separated record per worktree:
+#   worktree <path> / HEAD <sha> / branch <ref> / [locked [<reason>]]
+cur_path=""
+cur_head=""
+cur_locked=0
+cur_reason=""
+cur_branch=""
+
+flush() {
+  [ -n "$cur_path" ] || return 0
+  consider "$cur_path" "$cur_head" "$cur_locked" "$cur_reason" "$cur_branch"
+  cur_path=""
+  cur_head=""
+  cur_locked=0
+  cur_reason=""
+  cur_branch=""
+}
+
+while IFS= read -r line; do
+  case "$line" in
+    "worktree "*) flush; cur_path=${line#worktree } ;;
+    "HEAD "*)     cur_head=${line#HEAD } ;;
+    "branch "*)   cur_branch=${line#branch refs/heads/} ;;
+    "locked"*)    cur_locked=1; cur_reason=${line#locked} ;;
+  esac
+done < <(git -C "$ROOT" worktree list --porcelain)
+flush
+
+# A dry run changes nothing, and pruning deletes admin entries from
+# .git/worktrees, so it is skipped there. The orphan tier below then still
+# sees a stale entry as registered and does not name its directory — a dry run
+# may under-report orphans the real run would name, which is the conservative
+# direction for a tier that only reports.
+if [ "$DRY_RUN" != 1 ]; then
+  git -C "$ROOT" worktree prune >/dev/null 2>&1
+fi
+
+# Tier 3: NAME the directories under .claude/worktrees that git does not list,
+# and remove none of them. Runs after the prune above so, on a real run, a
+# stale admin entry has already resolved into a real record or an orphan.
+# See ORPHANS in the header for why neither tier above can reach these, and why
+# this tier reports instead of deleting.
+REGISTERED=$(git -C "$ROOT" worktree list --porcelain | awk '/^worktree /{print substr($0, 10)}')
+ORPHAN_KB=0
+ORPHAN_N=0
+ORPHAN_NAMES=""
+for path in "$WT_DIR"/*; do
+  [ -d "$path" ] || continue
+  name=$(basename "$path")
+
+  # A herestring, not `printf | grep`: under `set -o pipefail` a matching
+  # `grep -q` exits while printf is still writing, printf takes SIGPIPE, and
+  # the PIPELINE reports 141 even though the match succeeded. Every use of
+  # that shape here is a guard, so a false negative from a full pipe buffer
+  # inverts the guard rather than merely losing a line — measured at 141 with
+  # ~71KB of paths on bash 3.2. -F -x: a path is data, and a worktree name may
+  # hold regex metacharacters (`bridge-cse_01...`, `claude+branch`).
+  grep -Fxq "$path" <<<"$REGISTERED" && continue
+
+  # "git does not list THIS path" is not "git lists nothing under it". Codex's
+  # managed shape is `<id>/<repo>`, so when its root is configured below
+  # .claude/worktrees the registered worktree is the CHILD and the `<id>`
+  # directory above it is listed by nobody — an orphan by the test one line up,
+  # and somebody else's tree. Reporting rather than removing is what makes this
+  # merely a wrong LINE rather than a wrong `rm`, which is the whole reason
+  # this tier does not delete.
+  grep -Fq "$path/" <<<"$REGISTERED" && continue
+
+  case "$SESSION_CWD/" in "$path"/*) continue ;; esac
+  [ -e "$path/.git" ] && continue
+
+  if [ -n "$(find "$path" -maxdepth 2 -newermt "-${MIN_IDLE_MINUTES} minutes" -print -quit 2>/dev/null)" ]; then
+    continue
+  fi
+
+  size_kb=$(du -sk "$path" 2>/dev/null | awk '{print $1}')
+  [ -n "$size_kb" ] || size_kb=0
+  ORPHAN_KB=$((ORPHAN_KB + size_kb))
+  ORPHAN_N=$((ORPHAN_N + 1))
+  ORPHAN_NAMES="$ORPHAN_NAMES $(printf '%s' "$name" | tr -cd 'A-Za-z0-9._-')"
+  note "orphan $name ($(human "$size_kb")): not a worktree git knows — remove by hand"
+done
+
+if [ "$DRY_RUN" = 1 ]; then
+  # Report what is held rather than asserting why nothing happened: the reasons
+  # differ per worktree and the per-line notes above already carry them.
+  if [ "$WOULD_DO" = 0 ]; then
+    note 'nothing eligible this run'
+  else
+    note "$WOULD_DO action(s) eligible; re-run without RECLAIM_DRY_RUN=1 to apply"
+  fi
+  if [ "$HELD_LOCKED_KB" -gt 0 ]; then
+    note "  $(human "$HELD_LOCKED_KB") of cache is held by live-locked worktrees; it frees when those sessions exit"
+  fi
+  if [ "$HELD_RECENT_KB" -gt 0 ]; then
+    note "  $(human "$HELD_RECENT_KB") was built inside the last ${PRUNE_IDLE_MINUTES}m (RECLAIM_PRUNE_IDLE_MINUTES lowers that)"
+  fi
+  if [ "$ORPHAN_N" -gt 0 ]; then
+    note "  $ORPHAN_N unregistered director(ies) hold $(human "$ORPHAN_KB"):$ORPHAN_NAMES — this script does not remove those"
+  fi
+  note "  ${free_gb}G free now, low water ${FREE_LOW_WATER_GB}G"
+  exit 0
+fi
+
+# Stay silent on a no-op; SessionStart runs on every single session. An orphan
+# is the exception worth breaking that for, because it is the one thing here
+# NOTHING will ever clear on its own — but only once past the df gate, so the
+# nudge appears when the disk is actually tight rather than every session.
+# A REFUSED removal is the other exception, and for the same reason: nothing
+# clears it either, and unreported it is indistinguishable from a quiet run.
+if [ "$removed" -gt 0 ] || [ "$pruned" -gt 0 ] || [ "$ORPHAN_N" -gt 0 ] ||
+  [ "$REFUSED_N" -gt 0 ]; then
+  detail=""
+  [ "$removed" -gt 0 ] && detail="$removed resolved worktree(s):$names"
+  if [ "$pruned" -gt 0 ]; then
+    [ -n "$detail" ] && detail="$detail, "
+    detail="${detail}${pruned} idle build cache(s)"
+  fi
+  # One string with clauses appended, rather than a printf per combination:
+  # three independent things to report is eight of those.
+  msg=$([ -n "$detail" ] &&
+    printf 'Reclaimed %s of disk from %s' "$(human "$freed_kb")" "$detail" ||
+    printf 'Nothing was reclaimable')
+  if [ "$REFUSED_N" -gt 0 ]; then
+    # ASCII only, like the orphan clause: this string is a JSON value the
+    # harness parses, and the error text above has already been scrubbed to
+    # the same alphabet.
+    msg="$msg. git REFUSED to remove $REFUSED_N eligible worktree(s):$REFUSED_NAMES [${REFUSED_WHY:-no error text}]"
+  fi
+  if [ "$ORPHAN_N" -gt 0 ]; then
+    msg="$msg. $ORPHAN_N unregistered director(ies) under .claude/worktrees hold $(human "$ORPHAN_KB") and need removing by hand:$ORPHAN_NAMES"
+  fi
+  printf '{"systemMessage":"%s"}\n' "$msg"
+fi
+
+exit 0
