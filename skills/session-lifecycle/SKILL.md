@@ -51,8 +51,9 @@ If it cannot archive a primary, pinned or shared checkout, report owner release 
 Do not delete it with Git or modify Codex's private state.
 Archive the chat only when that is wanted; retaining chat history does not require retaining compilation caches.
 
-For a Claude-owned worktree, use the repository's existing reclaimer.
-It retains the tested lock, clean-tree and merge checks.
+For a Claude-owned worktree, use the reclaimer this skill ships at `scripts/reclaim-worktrees.sh`.
+A configured repository wires it up through a thin `.claude/reclaim-worktrees.sh` wrapper that runs it, used by the SessionStart hook and as the sweep's owner adapter.
+Its lock, clean-tree and merge gates are tested by `scripts/test_reclaim_worktrees.sh`.
 Unknown/manual locks remain protected and need the owner's decision.
 Use the native owner mechanism for other hosts; unsupported ownership is a reported limitation, not permission to force removal.
 Do not delete another agent's worktree because your work has finished.
