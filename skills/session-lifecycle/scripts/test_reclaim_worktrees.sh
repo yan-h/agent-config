@@ -307,6 +307,10 @@ check_agent_lock() {
 #   ghost-w   on an unborn branch, so its HEAD is the    -> KEPT
 #             null sha: the input `--ignore-missing`
 #             would silently drop, counting zero commits
+#   reopen-w  at E on reopen-b: a CLOSED PR's head is E, -> KEPT
+#             and an OPEN PR on reopen-b has moved on
+#   stack-w   at F: a CLOSED PR's head is F, and an      -> KEPT
+#             OPEN PR on another branch has head F too
 # None of them is an ancestor of main, so every one reaches the gh-backed
 # signals rather than stopping at the offline test.
 check_containment() {
@@ -337,6 +341,18 @@ check_containment() {
     git commit -q --allow-empty -m D || exit 1
     git checkout -q main 2>/dev/null || exit 1
 
+    # E and F, each closed in one PR and still claimed by an open one.
+    git checkout -q -b reopen-b 2>/dev/null || exit 1
+    git commit -q --allow-empty -m E || exit 1
+    e=$(git rev-parse HEAD)
+    git checkout -q main 2>/dev/null || exit 1
+    git checkout -q -b stack-b 2>/dev/null || exit 1
+    git commit -q --allow-empty -m F || exit 1
+    f=$(git rev-parse HEAD)
+    git checkout -q main 2>/dev/null || exit 1
+    git worktree add -q .claude/worktrees/reopen-w reopen-b 2>/dev/null || exit 1
+    git worktree add -q --detach .claude/worktrees/stack-w "$f" 2>/dev/null || exit 1
+
     git worktree add -q .claude/worktrees/closed-w closed-b 2>/dev/null || exit 1
     git worktree add -q .claude/worktrees/behind-w behind-b 2>/dev/null || exit 1
     git worktree add -q .claude/worktrees/live-w unresolved 2>/dev/null || exit 1
@@ -345,7 +361,10 @@ check_containment() {
     git worktree add -q --detach .claude/worktrees/ghost-w HEAD 2>/dev/null || exit 1
     git -C .claude/worktrees/ghost-w checkout -q --orphan ghost 2>/dev/null || exit 1
     git -C .claude/worktrees/ghost-w rm -rqf . >/dev/null 2>&1 || exit 1
-    printf 'CLOSED %s\nMERGED %s\n' "$b" "$c" > "$shas"
+    # The OPEN row on reopen-b names a head this clone never fetched: the veto
+    # has to come from the branch name alone.
+    printf 'CLOSED %s closed-b\nMERGED %s feature\nCLOSED %s reopen-b\nOPEN %s reopen-b\nCLOSED %s stack-b\nOPEN %s stack-top\n' \
+      "$b" "$c" "$e" "$(printf '%040d' 7)" "$f" "$f" > "$shas"
   ) || { fail "containment: could not build the fixture"; return; }
 
   if ! git -C "$main" worktree list --porcelain | grep -q '^HEAD 0\{40\}$' ||
@@ -354,8 +373,8 @@ check_containment() {
     return
   fi
 
-  # The script asks gh for `--json state,headRefOid --jq ...`; the shim stands
-  # in for the whole call and emits what that jq would have produced.
+  # The script asks gh for `--json state,headRefOid,headRefName --jq ...`; the
+  # shim stands in for the whole call and emits what that jq would have produced.
   cat > "$work/bin/gh" <<SHIM
 #!/usr/bin/env bash
 cat "$shas"
@@ -390,6 +409,36 @@ SHIM
   for case in "live-w:a branch in no PR" "ghost-w:a HEAD this clone cannot resolve"; do
     wt=${case%%:*}
     if grep -q "no-remove $wt: unresolved" <<<"$out" &&
+      ! grep -q "would remove .*$wt" <<<"$out"; then
+      echo "✓ ${case#*:} is still kept"
+    else
+      fail "containment removed ${case#*:} ($wt)"
+      printf '%s\n' "$out" | sed 's/^/    /' >&2
+    fi
+  done
+
+  # A gh that wrote every row and then failed is discarded whole: a failure
+  # partway through its pages could have lost an OPEN row, and with it a veto.
+  cat > "$work/bin/gh" <<SHIM
+#!/usr/bin/env bash
+cat "$shas"
+exit 1
+SHIM
+  failed=$(cd "$main" && PATH="$work/bin:$PATH" CLAUDE_PROJECT_DIR="$main" \
+    RECLAIM_DRY_RUN=1 RECLAIM_FORCE=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    "$SCRIPT" </dev/null 2>&1)
+  if grep -q "gh pr list failed (exit 1)" <<<"$failed" &&
+    ! grep -q "would remove" <<<"$failed"; then
+    echo "✓ a failed gh call resolves nothing"
+  else
+    fail "a failed gh call was still trusted"
+    printf '%s\n' "$failed" | sed 's/^/    /' >&2
+  fi
+
+  # Resolved by a closed PR, and vetoed by an open one: by branch, then by sha.
+  for case in "reopen-w:a branch an open PR still names" "stack-w:a head an open PR still names"; do
+    wt=${case%%:*}
+    if grep -q "no-remove $wt: an open PR" <<<"$out" &&
       ! grep -q "would remove .*$wt" <<<"$out"; then
       echo "✓ ${case#*:} is still kept"
     else

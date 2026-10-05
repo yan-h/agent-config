@@ -90,7 +90,9 @@
 #   - it is not the main checkout
 #   - it is not the worktree this session is running in
 #   - its work is RESOLVED by one of the three signals above, so the commits
-#     survive the removal in main, on the remote, or on the kept branch ref
+#     survive the removal in main, on the remote, or on the kept branch ref,
+#     and, when a gh-backed signal decided it, no OPEN PR has its head sha or
+#     its branch
 #   - `git status --porcelain` is empty: no uncommitted and no untracked files,
 #     and no submodule with either, whatever the user's status config says
 #   - it is not locked by a live SESSION — a lock whose pid is sitting in the
@@ -374,9 +376,13 @@ porcelain() {
 }
 
 # One sha per line for every merged PR, and one per line for every resolved PR
-# (merged or closed). Loaded at most once per run.
+# (merged or closed). OPEN_HEADS and OPEN_BRANCHES list every open PR's head sha
+# and head branch, which veto a resolved verdict (see open_pr_holds). Loaded at
+# most once per run.
 MERGED_HEADS=""
 RESOLVED_HEADS=""
+OPEN_HEADS=""
+OPEN_BRANCHES=""
 MERGED_TRIED=0
 
 load_merged_heads() {
@@ -398,16 +404,15 @@ load_merged_heads() {
   # merged commit. The sha alone is the whole claim — if HEAD *is* a merged
   # PR's head commit, that work merged, whatever the branch is called.
   # --jq uses gh's embedded jq, so this needs no external jq. `--state all`
-  # rather than two calls: one round trip carries both verdicts, and OPEN is
-  # dropped here so an in-flight PR never counts as resolved.
+  # rather than separate calls: one round trip carries every verdict. OPEN
+  # rows never count as resolved; they are kept, with their branch, as vetoes.
   # From $ROOT, because gh takes its repository from the process cwd: the
   # sweep or a hand-run from another checkout would otherwise resolve THAT
   # repo's PRs, match no sha here, and fall back to ancestor-only. `exec` keeps
   # $! the gh process itself, so the timeout below kills gh and not a shell.
   (cd "$ROOT" && exec gh pr list --state all --limit "$GH_PR_LIMIT" \
-    --json state,headRefOid \
-    --jq '.[] | select(.state == "MERGED" or .state == "CLOSED")
-              | "\(.state) \(.headRefOid)"') >"$tmp" 2>/dev/null &
+    --json state,headRefOid,headRefName \
+    --jq '.[] | "\(.state) \(.headRefOid) \(.headRefName)"') >"$tmp" 2>/dev/null &
   gh_pid=$!
 
   # Bound it by hand: macOS ships no `timeout`, and a hung network call must not
@@ -426,10 +431,22 @@ load_merged_heads() {
     return 0
   fi
   wait "$gh_pid" 2>/dev/null
+  gh_rc=$?
+
+  # A gh that fails partway through its pages can still have written the pages
+  # it got. A short resolved list only keeps worktrees, but a short OPEN list
+  # would drop a veto, so a failed call is discarded whole.
+  if [ "$gh_rc" != 0 ]; then
+    note "gh pr list failed (exit $gh_rc) — ancestor-only for this run"
+    rm -f "$tmp"
+    return 0
+  fi
 
   if [ -s "$tmp" ]; then
     MERGED_HEADS=$(awk '$1 == "MERGED" {print $2}' "$tmp")
-    RESOLVED_HEADS=$(awk '{print $2}' "$tmp")
+    RESOLVED_HEADS=$(awk '$1 == "MERGED" || $1 == "CLOSED" {print $2}' "$tmp")
+    OPEN_HEADS=$(awk '$1 == "OPEN" {print $2}' "$tmp")
+    OPEN_BRANCHES=$(awk '$1 == "OPEN" && NF >= 3 {print $3}' "$tmp")
     note "gh: $(printf '%s\n' "$RESOLVED_HEADS" | wc -l | tr -d ' ') resolved PR head(s) ($(printf '%s\n' "$MERGED_HEADS" | wc -l | tr -d ' ') merged)"
   else
     note 'gh returned nothing (offline, or not authenticated) — ancestor-only for this run'
@@ -472,6 +489,22 @@ head_contained_in_resolved() {
              printf '^%s\n' $RESOLVED_HEADS
            } | git -C "$ROOT" rev-list --ignore-missing --stdin --count 2>/dev/null )
   [ "$count" = 0 ]
+}
+
+# True when an OPEN PR still claims this worktree: its HEAD is an open PR's
+# head sha, or its branch is an open PR's head branch. Either vetoes the two
+# gh-backed signals, because "resolved" is read from closed and merged PRs
+# alone, and the same work can be closed in one PR and live in another: a
+# branch closed and re-opened as a new PR, or a closed PR's head reused by an
+# open stacked one. Removal would lose no commits there, but it would take the
+# worktree and its build from under a PR still in review.
+#
+# The branch test matches by name only, so a same-named branch from a fork
+# also vetoes. That is the conservative direction.
+open_pr_holds() {
+  [ -n "$1" ] && grep -Fxq "$1" <<<"$OPEN_HEADS" && return 0
+  [ -n "$2" ] && grep -Fxq "$2" <<<"$OPEN_BRANCHES" && return 0
+  return 1
 }
 
 # Rename aside, then delete detached. The rename is atomic within the volume,
@@ -744,6 +777,10 @@ remove_worktree() {
       how="merged PR, head sha matches"
     elif head_contained_in_resolved "$head"; then
       how="every commit is in $MAIN_REF or a resolved PR"
+    fi
+    if [ -n "$how" ] && open_pr_holds "$head" "$branch"; then
+      note "no-remove $name: an open PR still has this head or branch"
+      return 1
     fi
   fi
   if [ -z "$how" ]; then
