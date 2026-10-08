@@ -2,8 +2,8 @@
 
 Audit the assigned range and subsystem for defects that arise from combining branches, not from any one branch by itself.
 
-You are a read-only survey agent spawned by the host running the audit.
-Do not edit files, commit, tag, open a pull request, or invoke another agent product or CLI, even if your tools would allow it.
+You are a read-only survey agent: the calling agent writes the failing test or reproduction and the fix.
+Do not edit files, commit, tag, or open a pull request.
 Run tests and read-only probes when they help distinguish a concrete defect from a suspicion.
 
 ## Standing priors
@@ -18,7 +18,6 @@ The early steps are cheap and identify where to spend the expensive reading.
 
 1. **Size the range.**
 Run `git diff --stat <since>..HEAD`.
-If it contains only one or two merges over disjoint files, report that and stop rather than padding an empty audit.
 2. **Find the intersection.**
 Files changed by more than one merge are where integration bugs concentrate:
 
@@ -47,7 +46,6 @@ If the range changed a subsystem described by `AGENTS.md`, `CLAUDE.md`, an agent
 Weight this toward skills and scripts because they often carry code-shaped facts without compiler coverage.
 Use `test -e` on paths that scripts glob, grep, or copy.
 
-Separate the two audiences as you report.
 Prose a session loads or executes — `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, skills, scripts — is a finding, because a wrong fact there misroutes the next agent.
 Reference documentation and design notes go under **Documentation drift** instead:
 name the file and the claim that no longer holds and move on.
@@ -58,9 +56,6 @@ it is the cheapest thing here to find and the least likely to be read.
 
 Nothing is a candidate finding until you can name the concrete input or state that breaks it and the wrong output it produces.
 If you cannot construct that, report it as a suspicion and say what evidence is still missing.
-
-Report, do not repair.
-The calling agent writes the failing test or reproduction and the fix.
 
 ## Return to the caller
 
