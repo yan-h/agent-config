@@ -27,7 +27,9 @@ Verify what it reports before passing it on.
 
 ## Design
 
-Do this pass yourself; it is the part that needs judgement.
+Do this pass yourself, unless you wrote or shaped the change: its author is anchored to the design it chose.
+Then brief a fresh agent with the change, the project contract and this section, and use its result as the design pass.
+It is consequential judgement; size it by the global subagent guidance.
 
 First state the problem the change solves, in terms of behaviour rather than code.
 Then ask how you would solve that problem in this codebase if the change did not exist, reading beyond the diff as far as the answer needs.
@@ -58,8 +60,8 @@ Lead with a one-line verdict: merge as is, adjust within this change, merge and 
 
 Then:
 
-- **Correctness:** each confirmed defect, and each uncertain one marked as such.
-- **Design:** the current approach in a few sentences, then the alternatives ranked by net benefit, each with its tradeoff as above.
+- **Correctness:** each confirmed defect, and each uncertain one marked as such, naming the alternative that would remove it if one would.
+- **Design:** the current approach in a few sentences, then the alternatives ranked by net benefit, counting the defects each removes, each with its tradeoff as above.
   Keep necessary fixes apart from optional improvements.
 - **Questions:** decisions that belong to the owner, with a recommendation for each.
 

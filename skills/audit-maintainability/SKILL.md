@@ -80,7 +80,7 @@ Exclude generated files, lockfiles and prose the project regenerates.
 For an area's slice pass every file and directory it spans; an area that does not map onto paths gets the whole map, and the auditor picks its files from it.
 A file that only lists submodules can rank as a hotspot on history from before it was split up;
 follow it into its directory before reading anything into it.
-This is bounded, mechanical work: do it in the calling session or in one agent on a fast model.
+This is bounded, mechanical work; do it yourself or delegate it by the global subagent guidance.
 
 Split the map by area.
 It tells each auditor where reading will pay, and it is the evidence the findings cite.

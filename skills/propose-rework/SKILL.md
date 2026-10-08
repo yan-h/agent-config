@@ -35,7 +35,7 @@ Run two read-only agents while you read the design yourself:
   Read it and pass it on, applied to the part being reworked;
   for an internal part, the behaviour to describe is what its callers observe at its interface.
   Its blind description is the behaviour the rework must keep or change on purpose.
-- **Inventory**, on a fast model: every caller, entry point, persisted format, public interface, configuration key and test that touches the part.
+- **Inventory**, bounded lookup: every caller, entry point, persisted format, public interface, configuration key and test that touches the part.
   This is the surface the migration has to carry.
 
 ## Design
