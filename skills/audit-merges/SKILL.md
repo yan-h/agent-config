@@ -41,15 +41,11 @@ without it, the list can fill with branch catch-up merges rather than work landi
 
 If the range is trivially small—one or two merges touching disjoint files—report that and stop.
 
-## Use the invoking host's own subagents
+## Survey, in parallel
 
 Read [the merge-auditor brief](references/merge-auditor.md) completely before delegating.
 Give each survey agent that brief, the selected range, and one disjoint subsystem.
-
-Use the invoking host's native subagent mechanism.
-Never invoke another agent product, model host, or CLI to perform the audit.
-A Codex invocation is performed entirely by Codex agents;
-a Claude invocation is performed entirely by Claude agents.
+Its work is consequential judgement; size it by the global subagent guidance.
 
 For a range spanning more than one subsystem, run one subagent per disjoint subsystem concurrently rather than one over everything.
 Subagents are read-only for the survey:
