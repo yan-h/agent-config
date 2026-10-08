@@ -13,8 +13,7 @@ No configuration means no guessed artifact or cache paths.
 
 ## During work
 
-Use `./session-lifecycle.sh run -- <command>` for builds, tests, checks and other commands that write compilation output.
-The helper holds one workspace lock outside `target/` and invalidates an old completion record before starting.
+`./session-lifecycle.sh run -- <command>`, which the global defaults require for commands that write compilation output, holds one workspace lock outside `target/` and invalidates an old completion record before starting.
 Custom Cargo target/build directories are unsupported; keep their caches rather than guessing.
 Cleanup also takes Cargo 1.92's native debug/release locks without replacing those lock files; revisit that when the configured projects change Cargo version, output layout or locking behavior.
 
