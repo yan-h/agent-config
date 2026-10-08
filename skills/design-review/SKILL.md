@@ -5,8 +5,7 @@ description: Review a change for correctness and for whether a different design 
 
 # Review the design, not only the diff
 
-A bug review asks whether the change is correct as written.
-This review also asks whether it should have been written this way:
+Besides whether the change is correct as written, this review asks whether it should have been written this way:
 whether another design, perhaps a larger change now, would leave the code simpler to own.
 
 The target is the PR, branch or path the invocation names, or the current branch's diff against the primary branch when it names none.
@@ -16,14 +15,12 @@ Read the project's local contract, and the issue or PR description behind the ch
 What counts as maintainable depends on where the project is going: its roadmap, its recorded decisions, and the scale it must support.
 Recorded decisions are not reopened here; one that the evidence strongly contradicts becomes a question for the owner.
 
-The global engineering tradeoff and code review defaults apply throughout.
 The owner will usually spend substantial upfront work for a significant, lasting gain in maintainability, and not for a marginal one.
 
 ## Correctness
 
 Run a correctness review in parallel with the design pass, in a subagent:
 the review tool the project contract names, or else whatever review command the host provides, or else a fresh subagent briefed with the diff and the project contract.
-Verify what it reports before passing it on.
 
 ## Design
 
@@ -46,7 +43,6 @@ Compare the change against that design. Look in particular for:
 - changes that will force edits in several places the next time this area moves;
 - tests pinned to implementation details rather than behaviour.
 
-Speculative generality and cosmetic churn are debt too.
 An alternative is worth raising only when it removes something: a concept, a duplicated mechanism, an invariant, a class of future edits, or a real performance cost.
 If the current approach is sound, say so and stop looking.
 
@@ -62,7 +58,6 @@ Then:
 
 - **Correctness:** each confirmed defect, and each uncertain one marked as such, naming the alternative that would remove it if one would.
 - **Design:** the current approach in a few sentences, then the alternatives ranked by net benefit, counting the defects each removes, each with its tradeoff as above.
-  Keep necessary fixes apart from optional improvements.
 - **Questions:** decisions that belong to the owner, with a recommendation for each.
 
 Change no code in this pass.

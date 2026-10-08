@@ -5,12 +5,7 @@ description: Preserve build handoffs and reclaim disposable compilation output w
 
 # Finish the work and its workspace
 
-The owning session handles cleanup; subagents sharing its checkout report completion to that owner.
-A pause, an unanswered question, or an open PR is not permission to discard source work.
-Never manufacture a permanent Git worktree lock.
-
 Read the project's `.agent-lifecycle.json` and handover contract.
-Package names, artifact paths and loader commands belong there, not in this skill.
 The helper requires Python 3.11+ on macOS or Linux.
 The shared CLI is `python3 <this-skill>/scripts/lifecycle.py --repo <checkout>`;
 configured repositories also provide `./session-lifecycle.sh`.
@@ -22,16 +17,14 @@ Use `./session-lifecycle.sh run -- <command>` for builds, tests, checks and othe
 The helper holds one workspace lock outside `target/` and invalidates an old completion record before starting.
 Project CI also participates when this skill is installed.
 Custom Cargo target/build directories are unsupported; keep their caches rather than guessing.
-The configured projects pin Cargo 1.92; cleanup also takes its native debug/release locks, without replacing those lock files.
-Revisit that contract when changing Cargo's output layout or locking behavior.
+Cleanup also takes Cargo 1.92's native debug/release locks without replacing those lock files; revisit that when the configured projects change Cargo version, output layout or locking behavior.
 
 ## Hand over
 
 Commit, push and open the required draft PR before building.
 Run `./session-lifecycle.sh handoff` after tests finish.
-It runs the project's declared build, publishes the complete artifact set under the repository's common Git directory, verifies checksums, then removes compilation intermediates.
-The source checkout and top-level loadable binaries remain available.
-The publication records the actual committed source used by this build; dirty source is refused.
+It runs the project's declared build, publishes the complete artifact set, recording the commit it was built from, under the repository's common Git directory, verifies checksums, then removes compilation intermediates, keeping the source checkout and top-level loadable binaries.
+Dirty source is refused.
 A failed build or publication preserves the previous handoff and does not prune caches.
 
 For a pause during active iteration use `handoff --keep-cache`, or the project's ordinary build command if source is still uncommitted.
@@ -53,9 +46,8 @@ Archive the chat only when that is wanted; retaining chat history does not requi
 
 For a Claude-owned worktree, use the reclaimer this skill ships at `scripts/reclaim-worktrees.sh`.
 The sweep runs it directly for each configured repository; a repository's SessionStart hook and hand-runs reach it through a thin `.claude/reclaim-worktrees.sh` wrapper.
-Its lock, clean-tree and merge gates are tested by `scripts/test_reclaim_worktrees.sh`, which agent-config's `scripts/check.py` runs.
 Unknown/manual locks remain protected and need the owner's decision.
-Use the native owner mechanism for other hosts; unsupported ownership is a reported limitation, not permission to force removal.
+On other hosts, unsupported ownership is a reported limitation, not permission to force removal.
 Do not delete another agent's worktree because your work has finished.
 
 ## Fallback and retention
