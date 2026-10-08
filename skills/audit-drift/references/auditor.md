@@ -21,7 +21,6 @@ and every test of one feature turned out to run on a configuration the product d
    Inventory the area's flags, passes, special cases, constants and settings.
    For each, search history for the change that added it (`git log -S` / `-G`), read that PR's body for the reason,
    and judge whether the reason still holds on the primary branch.
-   A mechanism whose reason was a case since removed or replaced is the finding this audit exists for.
 2. **Producer reachability.**
    For each field a consumer reads, list the values its callers can actually produce today.
    A branch no caller can reach, a field every stage overwrites,

@@ -1,8 +1,6 @@
 # Describer brief
 
-Write a plain-language description of how one area of the product BEHAVES,
-for the auditing session to cross-check against history.
-It is not shown to the owner as written.
+Write a plain-language description of how one area of the product BEHAVES.
 
 ## Blinding
 
