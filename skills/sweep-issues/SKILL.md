@@ -38,8 +38,7 @@ When unsure, the issue is not a no-input issue.
 Ask every simple decision in one message, each with its options and a recommendation.
 Start the no-input work without waiting for the answers; answered issues join it.
 
-Do not close issues directly.
-An issue closes when its fix merges; list issues that look already fixed or obsolete in the report.
+Do not close issues directly; an issue closes when its fix merges.
 
 ## Plan
 
@@ -49,7 +48,7 @@ Record which merges must precede which, including dependencies on PRs outside th
 ## Fix
 
 One issue, or one tight group, per branch.
-Delegate by the global subagent guidance; implementers run fast checks, and the coordinating session runs the full gates.
+Implementers run fast checks, and the coordinating session runs the full gates.
 
 Keep each branch to its issue.
 Implementers and reviewers report other problems they find to the coordinating session rather than fixing them in passing.
@@ -58,7 +57,6 @@ a small no-input fix joins the sweep on its own branch, or rides along when it i
 anything else is filed as an issue.
 
 If a fix turns out to need a decision after all, stop that issue, leave its branch as a draft PR, and ask.
-Do not guess and merge.
 
 Stop only processes this session started, by PID.
 Sibling worktrees run the same gates, and a pattern kill such as `pkill -f` stops theirs too.
@@ -69,14 +67,12 @@ Decide whether each branch needs a review as `review-and-merge`'s "Decide whethe
 an implementer who reported uncertainty is a reason to review.
 A review is the correctness review from that skill's "Review" section, without its design pass:
 a sweep takes only issues whose fix is already clear, so a design question means the issue was misclassified, and it goes to the owner as above.
-Its fixes stay within the diff under review; anything else it finds goes to the coordinating session, as above.
 
 ## Merge
 
-Merge one PR at a time, in the planned order.
+Merge in the planned order, starting each PR only once the previous one has landed.
 Before each, bring the current primary branch in by the project's method and rerun the gates;
-then wait for the checks and merge as `review-and-merge`'s "Wait for the checks" and "Merge" sections describe,
-starting the next only once it has landed.
+then wait for the checks and merge as `review-and-merge`'s "Wait for the checks" and "Merge" sections describe.
 
 If bringing the primary branch in conflicts beyond the change's own scope, or the gates fail for a reason outside it, leave the PR open and report it.
 
