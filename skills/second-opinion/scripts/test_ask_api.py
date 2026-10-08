@@ -35,15 +35,25 @@ class Resolution(unittest.TestCase):
 
 
 class Price(unittest.TestCase):
-    def test_a_new_model_borrows_its_lines_newest_price_and_an_unlined_one_has_none(self):
-        self.assertEqual(ask_api.price_for("claude-fable-5-1", "fable"), (10.0, 50.0, None))
+    def test_only_a_model_newer_than_its_lines_priced_row_borrows_that_price(self):
+        models = [
+            model("claude-opus-5", "opus", "2026-03-01T00:00:00+00:00"),
+            model("claude-opus-5-5", "opus", "2026-09-01T00:00:00+00:00"),
+            model("claude-opus-6", "opus", "2026-12-01T00:00:00+00:00"),
+            model("claude-fable-5-1", "fable", "2026-08-01T00:00:00+00:00"),
+            model("claude-fable-6", "fable", "2026-12-01T00:00:00+00:00"),
+            model("claude-preview", None, "2026-12-02T00:00:00+00:00"),
+        ]
+        self.assertEqual(ask_api.price_for("claude-fable-5-1", models), (10.0, 50.0, None))
         self.assertEqual(
-            ask_api.price_for("claude-fable-6", "fable"), (10.0, 50.0, "claude-fable-5-1")
+            ask_api.price_for("claude-fable-6", models), (10.0, 50.0, "claude-fable-5-1")
         )
         self.assertEqual(
-            ask_api.price_for("claude-opus-6", "opus"), (4.0, 20.0, "claude-opus-5-5")
+            ask_api.price_for("claude-opus-6", models), (4.0, 20.0, "claude-opus-5-5")
         )
-        self.assertIsNone(ask_api.price_for("claude-preview", None))
+        self.assertIsNone(ask_api.price_for("claude-opus-5", models))  # older, dearer
+        self.assertIsNone(ask_api.price_for("claude-preview", models))
+        self.assertIsNone(ask_api.price_for("claude-unlisted", models))
 
 
 class Guard(unittest.TestCase):

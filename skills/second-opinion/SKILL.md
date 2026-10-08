@@ -13,10 +13,11 @@ Each call costs real money, so run it only when the owner asks for one, and send
 ask-api "Is keying this cache on the whole config sound?" -f src/cache.rs -f src/draw.rs
 ask-api --review                          # branch vs its merge base with main, plus every changed file
 ask-api --review --diff "HEAD~3" "focus on the persistence change"
-git log -p -5 -- src/take.rs | ask-api "What has this file's churn been fixing?"
+git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been fixing?"
 ```
 
-`--model` takes `fable` (the default), `opus`, `sonnet` or `haiku`, each meaning the newest active model of that line, or a full model ID to pin one.
+`--model` takes `fable` (the default), `opus` or `sonnet`, each meaning the newest active model of that line, or a full model ID to pin one.
+Stdin is read only with `--stdin`.
 `--effort` defaults to `high`.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
 
@@ -35,14 +36,15 @@ Over `--max-cost` (default $3), or for a model with no known price, it stops wit
 Do not pass `--yes` unless the owner has agreed to that call's cost; narrow the context or ask instead.
 `--dry-run` prints the estimate and the included context without sending.
 
-A model newer than the price table borrows the newest known price of its line, and the estimate says so.
+A model released after the price table's newest row for its line borrows that row's price, and the estimate says so.
 Tell the owner when that note appears, because the table wants a row for the new model.
+An older or unlisted model has no price, since it may cost more.
 
 ## After the answer
 
 Treat the answer as a lead, not a verdict.
 Check each finding against the code before reporting it, and report which held, which did not and why, and the cost line `ask-api` printed.
-Exit codes: 3 means the model declined, 4 means the answer was cut off at `--max-tokens`.
+Exit codes: 3 means the model declined (there is no automatic fallback, because its second attempt would escape the cost guard; re-ask with `--model opus` if the owner agrees), 4 means the answer was cut off at `--max-tokens`.
 
 ## What the credits pay for
 
@@ -64,4 +66,6 @@ ln -s ~/projects/agent-config/skills/second-opinion ~/.claude/skills/second-opin
 
 Create a separate API key per machine in the Console, in a workspace with a spend limit.
 For Claude Code, allow `Bash(ask-api:*)` in `~/.claude/settings.json`; reading the key from the Keychain is otherwise blocked as credential access.
-Each sent call is appended to `~/.local/state/ask-api/log.jsonl` with its model, tokens and cost.
+An `ANTHROPIC_API_KEY` in the environment takes precedence over the Keychain item.
+Calls always go to `api.anthropic.com`, whatever `ANTHROPIC_BASE_URL` says, so a gateway never sees the key.
+Each sent call is appended to `~/.local/state/ask-api/log.jsonl` with its model, tokens, cost and status, including calls that fail partway.

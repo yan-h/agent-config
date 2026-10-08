@@ -4,7 +4,7 @@ Claude API, billed to the API key's credits instead of a Claude subscription.
 
   ask-api "question" [-f FILE ...] [--diff RANGE]
   ask-api --review [--diff RANGE] [-f FILE ...] ["what to focus on"]
-  git diff | ask-api "question about the piped text"
+  git diff | ask-api --stdin "question about the piped text"
 
 The answer goes to stdout; the model, cost estimate and actual cost go to
 stderr, and every sent call is appended to $ASK_API_STATE/log.jsonl.
@@ -16,9 +16,9 @@ import argparse
 import datetime as dt
 import json
 import os
-import stat
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -27,18 +27,18 @@ STATE = Path(os.environ.get("ASK_API_STATE", Path.home() / ".local/state/ask-api
 KEYCHAIN_SERVICE = "anthropic-api-key"
 SCRIPT = Path(__file__).resolve()
 GLOBAL_AGENTS = SCRIPT.parents[3] / "global" / "AGENTS.md"
-LINES = ("fable", "opus", "sonnet", "haiku")
-FALLBACK_LINES = ("fable", "opus", "sonnet")  # haiku has no server-side fallback
+API_URL = "https://api.anthropic.com"  # never an inherited gateway: it would see the key
+LINES = ("fable", "opus", "sonnet")
 CATALOG_TTL = 24 * 3600
 
 # USD per million tokens (line, input, output); newest row of each line last.
-# A newer model in a line borrows that line's last row until it gets its own.
-# Haiku 5.5 doubles past 100K input tokens; ignored here.
+# A model released after its line's last row borrows that row's price until it
+# gets its own; an older or unlisted model has no price, so the guard needs --yes.
+# No haiku: Haiku 5.5's price changes past 100K input tokens.
 PRICES = {
     "claude-fable-5-1": ("fable", 10.00, 50.00),
     "claude-opus-5-5": ("opus", 4.00, 20.00),
     "claude-sonnet-5-5": ("sonnet", 2.00, 10.00),
-    "claude-haiku-5-5": ("haiku", 0.10, 0.50),
 }
 
 DESIGN_PROMPT = """\
@@ -84,20 +84,23 @@ def newest_in_line(models: list[dict], line: str) -> str | None:
     return max(active, key=lambda m: m["created_at"])["id"] if active else None
 
 
-def line_of(models: list[dict], model_id: str) -> str | None:
-    for m in models:
-        if m["id"] == model_id:
-            return m.get("line")
-    return PRICES.get(model_id, (None,))[0]
+def catalog_entry(models: list[dict], model_id: str) -> dict | None:
+    return next((m for m in models if m["id"] == model_id), None)
 
 
-def price_for(model_id: str, line: str | None) -> tuple[float, float, str | None] | None:
-    """(input, output, assumed_from) per million tokens, or None when unknown."""
+def price_for(model_id: str, models: list[dict]) -> tuple[float, float, str | None] | None:
+    """(input, output, assumed_from) per million tokens, or None when unknown.
+    Only a model the catalog dates after its line's newest priced row borrows
+    that row's price: an older one may cost more."""
     if model_id in PRICES:
         _, inp, out = PRICES[model_id]
         return inp, out, None
-    known = [k for k, row in PRICES.items() if line is not None and row[0] == line]
-    if not known:
+    entry = catalog_entry(models, model_id)
+    if entry is None or entry.get("line") is None:
+        return None
+    known = [k for k, row in PRICES.items() if row[0] == entry["line"]]
+    base = catalog_entry(models, known[-1]) if known else None
+    if base is None or entry["created_at"] <= base["created_at"]:
         return None
     _, inp, out = PRICES[known[-1]]
     return inp, out, known[-1]
@@ -154,15 +157,6 @@ def read_text(path: Path) -> str | None:
         return None
 
 
-def piped_stdin() -> str | None:
-    """Text piped or redirected into stdin; a terminal or /dev/null is not read."""
-    mode = os.fstat(0).st_mode
-    if stat.S_ISFIFO(mode) or stat.S_ISREG(mode):
-        text = sys.stdin.read()
-        return text if text.strip() else None
-    return None
-
-
 def review_base() -> str:
     for ref in ("origin/main", "main"):
         result = subprocess.run(
@@ -215,8 +209,10 @@ def build_prompt(args: argparse.Namespace) -> tuple[str, str, list[str]]:
             continue  # binary or vanished file named by the diff
         parts.append(f'<file path="{shown_path(path, root)}">\n{text}</file>')
         included.append(shown_path(path, root))
-    stdin = piped_stdin()
-    if stdin:
+    if args.stdin:  # only on request: a script's own pipe is not ours to drain
+        stdin = sys.stdin.read()
+        if not stdin.strip():
+            fail("--stdin was given but stdin is empty")
         parts.append(f"<piped_input>\n{stdin}</piped_input>")
         included.append("piped input")
 
@@ -272,9 +268,10 @@ def catalog(client, anthropic) -> list[dict]:
             return cached["models"]
         raise
     STATE.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(".tmp")
-    tmp.write_text(json.dumps({"fetched": time.time(), "models": models}))
-    tmp.replace(path)
+    # A temp file per run, so concurrent refreshes never share one.
+    with tempfile.NamedTemporaryFile("w", dir=STATE, suffix=".tmp", delete=False) as tmp:
+        tmp.write(json.dumps({"fetched": time.time(), "models": models}))
+    Path(tmp.name).replace(path)
     return models
 
 
@@ -289,18 +286,46 @@ def resolve(name: str, models: list[dict]) -> str:
     return newest
 
 
-def log(entry: dict) -> None:
+def record(args, model, price, message, status: str, seconds: float) -> float | None:
+    """Append one sent call, finished or not, to the log; return its cost if known."""
+    usage = message.usage if message is not None else None
+    cost = None
+    if usage is not None and price:
+        cache_write = usage.cache_creation_input_tokens or 0
+        cache_read = usage.cache_read_input_tokens or 0
+        billed_input = usage.input_tokens + 1.25 * cache_write + 0.1 * cache_read
+        cost = (billed_input * price[0] + usage.output_tokens * price[1]) / 1e6
+    entry = {
+        "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "repo": str(repo_root() or Path.cwd()),
+        "mode": "review" if args.review else "question",
+        "asked": args.model,
+        "model": model,
+        "effort": args.effort,
+        "status": status,
+        "input_tokens": usage.input_tokens if usage else None,
+        "cache_write_tokens": usage.cache_creation_input_tokens if usage else None,
+        "cache_read_tokens": usage.cache_read_input_tokens if usage else None,
+        "output_tokens": usage.output_tokens if usage else None,
+        "cost_usd": None if cost is None else round(cost, 4),
+        "price_assumed_from": price[2] if price else None,
+        "stop_reason": message.stop_reason if message is not None else None,
+        "seconds": round(seconds, 1),
+        "question": (args.question or "")[:200],
+    }
     STATE.mkdir(parents=True, exist_ok=True)
     with (STATE / "log.jsonl").open("a") as f:
         f.write(json.dumps(entry) + "\n")
+    return cost
 
 
 def ensure_sdk():
+    # The venv's SDK, never an older one the system Python happens to have.
+    if VENV_PYTHON.exists() and Path(sys.prefix).resolve() != VENV_PYTHON.parents[1].resolve():
+        os.execv(VENV_PYTHON, [str(VENV_PYTHON), str(SCRIPT), *sys.argv[1:]])
     try:
         import anthropic
     except ImportError:
-        if VENV_PYTHON.exists() and Path(sys.executable) != VENV_PYTHON:
-            os.execv(VENV_PYTHON, [str(VENV_PYTHON), str(SCRIPT), *sys.argv[1:]])
         fail(
             "the anthropic SDK is missing; install it with\n"
             f"  python3 -m venv {VENV_PYTHON.parents[1]} && "
@@ -314,8 +339,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("question", nargs="?", help="the question, or what a review should focus on")
     p.add_argument("-f", "--file", action="append", default=[], help="include a file (repeatable)")
     p.add_argument("--diff", metavar="ARGS", help='git diff arguments, e.g. "origin/main...HEAD"')
+    p.add_argument("--stdin", action="store_true", help="include text piped into stdin")
     p.add_argument("--review", action="store_true", help="review a change; diffs against the merge base with main unless --diff is given")
-    p.add_argument("-m", "--model", default="fable", help="fable, opus, sonnet, haiku (newest of the line) or a full model ID; default fable")
+    p.add_argument("-m", "--model", default="fable", help="fable, opus or sonnet (newest of the line) or a full model ID; default fable")
     p.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh", "max"])
     p.add_argument("--max-tokens", type=int, default=32000)
     p.add_argument("--max-cost", type=float, default=float(os.environ.get("ASK_API_MAX_COST", "3")), help="refuse when the worst case exceeds this many USD (default 3, or $ASK_API_MAX_COST)")
@@ -328,14 +354,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
     anthropic = ensure_sdk()
-    os.environ.pop("ANTHROPIC_AUTH_TOKEN", None)  # bill the key, never an OAuth token
-    client = anthropic.Anthropic(api_key=api_key())
+    client = anthropic.Anthropic(api_key=api_key(), base_url=API_URL)
 
     system, user, included = build_prompt(args)
     models = catalog(client, anthropic)
     model = resolve(args.model, models)
-    line = line_of(models, model)
-    price = price_for(model, line)
+    price = price_for(model, models)
     messages = [{"role": "user", "content": user}]
 
     try:
@@ -363,52 +387,35 @@ def main(argv: list[str]) -> int:
         messages=messages,
         output_config={"effort": args.effort},
     )
-    if line in FALLBACK_LINES:
-        request |= dict(betas=["server-side-fallback-2026-07-01"], fallbacks="default")
+    # No server-side fallbacks: a declined attempt and its rescue are billed
+    # separately at different prices, which the guard's bound cannot cover.
     started = time.time()
+    stream = message = None
+    status = "ok"
     try:
-        with client.beta.messages.stream(**request) as stream:
+        with client.messages.stream(**request) as stream:
             for text in stream.text_stream:
                 sys.stdout.write(text)
                 sys.stdout.flush()
             message = stream.get_final_message()
     except anthropic.NotFoundError:
+        status = "not found"
         fail(f"model {model} was not found (retired?); --model fable or opus picks the newest")
-    print(flush=True)
+    except BaseException as error:  # tokens already streamed are billed: log them first
+        status = f"failed: {type(error).__name__}"
+        raise
+    finally:
+        if message is None and stream is not None:
+            try:  # output tokens arrive at the end, so a cut stream undercounts them
+                message = stream.current_message_snapshot
+            except AssertionError:  # failed before the first event
+                pass
+        print(flush=True)
+        cost = record(args, model, price, message, status, time.time() - started)
 
     usage = message.usage
-    cache_write = usage.cache_creation_input_tokens or 0
-    cache_read = usage.cache_read_input_tokens or 0
-    cost = None
-    if price:
-        billed_input = usage.input_tokens + 1.25 * cache_write + 0.1 * cache_read
-        cost = (billed_input * price[0] + usage.output_tokens * price[1]) / 1e6
-    served_by = message.model if message.model != model else None
-
-    log(
-        {
-            "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-            "repo": str(repo_root() or Path.cwd()),
-            "mode": "review" if args.review else "question",
-            "asked": args.model,
-            "model": model,
-            "served_by": served_by,
-            "effort": args.effort,
-            "input_tokens": usage.input_tokens,
-            "cache_write_tokens": cache_write,
-            "cache_read_tokens": cache_read,
-            "output_tokens": usage.output_tokens,
-            "cost_usd": None if cost is None else round(cost, 4),
-            "price_assumed_from": price[2] if price else None,
-            "stop_reason": message.stop_reason,
-            "seconds": round(time.time() - started, 1),
-            "question": (args.question or "")[:200],
-        }
-    )
-
     cost_text = f"${cost:.2f}" if cost is not None else "unknown cost"
-    tail = f" · answered by {served_by} after a refusal, cost approximate" if served_by else ""
-    note(f"{model} · {usage.input_tokens:,} in / {usage.output_tokens:,} out · {cost_text}{tail}")
+    note(f"{model} · {usage.input_tokens:,} in / {usage.output_tokens:,} out · {cost_text}")
     if message.stop_reason == "refusal":
         details = getattr(message, "stop_details", None)
         category = getattr(details, "category", None)
