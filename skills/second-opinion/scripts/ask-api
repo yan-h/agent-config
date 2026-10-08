@@ -1,0 +1,429 @@
+#!/usr/bin/env python3
+"""ask-api: one-shot design questions, second opinions and reviews on the
+Claude API, billed to the API key's credits instead of a Claude subscription.
+
+  ask-api "question" [-f FILE ...] [--diff RANGE]
+  ask-api --review [--diff RANGE] [-f FILE ...] ["what to focus on"]
+  git diff | ask-api --stdin "question about the piped text"
+
+The answer goes to stdout; the model, cost estimate and actual cost go to
+stderr, and every sent call is appended to $ASK_API_STATE/log.jsonl.
+"""
+
+from __future__ import annotations
+
+import argparse
+import datetime as dt
+import json
+import os
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+VENV_PYTHON = Path.home() / ".local/share/ask-api/venv/bin/python"
+STATE = Path(os.environ.get("ASK_API_STATE", Path.home() / ".local/state/ask-api"))
+KEYCHAIN_SERVICE = "anthropic-api-key"
+SCRIPT = Path(__file__).resolve()
+GLOBAL_AGENTS = SCRIPT.parents[3] / "global" / "AGENTS.md"
+API_URL = "https://api.anthropic.com"  # never an inherited gateway: it would see the key
+LINES = ("fable", "opus", "sonnet")
+CATALOG_TTL = 24 * 3600
+
+# USD per million tokens (line, input, output); newest row of each line last.
+# A model released after its line's last row borrows that row's price until it
+# gets its own; an older or unlisted model has no price, so the guard needs --yes.
+# No haiku: Haiku 5.5's price changes past 100K input tokens.
+PRICES = {
+    "claude-fable-5-1": ("fable", 10.00, 50.00),
+    "claude-opus-5-5": ("opus", 4.00, 20.00),
+    "claude-sonnet-5-5": ("sonnet", 2.00, 10.00),
+}
+
+DESIGN_PROMPT = """\
+You are giving a second opinion to a software engineer and the coding agent \
+they work with. Answer the question about the material below. Give a \
+recommendation rather than a survey, explain the tradeoffs that decide it, \
+and say plainly where you are unsure. You see only the files, diff and text \
+included here, not the whole repository: when the answer depends on code you \
+were not shown, say which code and how it could change your answer. Refer to \
+code as path:line where you can."""
+
+REVIEW_PROMPT = """\
+You are reviewing a change for a software engineer and the coding agent they \
+work with. Find defects that would cause wrong behaviour, crashes, lost data \
+or real performance problems, and judge whether the design is sound. You see \
+only the diff and files included here, not the whole repository.
+
+Rank findings most severe first. For each give path:line, the defect in one \
+sentence, a concrete failure scenario (the inputs or state, then what goes \
+wrong) and your confidence. Leave out style and formatting. When confirming a \
+finding would need code you were not shown, say what you would check. End \
+with a short assessment of the approach: whether it is sound, and any simpler \
+or more maintainable alternative worth its cost. If you find no defects, say so."""
+
+
+def note(message: str) -> None:
+    print(f"ask-api: {message}", file=sys.stderr)
+
+
+def fail(message: str, code: int = 1) -> None:
+    note(message)
+    sys.exit(code)
+
+
+# --- model and price resolution (pure, tested) -----------------------------
+
+
+def newest_in_line(models: list[dict], line: str) -> str | None:
+    """The newest active model the catalog places in `line`."""
+    active = [
+        m for m in models if m.get("line") == line and m.get("lifecycle") == "active"
+    ]
+    return max(active, key=lambda m: m["created_at"])["id"] if active else None
+
+
+def catalog_entry(models: list[dict], model_id: str) -> dict | None:
+    return next((m for m in models if m["id"] == model_id), None)
+
+
+def price_for(model_id: str, models: list[dict]) -> tuple[float, float, str | None] | None:
+    """(input, output, assumed_from) per million tokens, or None when unknown.
+    Only a model the catalog dates after its line's newest priced row borrows
+    that row's price: an older one may cost more."""
+    if model_id in PRICES:
+        _, inp, out = PRICES[model_id]
+        return inp, out, None
+    entry = catalog_entry(models, model_id)
+    if entry is None or entry.get("line") is None:
+        return None
+    known = [k for k, row in PRICES.items() if row[0] == entry["line"]]
+    base = catalog_entry(models, known[-1]) if known else None
+    if base is None or entry["created_at"] <= base["created_at"]:
+        return None
+    _, inp, out = PRICES[known[-1]]
+    return inp, out, known[-1]
+
+
+def guard(
+    price: tuple[float, float, str | None] | None,
+    input_tokens: int,
+    max_tokens: int,
+    limit: float,
+    confirmed: bool,
+) -> tuple[float | None, str | None]:
+    """(worst-case cost, refusal reason or None)."""
+    if price is None:
+        reason = None if confirmed else "no price is known for this model; pass --yes to send anyway"
+        return None, reason
+    worst = (input_tokens * price[0] + max_tokens * price[1]) / 1e6
+    if worst > limit and not confirmed:
+        return worst, (
+            f"worst case ${worst:.2f} is over the ${limit:.2f} limit; narrow the "
+            "context, lower --max-tokens, or pass --yes"
+        )
+    return worst, None
+
+
+# --- context ---------------------------------------------------------------
+
+
+def git(*args: str) -> str:
+    result = subprocess.run(["git", *args], capture_output=True, text=True)
+    if result.returncode:
+        fail(f"git {' '.join(args)} failed: {result.stderr.strip()}")
+    return result.stdout
+
+
+def repo_root() -> Path | None:
+    result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"], capture_output=True, text=True
+    )
+    return Path(result.stdout.strip()) if result.returncode == 0 else None
+
+
+def shown_path(path: Path, root: Path | None) -> str:
+    path = path.resolve()
+    if root is not None and path.is_relative_to(root.resolve()):
+        return str(path.relative_to(root.resolve()))
+    return str(path)
+
+
+def read_text(path: Path) -> str | None:
+    try:
+        return path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+
+
+def review_base() -> str:
+    for ref in ("origin/main", "main"):
+        result = subprocess.run(
+            ["git", "merge-base", ref, "HEAD"], capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    fail("no origin/main or main to review against; pass --diff RANGE")
+
+
+def build_prompt(args: argparse.Namespace) -> tuple[str, str, list[str]]:
+    """(system, user message, labels of what was included)."""
+    root = repo_root()
+    included: list[str] = []
+
+    system = [REVIEW_PROMPT if args.review else DESIGN_PROMPT]
+    if not args.no_instructions:
+        owner = read_text(GLOBAL_AGENTS)
+        if owner:
+            system.append(f"<owner_preferences>\n{owner}</owner_preferences>")
+            included.append("owner preferences")
+        for name in ("AGENTS.md", "CLAUDE.md"):
+            contract = read_text(root / name) if root else None
+            if contract:
+                system.append(f'<repository_contract file="{name}">\n{contract}</repository_contract>')
+                included.append(name)
+                break
+
+    parts: list[str] = []
+    diff_args = args.diff.split() if args.diff else ([review_base()] if args.review else None)
+    files = [Path(f) for f in args.file]
+    if diff_args:
+        diff = git("diff", *diff_args)
+        if not diff.strip():
+            fail(f"git diff {' '.join(diff_args)} is empty")
+        parts.append(f'<diff args="{" ".join(diff_args)}">\n{diff}</diff>')
+        included.append(f"diff {' '.join(diff_args)}")
+        if args.review and root:
+            changed = git("diff", "--name-only", "--diff-filter=d", *diff_args).split()
+            files = [root / c for c in changed] + files
+    seen: set[Path] = set()
+    for path in files:
+        if path.resolve() in seen:
+            continue
+        seen.add(path.resolve())
+        text = read_text(path)
+        if text is None:
+            if path in [Path(f) for f in args.file]:
+                fail(f"cannot read {path} as UTF-8 text")
+            continue  # binary or vanished file named by the diff
+        parts.append(f'<file path="{shown_path(path, root)}">\n{text}</file>')
+        included.append(shown_path(path, root))
+    if args.stdin:  # only on request: a script's own pipe is not ours to drain
+        stdin = sys.stdin.read()
+        if not stdin.strip():
+            fail("--stdin was given but stdin is empty")
+        parts.append(f"<piped_input>\n{stdin}</piped_input>")
+        included.append("piped input")
+
+    question = args.question or ("Review this change." if args.review else None)
+    if not question:
+        fail("nothing to ask: give a question, or --review")
+    parts.append(question)
+    return "\n\n".join(system), "\n\n".join(parts), included
+
+
+# --- API -------------------------------------------------------------------
+
+
+def api_key() -> str:
+    key = os.environ.get("ANTHROPIC_API_KEY")
+    if key:
+        return key
+    result = subprocess.run(
+        ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-w"],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode == 0 and result.stdout.strip():
+        return result.stdout.strip()
+    fail(
+        "no API key: set ANTHROPIC_API_KEY, or store one with\n"
+        f'  security add-generic-password -a "$USER" -s {KEYCHAIN_SERVICE} -w'
+    )
+
+
+def catalog(client, anthropic) -> list[dict]:
+    """The model list, cached for a day; a stale cache beats no answer."""
+    path = STATE / "models.json"
+    try:
+        cached = json.loads(path.read_text())
+        if time.time() - cached["fetched"] < CATALOG_TTL:
+            return cached["models"]
+    except (OSError, ValueError, KeyError):
+        cached = None
+    try:
+        models = [
+            {
+                "id": m.id,
+                "line": m.line,
+                "lifecycle": m.lifecycle,
+                "created_at": m.created_at.isoformat(),
+            }
+            for m in client.models.list()
+        ]
+    except anthropic.APIError as error:
+        if cached:
+            note(f"model list unavailable ({error}); using the cached one")
+            return cached["models"]
+        raise
+    STATE.mkdir(parents=True, exist_ok=True)
+    # A temp file per run, so concurrent refreshes never share one.
+    with tempfile.NamedTemporaryFile("w", dir=STATE, suffix=".tmp", delete=False) as tmp:
+        tmp.write(json.dumps({"fetched": time.time(), "models": models}))
+    Path(tmp.name).replace(path)
+    return models
+
+
+def resolve(name: str, models: list[dict]) -> str:
+    if name not in LINES:
+        return name
+    newest = newest_in_line(models, name)
+    if newest is None:
+        known = [k for k, row in PRICES.items() if row[0] == name]
+        note(f"the model list names no active {name} model; using {known[-1]}")
+        return known[-1]
+    return newest
+
+
+def record(args, model, price, message, status: str, seconds: float) -> float | None:
+    """Append one sent call, finished or not, to the log; return its cost if known."""
+    usage = message.usage if message is not None else None
+    cost = None
+    if usage is not None and price:
+        cache_write = usage.cache_creation_input_tokens or 0
+        cache_read = usage.cache_read_input_tokens or 0
+        billed_input = usage.input_tokens + 1.25 * cache_write + 0.1 * cache_read
+        cost = (billed_input * price[0] + usage.output_tokens * price[1]) / 1e6
+    entry = {
+        "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "repo": str(repo_root() or Path.cwd()),
+        "mode": "review" if args.review else "question",
+        "asked": args.model,
+        "model": model,
+        "effort": args.effort,
+        "status": status,
+        "input_tokens": usage.input_tokens if usage else None,
+        "cache_write_tokens": usage.cache_creation_input_tokens if usage else None,
+        "cache_read_tokens": usage.cache_read_input_tokens if usage else None,
+        "output_tokens": usage.output_tokens if usage else None,
+        "cost_usd": None if cost is None else round(cost, 4),
+        "price_assumed_from": price[2] if price else None,
+        "stop_reason": message.stop_reason if message is not None else None,
+        "seconds": round(seconds, 1),
+        "question": (args.question or "")[:200],
+    }
+    STATE.mkdir(parents=True, exist_ok=True)
+    with (STATE / "log.jsonl").open("a") as f:
+        f.write(json.dumps(entry) + "\n")
+    return cost
+
+
+def ensure_sdk():
+    # The venv's SDK, never an older one the system Python happens to have.
+    if VENV_PYTHON.exists() and Path(sys.prefix).resolve() != VENV_PYTHON.parents[1].resolve():
+        os.execv(VENV_PYTHON, [str(VENV_PYTHON), str(SCRIPT), *sys.argv[1:]])
+    try:
+        import anthropic
+    except ImportError:
+        fail(
+            "the anthropic SDK is missing; install it with\n"
+            f"  python3 -m venv {VENV_PYTHON.parents[1]} && "
+            f"{VENV_PYTHON.parent}/pip install anthropic"
+        )
+    return anthropic
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    p = argparse.ArgumentParser(prog="ask-api", description=__doc__.split("\n\n")[0])
+    p.add_argument("question", nargs="?", help="the question, or what a review should focus on")
+    p.add_argument("-f", "--file", action="append", default=[], help="include a file (repeatable)")
+    p.add_argument("--diff", metavar="ARGS", help='git diff arguments, e.g. "origin/main...HEAD"')
+    p.add_argument("--stdin", action="store_true", help="include text piped into stdin")
+    p.add_argument("--review", action="store_true", help="review a change; diffs against the merge base with main unless --diff is given")
+    p.add_argument("-m", "--model", default="fable", help="fable, opus or sonnet (newest of the line) or a full model ID; default fable")
+    p.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh", "max"])
+    p.add_argument("--max-tokens", type=int, default=32000)
+    p.add_argument("--max-cost", type=float, default=float(os.environ.get("ASK_API_MAX_COST", "3")), help="refuse when the worst case exceeds this many USD (default 3, or $ASK_API_MAX_COST)")
+    p.add_argument("-y", "--yes", action="store_true", help="send even over the cost limit or with no known price")
+    p.add_argument("--dry-run", action="store_true", help="estimate and list the context, then stop")
+    p.add_argument("--no-instructions", action="store_true", help="leave out AGENTS.md and the owner preferences")
+    return p.parse_args(argv)
+
+
+def main(argv: list[str]) -> int:
+    args = parse_args(argv)
+    anthropic = ensure_sdk()
+    client = anthropic.Anthropic(api_key=api_key(), base_url=API_URL)
+
+    system, user, included = build_prompt(args)
+    models = catalog(client, anthropic)
+    model = resolve(args.model, models)
+    price = price_for(model, models)
+    messages = [{"role": "user", "content": user}]
+
+    try:
+        input_tokens = client.messages.count_tokens(
+            model=model, system=system, messages=messages
+        ).input_tokens
+    except anthropic.NotFoundError:
+        fail(f"model {model} was not found (retired?); --model fable or opus picks the newest")
+    worst, refusal = guard(price, input_tokens, args.max_tokens, args.max_cost, args.yes)
+
+    label = model if args.model == model else f"{args.model} → {model}"
+    assumed = f" (price assumed from {price[2]}; add a PRICES row in {SCRIPT})" if price and price[2] else ""
+    cost_text = f"≤ ${worst:.2f}" if worst is not None else "unknown cost"
+    note(f"{label} · {input_tokens:,} input tokens · {cost_text}{assumed}")
+    note(f"context: {', '.join(included) or 'question only'}")
+    if refusal:
+        fail(refusal, 2)
+    if args.dry_run:
+        return 0
+
+    request = dict(
+        model=model,
+        max_tokens=args.max_tokens,
+        system=system,
+        messages=messages,
+        output_config={"effort": args.effort},
+    )
+    # No server-side fallbacks: a declined attempt and its rescue are billed
+    # separately at different prices, which the guard's bound cannot cover.
+    started = time.time()
+    stream = message = None
+    status = "ok"
+    try:
+        with client.messages.stream(**request) as stream:
+            for text in stream.text_stream:
+                sys.stdout.write(text)
+                sys.stdout.flush()
+            message = stream.get_final_message()
+    except anthropic.NotFoundError:
+        status = "not found"
+        fail(f"model {model} was not found (retired?); --model fable or opus picks the newest")
+    except BaseException as error:  # tokens already streamed are billed: log them first
+        status = f"failed: {type(error).__name__}"
+        raise
+    finally:
+        if message is None and stream is not None:
+            try:  # output tokens arrive at the end, so a cut stream undercounts them
+                message = stream.current_message_snapshot
+            except AssertionError:  # failed before the first event
+                pass
+        print(flush=True)
+        cost = record(args, model, price, message, status, time.time() - started)
+
+    usage = message.usage
+    cost_text = f"${cost:.2f}" if cost is not None else "unknown cost"
+    note(f"{model} · {usage.input_tokens:,} in / {usage.output_tokens:,} out · {cost_text}")
+    if message.stop_reason == "refusal":
+        details = getattr(message, "stop_details", None)
+        category = getattr(details, "category", None)
+        fail(f"the model declined{f' ({category})' if category else ''}", 3)
+    if message.stop_reason == "max_tokens":
+        fail(f"the answer was cut off at --max-tokens {args.max_tokens}", 4)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

@@ -145,6 +145,10 @@ this public repository.
   named problem, as a costed proposal: target and cheaper alternative,
   behaviour changes as owner questions, an incremental migration, and a spike
   of the riskiest assumption. Changes no code beyond the spike.
+- `second-opinion` — `ask-api`, a command that sends a design question,
+  second opinion or review with chosen context to Claude Fable (or another
+  model) over the API, billed to API credits rather than the subscription,
+  behind a worst-case cost guard. Owner-requested, since every call costs money.
 
 ## Add a skill
 
