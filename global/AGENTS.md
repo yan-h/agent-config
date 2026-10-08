@@ -58,6 +58,7 @@ Squash-merge by default; use a merge commit only when the commits are separable 
 
 The owning session finishes its workspace as part of finishing the task.
 Use the shared `session-lifecycle` skill when handing over completed work or releasing a resolved worktree.
+While working in a project that provides `./session-lifecycle.sh`, run builds and tests that write compilation output as `./session-lifecycle.sh run -- <command>`, so cleanup never prunes a workspace in use.
 Keep project-specific build commands and required deliverables in that project's lifecycle configuration.
 Preserve loadable deliverables before reclaiming compilation output; keep unfinished source and paused work.
 Subagents sharing a checkout leave cleanup to their owner.
