@@ -16,15 +16,13 @@ Build profiles, benchmark and profiling commands, worktrees, validation gates, P
 where it says nothing about intent records, use `docs/intent/<area>.md`.
 Measure the build users run, not a debug build, unless the contract says otherwise.
 
-This audit shares its area map, report layout and answer records with the `audit-drift` skill, installed beside this one.
-Read that skill's `SKILL.md` for the sections named below; if it is not installed, say so and stop.
+This audit takes its area map, report layout and answer records from the sections of the `audit-drift` skill's `SKILL.md` named below; if that skill is not installed, say so and stop.
 
 ## What counts
 
 A cost a person using the software would notice at the sizes the product actually meets:
 latency on an interactive path, throughput of a batch job, startup time, memory, idle CPU.
 A speedup no one would notice is not worth the code it costs, however clean the benchmark looks.
-The global engineering tradeoffs apply: a fix earns its place only when its gain outweighs what it costs to own.
 
 ## Choose the scope
 
@@ -71,15 +69,12 @@ It is what makes every later finding provable, and it stays useful after the aud
 and not while a surveyor or any process of the caller's own is building, profiling or encoding.**
 Parallel agents running builds and benchmarks on the same machine distort each other's numbers.
 Stop the caller's own background runs by PID, children included, and check they are gone before the next timing.
-Surveyors may profile to locate cost; they do not produce the numbers a finding rests on.
 
 ## Survey, in parallel
 
 Read [the surveyor brief](references/surveyor.md) completely before delegating.
-Give each surveyor that brief, one workload's or area's profile, and the workload sizes,
-and tell them never to swap any shared installed build.
+Give each surveyor that brief, one workload's or area's profile, and the workload sizes.
 Size them by the global subagent guidance; judging what will matter at scale is consequential work.
-Surveyors are read-only: they return candidates and suspicions, and do not edit, commit, or open a PR.
 
 ## Prove, sort, then fix
 
@@ -92,7 +87,6 @@ they go up as PRs and are not merged here.
 
 - **Behaviour-preserving and local:** fix it, measure again, and keep the fix only if the gain clears the noise and justifies its complexity.
   The project's tests must still pass; a fix that changes what a user sees belongs in the next group instead.
-  Follow the contract for worktrees, commits and PRs.
 - **Trades behaviour for speed** — staler data, less precision, new limits, visible laziness:
   a yes/no question for the owner, with the gain measured from a throwaway prototype and what is given up.
   Not fixed in this run.

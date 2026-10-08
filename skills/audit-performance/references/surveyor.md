@@ -40,18 +40,14 @@ A slow pattern off the hot path is not a finding, however slow it looks.
    Overdraw from padded or overlapping geometry, full-screen passes that could be skipped or run at lower resolution,
    a pass redrawing pixels an earlier one already produced, and bandwidth from large or high-precision targets.
 
-## Evidence
-
-Each candidate names the workload size where it matters, the cost you expect there, how the calling agent can measure it,
-the fix you would make, and whether that fix changes anything a user could observe.
-A candidate whose cost you cannot tie to the profile or to a size the product reaches is a suspicion.
-
 ## Return to the caller
 
 - **Candidates**, ranked by the gain a user would notice:
-  what they would notice, `file:line`, the evidence, how to measure it, the fix, and whether it preserves behaviour.
+  what they would notice, the workload size where it matters and the cost you expect there, `file:line`, the evidence,
+  how the calling agent can measure it, the fix, and whether that fix changes anything a user could observe.
   Mark the ones whose fix needs a data-model, interface or cross-area change.
 - **Suspicions**, with the measurement that would settle each.
+  A candidate whose cost you cannot tie to the profile or to a size the product reaches is a suspicion.
 - **Checked clean:** the paths and hypotheses examined.
 - **Method notes:** what found things and what was noise.
 
