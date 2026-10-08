@@ -37,7 +37,8 @@ Use the review tool the project contract names;
 if it names none, use whatever review command the host provides, or else a fresh subagent briefed with the diff and the project contract.
 
 Alongside it, run the design pass of the `design-review` skill:
-a fresh subagent on the strongest model, briefed with the PR, the project contract and that skill's Design section, returning its verdict and alternatives.
+a fresh subagent, briefed with the PR, the project contract and that skill's Design section, returning its verdict and alternatives.
+It is consequential judgement; size it by the global subagent guidance.
 
 When both have returned, match each confirmed defect against the design alternatives.
 A defect that an alternative in this change would remove is fixed by making that alternative, not patched first.
