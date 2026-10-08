@@ -15,7 +15,6 @@ No configuration means no guessed artifact or cache paths.
 
 Use `./session-lifecycle.sh run -- <command>` for builds, tests, checks and other commands that write compilation output.
 The helper holds one workspace lock outside `target/` and invalidates an old completion record before starting.
-Project CI also participates when this skill is installed.
 Custom Cargo target/build directories are unsupported; keep their caches rather than guessing.
 Cleanup also takes Cargo 1.92's native debug/release locks without replacing those lock files; revisit that when the configured projects change Cargo version, output layout or locking behavior.
 
@@ -29,12 +28,12 @@ A failed build or publication preserves the previous handoff and does not prune 
 
 For a pause during active iteration use `handoff --keep-cache`, or the project's ordinary build command if source is still uncommitted.
 Do not call a pause completed.
-For a source-only task that requires no new plugin build, use `finish --source-only` after its verification.
+For a source-only task that requires no new build, use `finish --source-only` after its verification.
 For an already published handoff, `finish` verifies the publication before pruning.
 Local completion does not prove a remote push; check the push/PR separately before owner release.
 
 Report the preserved build, how to load it, and whether source cleanup remains pending.
-The helper never swaps the DAW's installed slot.
+The helper publishes the build but never installs it into the application that loads it; do not report it as installed.
 
 ## Release source through its owner
 
