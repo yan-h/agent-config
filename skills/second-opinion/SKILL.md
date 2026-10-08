@@ -44,6 +44,12 @@ Treat the answer as a lead, not a verdict.
 Check each finding against the code before reporting it, and report which held, which did not and why, and the cost line `ask-api` printed.
 Exit codes: 3 means the model declined, 4 means the answer was cut off at `--max-tokens`.
 
+## What the credits pay for
+
+The owner's API credits cover the API, the Batch API, the Agent SDK, the Playground and Managed Agents, not Claude Code:
+Claude Code started with the key as `ANTHROPIC_API_KEY` fails with "credit balance too low", so do not route a session through it.
+The balance is prepaid, so running out makes calls fail rather than charge, as long as auto-reload stays off under the Console's Billing settings.
+
 ## Setup
 
 Once per machine:
