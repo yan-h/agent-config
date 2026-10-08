@@ -52,6 +52,7 @@ Combine related changes into one pull request when they serve one purpose, touch
 When an unmerged pull request for the same work is already open, add to it instead of opening another.
 Keep unrelated changes in separate pull requests so each can be reviewed, reverted, and merged on its own.
 Keep commits logically separated within a combined pull request.
+Squash-merge by default; use a merge commit only when the commits are separable decisions, each worth finding on its own, rather than revisions of one another.
 
 ## Session lifecycle
 
