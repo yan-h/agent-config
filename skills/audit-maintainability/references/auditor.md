@@ -24,7 +24,7 @@ Spend most of your time here; structure no change has paid for is the least valu
 
 ## What to look for on those paths
 
-The shapes that cost most across a whole area:
+The shapes that cost most across a whole area; naming, formatting and local tidiness are out of scope:
 
 1. **Ownership.**
    For each piece of state, who writes it and who derives from it.
