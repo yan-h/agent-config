@@ -28,6 +28,11 @@ projects and host tools.
   read the local project contract rather than copying those details here.
 - Add scripts or references only when they improve repeated execution or
   progressive disclosure.
+- Make every sentence change what an agent does. State each rule once, in
+  the broadest file it applies to, and refer to it elsewhere instead of
+  restating it. Keep the reasons and evidence behind rules an agent might
+  otherwise simplify away; cut narration, hedges, restated rules, summaries
+  of other skills, and history that no longer changes behaviour.
 - Run `python3 scripts/check.py` before committing.
 
 Do not add example skills or placeholder resources. A new skill should begin

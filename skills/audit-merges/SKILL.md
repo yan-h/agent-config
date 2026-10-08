@@ -15,8 +15,7 @@ Claude does, and Codex does not — and Codex reaches a skill by reading this fi
 
 Audit the code that has landed on the repository's primary branch since the last audit, looking for bugs that no single branch could have contained.
 
-Parallel branches are each developed against the primary branch state they started from.
-A per-branch review therefore cannot see failures created only when two branches are combined.
+Parallel branches are each developed against the primary branch state they started from, so a per-branch review cannot see failures created only when two branches are combined.
 Read the combined diff, not the PRs one at a time.
 
 ## Choose the range
@@ -44,12 +43,8 @@ If the range is trivially small—one or two merges touching disjoint files—re
 ## Survey, in parallel
 
 Read [the merge-auditor brief](references/merge-auditor.md) completely before delegating.
-Give each survey agent that brief, the selected range, and one disjoint subsystem.
-Its work is consequential judgement; size it by the global subagent guidance.
-
-For a range spanning more than one subsystem, run one subagent per disjoint subsystem concurrently rather than one over everything.
-Subagents are read-only for the survey:
-they return candidate findings and suspicions but do not edit, commit, tag, or open a PR.
+Give each survey agent that brief, the selected range, and one disjoint subsystem, and run them concurrently rather than one over everything.
+Their work is consequential judgement; size them by the global subagent guidance.
 
 ## Prove and repair in the calling agent
 
@@ -58,13 +53,10 @@ A finding is not a finding until a test or focused reproduction fails on the old
 Observe the failure, fix it, and observe it pass.
 
 Anything that cannot be reproduced stays under a separate **Suspicions** heading and is not fixed.
-This keeps speculative repairs separate from demonstrated defects.
 
 Follow the repository's local contract for worktrees, validation, commits, and pull requests.
 
 ### Repair the prose agents execute; only report the rest
-
-Stale prose divides by who acts on it, and only one half is worth a hunk in this diff.
 
 **Repair** the prose a session runs on:
 `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, the skills, and the helper scripts.
@@ -73,7 +65,7 @@ they are code with no compiler, and this audit is the only gate they have.
 
 **Report, and do not fix,** drift in reference documentation and long-form design notes.
 List it under a **Documentation drift** heading with the file and the claim that no longer holds, so it is on the record and cheap to pick up.
-Left to itself this half grows to dominate the finding count —
+Left to itself this drift grows to dominate the finding count —
 it is the easiest thing to find and the least likely to be read,
 and an audit that spends its pull request on it buries the defects it exists to catch.
 
@@ -88,12 +80,9 @@ Write it as the symptom, not the mechanism:
 the reader decides whether to care from that line alone, and a mechanism they have to translate is a decision they will skip.
 
 **A finding with no such line is filed as an issue rather than fixed here.**
-That is the test for whether a defect belongs in this pull request at all.
-A reachable defect earns the audit's failing test and its fix;
-one that needs a state nobody reaches is real but unranked, and it competes better as an issue than as a hunk in a diff about something else.
+A defect that needs a state nobody reaches is real but unranked, and it competes better as an issue than as a hunk in a diff about something else.
 Say in the issue what it would take to reach it, so triage has the thing the audit already knows.
 
-This is the rule the audit exists to serve.
 A reviewer who merges the result without reading it gets no value from a finding list they cannot rank,
 and a list that opens with mechanism reads as uniform whether it holds six live defects or none.
 

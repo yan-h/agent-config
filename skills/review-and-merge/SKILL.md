@@ -31,12 +31,10 @@ State the decision and its reason in one line.
 
 ## Review
 
-A review is independent:
-a different agent from whoever wrote the change, reading the whole diff for correctness first.
-Use the review tool the project contract names;
-if it names none, use whatever review command the host provides, or else a fresh subagent briefed with the diff and the project contract.
+Run the correctness review as the `design-review` skill's Correctness section describes:
+an agent other than whoever wrote the change, reading the whole diff.
 
-Alongside it, run the design pass of the `design-review` skill:
+Alongside it, run that skill's design pass:
 a fresh subagent, briefed with the PR, the project contract and that skill's Design section, returning its verdict and alternatives.
 It is consequential judgement; size it by the global subagent guidance.
 

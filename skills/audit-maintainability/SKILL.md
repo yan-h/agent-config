@@ -25,15 +25,11 @@ The whole-area counterpart of the `design-review` skill:
 not whether one change should have been written differently,
 but whether the structure as it stands makes the changes this project actually makes more costly than they need to be.
 
-It is not the `audit-drift` skill.
-Whether a mechanism's reason still holds is drift; when a finding turns out to be that, note it for a drift audit and move on.
-It is not a style review either: naming, formatting and local tidiness are out of scope.
+Whether a mechanism's reason still holds is drift, the `audit-drift` skill's question; such a finding is noted for a drift audit, not pursued.
 
 **Debt counts only when it taxes changes that happened or that the roadmap commits to.**
-A project with no roadmap still has its history: weigh debt by how often the area changed over the last year.
-Every finding cites the commits or PRs that paid for it — edits repeated in several places, fixes landing in the same spot —
-or the roadmap item it would make costly.
-Structure that looks wrong but has cost nothing and blocks nothing is listed as seen and left, not proposed for change.
+Without a roadmap, weigh debt by how often the area changed over the last year.
+Every finding cites the commits or PRs that paid for it, or the roadmap item it would make costly.
 
 ## Choose the scope
 
@@ -64,33 +60,24 @@ python3 <this skill's directory>/scripts/history-map.py origin/<primary> --since
 
 It follows renames to each file's current path, which plain `git log --name-only` does not:
 a project that renamed its crates otherwise splits each file's history in two and hides its hotspots.
-It counts each change that landed once, whether merged or squashed, under its PR's title.
 `--max-count N` takes the last N changes instead of a date. It reports:
 
 - **Hotspots:** the files changed most often, beside their size.
 - **Change coupling:** files in different directories that keep changing together.
-- **Fix clusters:** changes with a fix-like subject.
+- **Fix clusters:** beside each hotspot, how many of its changes have a fix-like subject.
   A rough signal at best — in the first trial most hits were feature PRs or predated a rewrite.
   Prefer the project's bug label or linked bug issues where it has them, and read each commit before citing it.
 - **Widest changes:** the changes that touched the most files.
-  The ones that changed a single concept, such as adding or removing one setting, are the most telling evidence the audit gets:
-  hand the auditor their file lists.
+  Hand the auditor the file lists of those that changed a single concept, such as adding or removing one setting.
 
 Exclude generated files, lockfiles and prose the project regenerates.
 For an area's slice pass every file and directory it spans; an area that does not map onto paths gets the whole map, and the auditor picks its files from it.
-A file that only lists submodules can rank as a hotspot on history from before it was split up;
-follow it into its directory before reading anything into it.
-This is bounded, mechanical work; do it yourself or delegate it by the global subagent guidance.
-
-Split the map by area.
-It tells each auditor where reading will pay, and it is the evidence the findings cite.
 
 ## Per area, one auditor
 
 Read [the auditor brief](references/auditor.md) completely before delegating.
 Give each auditor that brief, its area, its part of the history map, the area's intent record, and the project contract.
 The auditor's work is consequential judgement; size it by the global subagent guidance.
-Auditors are read-only.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
 
 ## Verify, then sort
@@ -102,8 +89,7 @@ Then sort what survived:
 
 - **Mechanical:** behaviour-preserving, local, and needing no decision — a dead path, a duplicated helper with an obvious survivor.
   File one grouped issue per area, skipping anything an open issue already covers.
-- **Rework candidates:** findings that share a design cause, or need a change across areas or interfaces.
-  Group findings by cause first: one restructuring that dissolves several is worth more than each fixed locally.
+- **Rework candidates:** findings grouped by a shared design cause, or needing a change across areas or interfaces.
   One paragraph each: the cause, the evidence, a sketch of the target, a rough upfront cost, and what it removes.
   The owner can take one into the `propose-rework` skill.
 - **Needs the owner's call:** a fix that changes behaviour, a public interface or a recorded decision.

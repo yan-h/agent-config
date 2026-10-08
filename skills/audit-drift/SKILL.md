@@ -39,8 +39,6 @@ The kinds seen so far:
 - **Intent restated wrongly, then built on:** a handoff or cleanup keeps the data and loses the model.
 - **Prose describing something removed.**
 
-The common signal is a removal or replacement PR saying WHAT it keeps ("keep existing", "preserve", "unchanged", "comments only") and not WHY the kept part still has a reason.
-
 ## Choose the scope
 
 The text after the invocation names one area (`$ARGUMENTS` in Claude, the text after `$audit-drift` in Codex):
@@ -60,13 +58,13 @@ a finding that contradicts it is the strongest kind, and a question it already a
 
 Both read-only, on the primary branch.
 Pass each its brief from `references/` and the area, and tell them never to swap any shared installed build.
+The auditor also gets the area's intent record; the describer gets nothing else.
 
-- **Describer** (`references/describer.md`): writes how the area BEHAVES from the current code alone —
-  no history, no PRs, no issues, no notes.
+- **Describer** (`references/describer.md`): writes how the area BEHAVES from the current code alone.
   Blind on purpose: in the first trial it found the known live case with none of the history the auditor had.
 - **Auditor** (`references/auditor.md`): traces the area's mechanisms to the PRs that added them and asks whether each reason still holds.
 
-Size them by the global subagent guidance: the auditor's is consequential judgement, the describer's is lighter.
+The auditor's work is consequential judgement; the describer's is lighter.
 In the first trial one area cost about 190k tokens for the describer and 275k for the auditor, twelve minutes of wall clock.
 A full run is several million tokens; invoking with no area is the owner accepting that.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
@@ -87,7 +85,6 @@ Then sort what survived:
 **Never hand the owner a raw description.**
 In the first trial a forty-item page was tiring and came back mostly "fine" or "don't care".
 Keep at most five questions per area, each answerable yes or no, each with what you would do on either answer.
-The descriptions stay as working notes.
 
 ## Report so it can be taken piecemeal
 
@@ -96,7 +93,6 @@ One tracking issue per run (a Markdown file in the repository if the project has
 - **An index first:** a table of every area with its question count, the issues filed for it, and a status the owner's answers tick off.
 - **Then one self-contained section per area:**
   its questions, the mechanical issue filed for it, and anything notable that needed no decision.
-  No section depends on another, so the owner can take one area in a sitting and leave the rest for another day.
 
 Put the areas with the most consequential questions first.
 

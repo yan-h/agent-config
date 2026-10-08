@@ -5,9 +5,6 @@ description: Design one large rework — a restructuring with high upfront cost 
 
 # Propose one rework
 
-An audit finds many things cheaply; this goes deep on one.
-The output is a proposal the owner can say yes or no to, and a plan that can stop partway without leaving things worse.
-
 The target is what the invocation names (`$ARGUMENTS` in Claude, the text after `$propose-rework` in Codex):
 a rework candidate from an audit, an issue, or a problem or goal in the owner's words.
 If it names no outcome — what should become cheaper, faster, or impossible to get wrong — ask before designing.
@@ -17,9 +14,7 @@ This skill borrows from the `audit-drift` skill, installed beside this one; if i
 Read the project's local contract before starting, with its roadmap, recorded decisions, and the intent records of every area the rework touches.
 Recorded decisions are not reopened silently; a rework that contradicts one says so and makes it a question.
 
-The global engineering tradeoffs apply throughout.
 The owner will usually pay substantial upfront work for a significant, lasting gain, and not for a marginal one.
-"Don't" and "do the cheaper thing" are proposals too.
 
 ## Ground the problem
 
@@ -34,7 +29,6 @@ Run two read-only agents while you read the design yourself:
 - **Describer:** the describer brief of the `audit-drift` skill (`references/describer.md` in that skill).
   Read it and pass it on, applied to the part being reworked;
   for an internal part, the behaviour to describe is what its callers observe at its interface.
-  Its blind description is the behaviour the rework must keep or change on purpose.
 - **Inventory**, bounded lookup: every caller, entry point, persisted format, public interface, configuration key and test that touches the part.
   This is the surface the migration has to carry.
 
@@ -52,10 +46,9 @@ If a design is open between two real options, compare them rather than picking s
 ## Spike the riskiest assumption
 
 If an assumption could sink the target design — a performance target, a library's fit, migrating real data — test it now, before planning around it,
-with a throwaway prototype in a worktree, following the contract for worktrees.
+with a throwaway prototype in a worktree.
 Do not open a PR or merge it; record what it showed and remove the worktree.
 If it fails, revise the design and test again, or end with the cheaper alternative or with leaving it.
-Skip this when nothing is uncertain enough to need it.
 
 ## Behaviour that changes
 
