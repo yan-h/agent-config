@@ -63,7 +63,7 @@ A failing check is fixed, not merged past; one failing for a reason outside the 
 
 ## Merge
 
-Mark the PR ready if it is a draft, then merge it by the project's method.
+Mark the PR ready if it is a draft, then merge it by the project's method, or by the global merge default if the contract names none.
 Confirm the merge landed on the remote primary branch before reporting, and clean up the branch as the project contract says.
 
 ## Report
