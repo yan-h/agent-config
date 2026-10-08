@@ -39,7 +39,11 @@ if it names none, use whatever review command the host provides, or else a fresh
 Alongside it, run the design pass of the `design-review` skill:
 a fresh subagent on the strongest model, briefed with the PR, the project contract and that skill's Design section, returning its verdict and alternatives.
 
-Fix every finding the review confirms, and fix or answer the uncertain ones in the PR description.
+When both have returned, match each confirmed defect against the design alternatives.
+A defect that an alternative in this change would remove is fixed by making that alternative, not patched first.
+When several defects trace to an alternative the verdict placed in a follow-up, place it in this change instead.
+
+Fix every other finding the review confirms, and fix or answer the uncertain ones in the PR description.
 Keep fixes inside the PR's scope; anything else found along the way is reported, not fixed here.
 A finding that is a design question rather than a defect stops the run and goes to the owner.
 Commit and push the fixes, and redo any build or check the project contract owes for them.
