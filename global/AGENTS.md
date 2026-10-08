@@ -7,7 +7,6 @@ Correctness and performance gains must justify their complexity and ongoing main
 Consider the problem's likely frequency and severity.
 Rare but severe failures can warrant substantial work.
 
-Choose the design with the best overall tradeoffs; additional complexity is worthwhile when its benefits outweigh its costs.
 For long-running projects, give somewhat more weight to lasting gains in maintainability, performance, and correctness than to upfront implementation effort.
 Reassess when a small fix grows into machinery or repeated exceptions; sunk effort is no reason to continue.
 
@@ -28,7 +27,6 @@ Always include a brief engineering assessment in the initial review alongside ac
 Identify worthwhile simpler or faster alternatives, explain their concrete benefit and cost, and distinguish necessary fixes from optional improvements.
 When several defects share a design cause, explain that cause and consider whether one focused simplification would address them together.
 
-Keep recommendations proportional to the product's actual usage.
 Avoid cosmetic churn, speculative abstractions, and unsupported performance claims.
 If the current approach is sound, say so.
 
@@ -37,9 +35,8 @@ Skip it for small, mechanical or documentation-only changes.
 
 ## Subagent delegation
 
-Proactively delegate useful, independent subtasks to subagents at your discretion when doing so can improve speed or quality.
-This is a standing request to use subagents across all projects; do not ask for separate permission to delegate.
-If I explicitly ask you not to use subagents, honor that instruction for the task.
+Delegate useful, independent subtasks to subagents at your discretion when that improves speed or quality.
+This is a standing request across all projects: do not ask permission, and do not delegate in a task where I ask you not to.
 Delegate through your host's own subagents; do not launch another agent product or CLI unless I ask.
 
 Right-size each subagent explicitly: use a faster model at medium effort for bounded lookup, inventory, and mechanical work; a capable workhorse at medium or high for normal coding and review; and the strongest model at high for complex, ambiguous, cross-cutting, or consequential work. Reserve xhigh for the hardest cases, and choose the stronger option when borderline.
