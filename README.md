@@ -10,7 +10,7 @@ and skills stay in the project that owns them.
 - `global/codex/AGENTS.md` — symlink to the shared defaults, preserving existing installs.
 - `global/claude/CLAUDE.md` — imports the shared defaults, then adds Claude-only sections.
 - `global/claude/statusline.sh` — Claude Code status line: location, model, effort, running
-  agents, context, and the 5h/7d quota meters, which it also logs to `~/.claude/quota-probe.jsonl`.
+  agents, context, and the 5h/7d quota meters.
 - `global/claude/remote-control-at-login.sh` and `com.yan.claude-remote-control.plist` — macOS
   LaunchAgent that starts `claude remote-control` in listed projects at login, inside tmux.
 - `skills/` — reusable skills shared by agent hosts.
@@ -65,7 +65,6 @@ ln -s ~/projects/agent-config/global/claude/statusline.sh ~/.claude/statusline.s
 ```
 
 It needs `jq`; the optional `ant` CLI refreshes its context-window table.
-`QUOTA_PROBE=0` turns off the quota log.
 
 To restart `claude remote-control` servers at login on macOS, link the script,
 list one project per line (optionally followed by `claude remote-control` flags),

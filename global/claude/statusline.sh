@@ -18,7 +18,6 @@ input=$(cat)
   IFS= read -r reset5h
   IFS= read -r rate7d
   IFS= read -r reset7d
-  IFS= read -r sid
 } < <(
   jq -r '.model.display_name // "?",
          (.model.id // "" | ascii_downcase),
@@ -28,32 +27,8 @@ input=$(cat)
          (.rate_limits.five_hour.used_percentage // "" | tostring),
          (.rate_limits.five_hour.resets_at        // "" | tostring),
          (.rate_limits.seven_day.used_percentage  // "" | tostring),
-         (.rate_limits.seven_day.resets_at        // "" | tostring),
-         .session_id // ""' <<<"$input"
+         (.rate_limits.seven_day.resets_at        // "" | tostring)' <<<"$input"
 )
-
-# --- quota probe: append the account-wide quota meter whenever it MOVES ----------------
-# The 5h/7d percentages are the only readable measure of what a subscription request
-# costs; a transcript records tokens and never quota. Appended on CHANGE only — the
-# status line re-renders every 2s in every open session, so logging every render would
-# write megabytes an hour and carry no more information. QUOTA_PROBE=0 switches it off.
-# "Change" is per SESSION: each session shows the meter as of its own last API response,
-# so comparing against the file's last line (as this once did) logged every interleaving
-# of parallel sessions' stale values — 3.2M rows by Sep 2026. `sid` ties a row to its
-# session's transcript; readers still take a max-so-far envelope across sessions.
-if [ "${QUOTA_PROBE:-1}" = 1 ] && [ -n "$rate5h$rate7d" ]; then
-  _ql="${QUOTA_PROBE_FILE:-$HOME/.claude/quota-probe.jsonl}"
-  _cur="\"five_hour\":${rate5h:-null},\"seven_day\":${rate7d:-null}"
-  _key="$_cur,$reset5h,$reset7d"
-  _last="${TMPDIR:-/tmp}/quota-probe-${sid:-nosid}"
-  _prev=""; [ -f "$_last" ] && IFS= read -r _prev <"$_last"
-  if [ "$_prev" != "$_key" ]; then
-    printf '{"t":%s,"sid":"%s","model":"%s",%s,"reset5h":%s,"reset7d":%s}\n' \
-      "$(date +%s)" "$sid" "${mid:-?}" "$_cur" "${reset5h:-null}" "${reset7d:-null}" \
-      >>"$_ql" 2>/dev/null
-    printf '%s\n' "$_key" >"$_last" 2>/dev/null
-  fi
-fi
 
 # --- context window: from Anthropic's Models API (max_input_tokens), cached on disk ---
 # The status line renders constantly, so this NEVER blocks on the network: a missing or
