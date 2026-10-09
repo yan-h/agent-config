@@ -23,15 +23,16 @@ Read the combined diff, not the PRs one at a time.
 Use the first ref supplied after the invocation when one is present.
 In Claude that argument is `$0`;
 in Codex it is the text following `$audit-merges`.
-Otherwise use the local Git tag `last-merge-audit`.
-If that tag does not exist, inspect the last 12 first-parent merge commits into the primary branch.
-
-The tag is local, so it is missing on a fresh clone.
-Before trusting the fallback, look for a previous audit's merge in the log and start from there when one exists.
+Otherwise start where the last audit ended:
+the `<end>` of the newest first-parent commit whose subject begins `Merge audit <since>..<end>`.
+That marker lives in the primary branch's history, so a cloud session and every clone find the same one;
+a local tag is invisible to a cloud audit, which cannot move it either, so it goes stale and starts the next audit too early.
+If no commit carries the marker, start after the newest commit the log shows to be an earlier audit's fixes,
+and failing that inspect the last 12 first-parent commits on the primary branch.
 
 ```sh
-git rev-parse -q --verify last-merge-audit
-git log --oneline --merges --first-parent -12
+git log --first-parent -1 --format=%s -E --grep='^Merge audit [0-9a-f]+\.\.[0-9a-f]+'
+git log --oneline --first-parent -12
 git diff --stat <since>..HEAD
 ```
 
@@ -91,12 +92,9 @@ and a list that opens with mechanism reads as uniform whether it holds six live 
 If there are findings, describe each one with the observable line above, then what breaks, the real-world trigger, the reproduction, and the fix.
 Also name the areas and hypotheses checked clean, and record the `<since>..HEAD` range and the pull requests or merges it contains.
 
+Title the pull request `Merge audit <since>..<end>: <what it fixes>`, with `<end>` the abbreviated hash of the primary-branch commit the audit read rather than the branch's own head.
+It merges into the marker the next audit starts from, so the commit that lands on the primary branch must keep that subject.
+
 If nothing is found, report the range and the specific clean list and make no code change.
-
-After the audit, move the local marker so the next audit starts where this one ended:
-
-```sh
-git tag -f last-merge-audit HEAD
-```
-
-The tag is local on purpose and must not be pushed.
+A clean audit leaves no marker, so the next audit surveys its range again;
+re-checking is the cheaper failure than a marker outside the history that can skip work.
