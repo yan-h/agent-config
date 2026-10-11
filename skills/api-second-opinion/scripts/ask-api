@@ -17,6 +17,7 @@ import datetime as dt
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -259,18 +260,20 @@ def build_prompt(args: argparse.Namespace) -> tuple[str, str, list[str]]:
 
 
 def api_key() -> str:
-    key = os.environ.get("ANTHROPIC_API_KEY")
+    # Never ANTHROPIC_API_KEY: Claude Code reads that one, and another key there would be billed.
+    key = os.environ.get("ASK_API_KEY")
     if key:
         return key
-    result = subprocess.run(
-        ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-w"],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode == 0 and result.stdout.strip():
-        return result.stdout.strip()
+    if shutil.which("security"):
+        result = subprocess.run(
+            ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-w"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
     fail(
-        "no API key: set ANTHROPIC_API_KEY, or store one with\n"
+        "no API key: set ASK_API_KEY, or on macOS store one with\n"
         f'  security add-generic-password -a "$USER" -s {KEYCHAIN_SERVICE} -w'
     )
 

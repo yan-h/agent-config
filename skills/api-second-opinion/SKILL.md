@@ -64,18 +64,16 @@ The balance is prepaid, so running out makes calls fail rather than charge, as l
 
 ## Setup
 
-Once per machine:
+`scripts/install.sh` at the repository root creates the venv with the `anthropic` SDK and links `ask-api` into `~/.local/bin` (see the README).
+Then, once per machine, store the key in the Keychain:
 
 ```sh
-python3 -m venv ~/.local/share/ask-api/venv
-~/.local/share/ask-api/venv/bin/pip install anthropic
 security add-generic-password -a "$USER" -s anthropic-api-key -w
-ln -s ~/projects/agent-config/skills/api-second-opinion/scripts/ask-api ~/.local/bin/ask-api
-ln -s ~/projects/agent-config/skills/api-second-opinion ~/.claude/skills/api-second-opinion
 ```
 
-Create a separate API key per machine in the Console, in a workspace with a spend limit.
+Create a separate API key per machine or cloud environment in the Console, in a workspace with a spend limit.
 For Claude Code, allow `Bash(ask-api:*)` in `~/.claude/settings.json`; reading the key from the Keychain is otherwise blocked as credential access.
-An `ANTHROPIC_API_KEY` in the environment takes precedence over the Keychain item.
+An `ASK_API_KEY` in the environment takes precedence over the Keychain item, and is the only source where there is no Keychain, as in a cloud session.
+`ask-api` never reads `ANTHROPIC_API_KEY`, which Claude Code itself would use.
 Calls always go to `api.anthropic.com`, whatever `ANTHROPIC_BASE_URL` says, so a gateway never sees the key.
-Each sent call is appended to `~/.local/state/ask-api/log.jsonl` with its model, tokens, cost and status, including calls that fail partway.
+Each sent call is appended to `~/.local/state/ask-api/log.jsonl` with its model, tokens, cost and status, including calls that fail partway; a cloud session's log is lost with its machine.

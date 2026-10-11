@@ -42,13 +42,20 @@ git clone https://github.com/yan-h/agent-config.git ~/projects/agent-config
 ```
 
 Back up any existing instruction files and merge their contents into the shared
-source before replacing them. Link the shared file into each host you use,
-and Claude's file, which imports it, into Claude:
+source before replacing them. For Claude, run the install script; it links
+Claude's file, which imports the shared one, and every skill into `~/.claude`,
+and sets up `ask-api` (see `skills/api-second-opinion`). Rerun it after adding
+or removing a skill; it replaces only links and skips any real file in the way.
 
 ```sh
-mkdir -p ~/.codex ~/.claude ~/.gemini ~/.config/zed
+~/projects/agent-config/scripts/install.sh
+```
+
+Link the shared file into each other host you use:
+
+```sh
+mkdir -p ~/.codex ~/.gemini ~/.config/zed
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.codex/AGENTS.md
-ln -s ~/projects/agent-config/global/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.gemini/GEMINI.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
 ```
@@ -163,7 +170,7 @@ and non-empty instructions.
 ## Make skills discoverable
 
 For a personal installation, link each skill directory from this checkout
-into both user catalogs:
+into both user catalogs (`scripts/install.sh` makes the Claude links):
 
 ```text
 ~/.claude/skills/<skill-name> -> <checkout>/skills/<skill-name>
@@ -184,6 +191,27 @@ the selected skills with internal relative links:
 
 Internal relative links survive clones and worktrees. Do not check in links
 to a sibling checkout outside the consumer repository.
+
+## Cloud sessions
+
+Claude Code cloud sessions do not see `~/.claude` from your machine. To carry
+these instructions and skills into them, give the cloud environment (at
+claude.ai/code, Edit environment) this setup script:
+
+```bash
+#!/bin/bash
+git clone --depth 1 https://github.com/yan-h/agent-config.git ~/projects/agent-config
+~/projects/agent-config/scripts/install.sh --cloud
+```
+
+`--cloud` puts `ask-api` in `/usr/local/bin`, always exits 0 (a failing setup
+script stops the environment from starting), and adds a `SessionStart` hook
+that pulls the checkout. The environment reuses a snapshot of the setup for up
+to about 7 days, so the pull is what keeps skill instructions current; a new or
+removed skill appears only once the snapshot is rebuilt, which editing the
+setup script forces. For `ask-api`, add `ASK_API_KEY=<key>` to the environment
+variables, from a key of its own in a spend-limited workspace: anyone who uses
+the environment, including its agent, can read it.
 
 ## Scope rule
 
