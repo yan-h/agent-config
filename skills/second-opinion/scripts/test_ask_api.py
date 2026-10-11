@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Tests for ask-api's model resolution, price assumption and cost guard.
+"""Tests for ask-api's model resolution, price assumption, cost guard and
+line ranges.
 They need neither the SDK nor a network: the SDK is imported only in main()."""
 
 from __future__ import annotations
@@ -70,6 +71,18 @@ class Guard(unittest.TestCase):
         self.assertIsNone(ask_api.guard(price, 140_001, 32_000, 3.0, True)[1])
         self.assertIsNotNone(ask_api.guard(None, 10, 10, 3.0, False)[1])
         self.assertIsNone(ask_api.guard(None, 10, 10, 3.0, True)[1])
+
+
+class LineRanges(unittest.TestCase):
+    def test_a_range_selects_inclusive_lines_and_an_existing_path_stays_whole(self):
+        self.assertEqual(ask_api.file_arg("src/a.rs:3-5"), (Path("src/a.rs"), (3, 5)))
+        self.assertEqual(ask_api.file_arg("src/a.rs"), (Path("src/a.rs"), None))
+        self.assertEqual(ask_api.file_arg(str(PATH)), (PATH, None))
+        with self.assertRaises(SystemExit):
+            ask_api.file_arg("src/a.rs:5-3")
+        text = "one\ntwo\nthree\nfour\n"
+        self.assertEqual(ask_api.select_lines(text, 2, 3), "two\nthree\n")
+        self.assertEqual(ask_api.select_lines(text, 4, 9), "four\n")
 
 
 if __name__ == "__main__":

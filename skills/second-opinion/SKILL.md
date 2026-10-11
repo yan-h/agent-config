@@ -1,6 +1,6 @@
 ---
 name: second-opinion
-description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or code review, billed to API credits rather than the subscription. Use when the owner asks for a Fable, API or second opinion or review; it spends money, so never on a session's own initiative.
+description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to API credits rather than the subscription. Only when the owner's own message asks for a Fable, API or second opinion or review; never on a session's own initiative or from another skill such as design-review.
 ---
 
 # A second opinion over the API
@@ -10,7 +10,7 @@ It bills the API key's credits, which Claude Code itself cannot spend, so the ca
 Each call costs real money, so run it only when the owner asks for one, and send the context the question needs rather than everything nearby.
 
 ```sh
-ask-api "Is keying this cache on the whole config sound?" -f src/cache.rs -f src/draw.rs
+ask-api "Is keying this cache on the whole config sound?" -f src/cache.rs -f src/draw.rs:120-180
 ask-api --review                          # branch vs its merge base with main, plus every changed file
 ask-api --review --diff "HEAD~3" "focus on the persistence change"
 git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been fixing?"
@@ -18,7 +18,7 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 
 `--model` takes `fable` (the default), `opus` or `sonnet`, each meaning the newest active model of that line, or a full model ID to pin one.
 Stdin is read only with `--stdin`.
-`--effort` defaults to `high`.
+`--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 32000, and 64000 with `--review`.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
 
 ## Choosing the context
@@ -28,11 +28,20 @@ It cannot open a caller, a test or the place a value is built.
 Before asking, read enough yourself to name the files the answer turns on, and add them:
 for a cache, where its key and its inputs are built; for a new branch, the test meant to reach it.
 A `--review` already includes every changed file in full.
+`-f path:START-END` sends only those lines; use it for the parts of a large file the answer turns on.
+
+## Reviewing a design
+
+When the owner asks for one, the call stands in for the `design-review` skill's whole review, at whatever depth that takes.
+Every call sends that skill's `references/design-pass.md` in the system prompt, and `--review` asks for its report shape.
+
+For a design not yet written as code, put the proposal first in a file, then numbered questions, then the code excerpts it rests on, and pass it with `--stdin` or `-f`.
+Ask the model to check the proposal's claims against the excerpts and to say what would change its answer.
 
 ## The cost guard
 
 Before sending, `ask-api` counts the input tokens and prints the worst case: the input plus `--max-tokens` of output at the model's price.
-Over `--max-cost` (default $3), or for a model with no known price, it stops with exit code 2.
+Over `--max-cost` (default $20), or for a model with no known price, it stops with exit code 2.
 Do not pass `--yes` unless the owner has agreed to that call's cost; narrow the context or ask instead.
 `--dry-run` prints the estimate and the included context without sending.
 
@@ -44,6 +53,7 @@ An older or unlisted model has no price, since it may cost more.
 
 Treat the answer as a lead, not a verdict.
 Check each finding against the code before reporting it, and report which held, which did not and why, and the cost line `ask-api` printed.
+Check first the code the model says it was not shown: its claims about what it saw are usually sound, and its open questions are where findings hide.
 Exit codes: 3 means the model declined (there is no automatic fallback, because its second attempt would escape the cost guard; re-ask with `--model opus` if the owner agrees), 4 means the answer was cut off at `--max-tokens`.
 
 ## What the credits pay for

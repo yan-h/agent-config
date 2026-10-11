@@ -2,7 +2,7 @@
 """ask-api: one-shot design questions, second opinions and reviews on the
 Claude API, billed to the API key's credits instead of a Claude subscription.
 
-  ask-api "question" [-f FILE ...] [--diff RANGE]
+  ask-api "question" [-f FILE[:START-END] ...] [--diff RANGE]
   ask-api --review [--diff RANGE] [-f FILE ...] ["what to focus on"]
   git diff | ask-api --stdin "question about the piped text"
 
@@ -16,6 +16,7 @@ import argparse
 import datetime as dt
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -27,6 +28,7 @@ STATE = Path(os.environ.get("ASK_API_STATE", Path.home() / ".local/state/ask-api
 KEYCHAIN_SERVICE = "anthropic-api-key"
 SCRIPT = Path(__file__).resolve()
 GLOBAL_AGENTS = SCRIPT.parents[3] / "global" / "AGENTS.md"
+DESIGN_PASS = SCRIPT.parents[2] / "design-review" / "references" / "design-pass.md"
 API_URL = "https://api.anthropic.com"  # never an inherited gateway: it would see the key
 LINES = ("fable", "opus", "sonnet")
 CATALOG_TTL = 24 * 3600
@@ -48,20 +50,21 @@ recommendation rather than a survey, explain the tradeoffs that decide it, \
 and say plainly where you are unsure. You see only the files, diff and text \
 included here, not the whole repository: when the answer depends on code you \
 were not shown, say which code and how it could change your answer. Refer to \
-code as path:line where you can."""
+code as path:line where you can. When the material is a change or a \
+proposed design, weigh it by the design pass included below."""
 
 REVIEW_PROMPT = """\
 You are reviewing a change for a software engineer and the coding agent they \
-work with. Find defects that would cause wrong behaviour, crashes, lost data \
-or real performance problems, and judge whether the design is sound. You see \
-only the diff and files included here, not the whole repository.
+work with, in place of their full design review, so be thorough rather than \
+brief. You see only the diff and files included here, not the whole repository.
 
-Rank findings most severe first. For each give path:line, the defect in one \
+Correctness: find defects that would cause wrong behaviour, crashes, lost data \
+or real performance problems. For each give path:line, the defect in one \
 sentence, a concrete failure scenario (the inputs or state, then what goes \
 wrong) and your confidence. Leave out style and formatting. When confirming a \
-finding would need code you were not shown, say what you would check. End \
-with a short assessment of the approach: whether it is sound, and any simpler \
-or more maintainable alternative worth its cost. If you find no defects, say so."""
+finding would need code you were not shown, say what you would check.
+
+Design: make the design pass included below, and report in the shape it gives."""
 
 
 def note(message: str) -> None:
@@ -157,6 +160,23 @@ def read_text(path: Path) -> str | None:
         return None
 
 
+def file_arg(arg: str) -> tuple[Path, tuple[int, int] | None]:
+    """`-f path` or `-f path:START-END`, 1-based and inclusive. A path that
+    exists as written is whole even if it ends in what looks like a range."""
+    match = re.fullmatch(r"(.+):(\d+)-(\d+)", arg)
+    if match is None or Path(arg).exists():
+        return Path(arg), None
+    start, end = int(match[2]), int(match[3])
+    if not 1 <= start <= end:
+        fail(f"bad line range in {arg}: want START-END with 1 <= START <= END")
+    return Path(match[1]), (start, end)
+
+
+def select_lines(text: str, start: int, end: int) -> str:
+    """Lines START..END of text, inclusive; a range past the end is cut short."""
+    return "".join(text.splitlines(keepends=True)[start - 1 : end])
+
+
 def review_base() -> str:
     for ref in ("origin/main", "main"):
         result = subprocess.run(
@@ -173,6 +193,10 @@ def build_prompt(args: argparse.Namespace) -> tuple[str, str, list[str]]:
     included: list[str] = []
 
     system = [REVIEW_PROMPT if args.review else DESIGN_PROMPT]
+    design_pass = read_text(DESIGN_PASS)
+    if design_pass is None:
+        fail(f"cannot read the design pass at {DESIGN_PASS}")
+    system.append(f"<design_pass>\n{design_pass}</design_pass>")
     if not args.no_instructions:
         owner = read_text(GLOBAL_AGENTS)
         if owner:
@@ -187,7 +211,8 @@ def build_prompt(args: argparse.Namespace) -> tuple[str, str, list[str]]:
 
     parts: list[str] = []
     diff_args = args.diff.split() if args.diff else ([review_base()] if args.review else None)
-    files = [Path(f) for f in args.file]
+    named = [file_arg(f) for f in args.file]
+    files: list[tuple[Path, tuple[int, int] | None]] = []
     if diff_args:
         diff = git("diff", *diff_args)
         if not diff.strip():
@@ -196,19 +221,26 @@ def build_prompt(args: argparse.Namespace) -> tuple[str, str, list[str]]:
         included.append(f"diff {' '.join(diff_args)}")
         if args.review and root:
             changed = git("diff", "--name-only", "--diff-filter=d", *diff_args).split()
-            files = [root / c for c in changed] + files
-    seen: set[Path] = set()
-    for path in files:
-        if path.resolve() in seen:
+            files = [(root / c, None) for c in changed]
+    seen: set[tuple[Path, tuple[int, int] | None]] = set()
+    for path, span in files + named:
+        if (path.resolve(), span) in seen:
             continue
-        seen.add(path.resolve())
+        seen.add((path.resolve(), span))
         text = read_text(path)
         if text is None:
-            if path in [Path(f) for f in args.file]:
+            if (path, span) in named:
                 fail(f"cannot read {path} as UTF-8 text")
             continue  # binary or vanished file named by the diff
-        parts.append(f'<file path="{shown_path(path, root)}">\n{text}</file>')
-        included.append(shown_path(path, root))
+        label = shown_path(path, root)
+        if span:
+            text = select_lines(text, *span)
+            label = f"{label}:{span[0]}-{span[1]}"
+            attrs = f'path="{shown_path(path, root)}" lines="{span[0]}-{span[1]}"'
+        else:
+            attrs = f'path="{label}"'
+        parts.append(f"<file {attrs}>\n{text}</file>")
+        included.append(label)
     if args.stdin:  # only on request: a script's own pipe is not ours to drain
         stdin = sys.stdin.read()
         if not stdin.strip():
@@ -337,18 +369,25 @@ def ensure_sdk():
 def parse_args(argv: list[str]) -> argparse.Namespace:
     p = argparse.ArgumentParser(prog="ask-api", description=__doc__.split("\n\n")[0])
     p.add_argument("question", nargs="?", help="the question, or what a review should focus on")
-    p.add_argument("-f", "--file", action="append", default=[], help="include a file (repeatable)")
+    p.add_argument("-f", "--file", action="append", default=[], help="include a file, or lines of one as PATH:START-END (repeatable)")
     p.add_argument("--diff", metavar="ARGS", help='git diff arguments, e.g. "origin/main...HEAD"')
     p.add_argument("--stdin", action="store_true", help="include text piped into stdin")
     p.add_argument("--review", action="store_true", help="review a change; diffs against the merge base with main unless --diff is given")
     p.add_argument("-m", "--model", default="fable", help="fable, opus or sonnet (newest of the line) or a full model ID; default fable")
-    p.add_argument("--effort", default="high", choices=["low", "medium", "high", "xhigh", "max"])
-    p.add_argument("--max-tokens", type=int, default=32000)
-    p.add_argument("--max-cost", type=float, default=float(os.environ.get("ASK_API_MAX_COST", "3")), help="refuse when the worst case exceeds this many USD (default 3, or $ASK_API_MAX_COST)")
+    p.add_argument("--effort", choices=["low", "medium", "high", "xhigh", "max"], help="default high, xhigh for --review")
+    p.add_argument("--max-tokens", type=int, help="default 32000, 64000 for --review")
+    p.add_argument("--max-cost", type=float, default=float(os.environ.get("ASK_API_MAX_COST", "20")), help="refuse when the worst case exceeds this many USD (default 20, or $ASK_API_MAX_COST)")
     p.add_argument("-y", "--yes", action="store_true", help="send even over the cost limit or with no known price")
     p.add_argument("--dry-run", action="store_true", help="estimate and list the context, then stop")
     p.add_argument("--no-instructions", action="store_true", help="leave out AGENTS.md and the owner preferences")
-    return p.parse_args(argv)
+    args = p.parse_args(argv)
+    # A review stands in for the owner's full design review, so it gets the
+    # depth and the room that takes; a question stays cheaper by default.
+    if args.effort is None:
+        args.effort = "xhigh" if args.review else "high"
+    if args.max_tokens is None:
+        args.max_tokens = 64000 if args.review else 32000
+    return args
 
 
 def main(argv: list[str]) -> int:
