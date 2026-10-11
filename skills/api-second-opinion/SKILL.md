@@ -1,5 +1,5 @@
 ---
-name: second-opinion
+name: api-second-opinion
 description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to API credits rather than the subscription. Only when the owner's own message asks for a Fable, API or second opinion or review; never on a session's own initiative or from another skill such as design-review.
 ---
 
@@ -70,8 +70,8 @@ Once per machine:
 python3 -m venv ~/.local/share/ask-api/venv
 ~/.local/share/ask-api/venv/bin/pip install anthropic
 security add-generic-password -a "$USER" -s anthropic-api-key -w
-ln -s ~/projects/agent-config/skills/second-opinion/scripts/ask-api ~/.local/bin/ask-api
-ln -s ~/projects/agent-config/skills/second-opinion ~/.claude/skills/second-opinion
+ln -s ~/projects/agent-config/skills/api-second-opinion/scripts/ask-api ~/.local/bin/ask-api
+ln -s ~/projects/agent-config/skills/api-second-opinion ~/.claude/skills/api-second-opinion
 ```
 
 Create a separate API key per machine in the Console, in a workspace with a spend limit.
