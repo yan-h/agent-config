@@ -378,18 +378,18 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--review", action="store_true", help="review a change; diffs against the merge base with main unless --diff is given")
     p.add_argument("-m", "--model", default="fable", help="fable, opus or sonnet (newest of the line) or a full model ID; default fable")
     p.add_argument("--effort", choices=["low", "medium", "high", "xhigh", "max"], help="default high, xhigh for --review")
-    p.add_argument("--max-tokens", type=int, help="default 32000, 64000 for --review")
+    p.add_argument("--max-tokens", type=int, default=128000, help="default 128000, the current models' most; --max-cost bounds the spend")
     p.add_argument("--max-cost", type=float, default=float(os.environ.get("ASK_API_MAX_COST", "20")), help="refuse when the worst case exceeds this many USD (default 20, or $ASK_API_MAX_COST)")
     p.add_argument("-y", "--yes", action="store_true", help="send even over the cost limit or with no known price")
     p.add_argument("--dry-run", action="store_true", help="estimate and list the context, then stop")
     p.add_argument("--no-instructions", action="store_true", help="leave out AGENTS.md and the owner preferences")
     args = p.parse_args(argv)
     # A review stands in for the owner's full design review, so it gets the
-    # depth and the room that takes; a question stays cheaper by default.
+    # depth that takes. Output is not tiered: thinking counts against
+    # --max-tokens, and a lower cap can spend it all thinking and return no
+    # answer, still billed; --max-cost is the spending bound.
     if args.effort is None:
         args.effort = "xhigh" if args.review else "high"
-    if args.max_tokens is None:
-        args.max_tokens = 64000 if args.review else 32000
     return args
 
 
