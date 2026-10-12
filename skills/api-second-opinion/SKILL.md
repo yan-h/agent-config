@@ -18,7 +18,7 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 
 `--model` takes `fable` (the default), `opus` or `sonnet`, each meaning the newest active model of that line, or a full model ID to pin one.
 Stdin is read only with `--stdin`.
-`--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 32000, and 64000 with `--review`.
+`--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 128000, the current models' most, since thinking counts against it and a lower cap can spend it all thinking and return no answer, still billed.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
 
 ## Choosing the context
