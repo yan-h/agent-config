@@ -91,6 +91,8 @@ and a list that opens with mechanism reads as uniform whether it holds six live 
 
 If there are findings, describe each one with the observable line above, then what breaks, the real-world trigger, the reproduction, and the fix.
 Also name the areas and hypotheses checked clean, and record the `<since>..HEAD` range and the pull requests or merges it contains.
+Where the range's fixes return to a mechanism that earlier fixes also corrected, name it and those PRs and say a maintainability audit of it looks due:
+repeated corrections are the debt that audit exists to find, and a scheduled one can run before most of them land.
 
 Title the pull request `Merge audit <since>..<end>: <what it fixes>`, with `<end>` the abbreviated hash of the primary-branch commit the audit read rather than the branch's own head.
 It merges into the marker the next audit starts from, so the commit that lands on the primary branch must keep that subject.

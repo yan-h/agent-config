@@ -76,6 +76,8 @@ For an area's slice pass every file and directory it spans; an area that does no
 ## Per area, one auditor
 
 Read [the auditor brief](references/auditor.md) completely before delegating.
+Split an area whose share of the changes is too large for one auditor to read closely into sub-areas along its own seams, such as looks, model and gestures, and controls:
+in one audit an auditor held 191 of 282 changes and came back with two small fixes, where a later hunt split three ways found six refactors there.
 Give each auditor that brief, its area, its part of the history map, the area's intent record, and the project contract.
 The auditor's work is consequential judgement; size it by the global subagent guidance.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
@@ -84,6 +86,8 @@ Run a few areas at a time rather than every agent at once, so each area's result
 
 Verify every finding against the primary branch before it goes anywhere:
 that the duplication, the owners, or the coupling are what the auditor says, and that the cited commits paid what it says they paid.
+Where auditors of different areas report copies of one rule, it is one finding, with every copy.
+Reproduce each live defect an auditor reports, including those seen in passing; one that reproduces is filed as its own issue rather than folded into a refactor.
 
 Then sort what survived:
 

@@ -19,6 +19,9 @@ The answer names the structure.
 The most telling evidence is the file list of a change that added or removed one concept, such as one setting:
 every file it had to touch is a hop that concept costs, and the hops it did not need are the finding.
 Read those changes' `git show --stat` first.
+A change that consolidated a rule ("so the two cannot drift", "one walk replaces five copies") names a rule worth following:
+search what was written after it for code that spells the rule again instead of calling the shared one (`git log -S <shared name>` dates the sharing).
+In one audit, a rule shared so its copies could not drift gained a fresh copy without it soon after.
 A file that only lists submodules can rank as a hotspot on history from before it was split up; follow it into its directory.
 Spend most of your time here; structure no change has paid for is the least valuable thing to find.
 
@@ -35,11 +38,17 @@ The shapes that cost most across a whole area; naming, formatting and local tidi
 3. **Boundaries.**
    What callers must know about the inside: invariants each caller maintains, interfaces that expose representation,
    and the coupled files from the history that sit on opposite sides of one.
-4. **Special cases.**
-   Conditionals on a kind, mode or flag repeated across functions; the representation that would remove them.
-5. **Tests that tax change.**
+4. **A rule decided in several places.**
+   An eligibility test, a priority among per-item states, or a "which applies", spelled at more than one site, so a new case must reach every copy and a missed copy disagrees silently.
+   Conditionals on a kind, mode or flag repeated across functions are one form.
+   A checker, preview or view that re-derives what the executing code decides is the form that drifts longest unnoticed, since each side is right by its own reading.
+   Search for each rule's other spellings outside your area too: one audit missed a rule spelled in a compiler, an editor canvas and an analyzer, because each lay in another auditor's area.
+5. **One place making up for another.**
+   A workaround that exists because another place applied something — a stop short, an offset, a compensating colour, an ordering rule — so each new piece that overlaps pays again.
+6. **The same data built twice, in two forms.**
+7. **Tests that tax change.**
    Tests that break when the structure changes and behaviour does not, and slow tests every change in the area must wait for.
-6. **Speculative generality.**
+8. **Speculative generality.**
    Abstractions, options and extension points with one user and no planned second.
 
 When a finding is really a reason that moved — a mechanism kept after its case went — mark it as drift and keep going.
@@ -52,6 +61,7 @@ A raw count of pattern matches — struct literals, call sites — misleads unti
 Each finding names the commits or PRs that paid for it, or the roadmap item it would make costly,
 and says what the next likely change in the area would cost now and after the fix.
 If you cannot name either, it goes under seen and left.
+Copies that already disagree are a live defect as well as debt: say so, and give the input that shows the disagreement.
 
 ## Report
 
