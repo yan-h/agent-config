@@ -42,7 +42,7 @@ The shapes that cost most across a whole area; naming, formatting and local tidi
    An eligibility test, a priority among per-item states, or a "which applies", spelled at more than one site, so a new case must reach every copy and a missed copy disagrees silently.
    Conditionals on a kind, mode or flag repeated across functions are one form.
    A checker, preview or view that re-derives what the executing code decides is the form that drifts longest unnoticed, since each side is right by its own reading.
-   Name each rule, then search the whole project for its other spellings, not only your area: a rule split across areas is invisible to every area's auditor.
+   Search for each rule's other spellings outside your area too: one audit missed a rule spelled in a compiler, an editor canvas and an analyzer, because each lay in another auditor's area.
 5. **One place making up for another.**
    A workaround that exists because another place applied something — a stop short, an offset, a compensating colour, an ordering rule — so each new piece that overlaps pays again.
 6. **The same data built twice, in two forms.**
@@ -61,7 +61,7 @@ A raw count of pattern matches — struct literals, call sites — misleads unti
 Each finding names the commits or PRs that paid for it, or the roadmap item it would make costly,
 and says what the next likely change in the area would cost now and after the fix.
 If you cannot name either, it goes under seen and left.
-Copies that already disagree are a live defect as well as debt: give the input that shows the disagreement, and rank the finding first.
+Copies that already disagree are a live defect as well as debt: say so, and give the input that shows the disagreement.
 
 ## Report
 
@@ -69,7 +69,6 @@ Copies that already disagree are a live defect as well as debt: give the input t
   the structure, `file:line`, the evidence, the fix, its rough upfront cost, what it removes,
   and whether it is mechanical, a rework candidate, or needs the owner's call — phrased as a yes/no question when it does.
 - **Shared causes:** findings that one restructuring would dissolve together.
-- **Rules:** every rule you found decided in several places, with each copy's `file:line`, including copies outside your area.
 - **Drift:** items that belong to a drift audit, one line each.
 - **Seen and left:** debt with no cost and no roadmap pull, one line each.
 - **Method notes:** which steps found things and which were noise.
