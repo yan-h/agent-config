@@ -115,7 +115,18 @@ class LifecycleTests(unittest.TestCase):
         before = lc.publications(self.store)
         refused = self.run_tool('handoff', ok=False, env=dict(os.environ, CARGO_HOME=str(custom)))
         self.assertIn('target_directory', refused.stderr)
+        # A triple builds under target/<triple> and would publish the stale
+        # target/release deliverable the first handoff left behind.
+        (custom / 'config.toml').write_text('[build]\ntarget = "aarch64-apple-darwin"\n')
+        refused = self.run_tool('handoff', ok=False, env=dict(os.environ, CARGO_HOME=str(custom)))
+        self.assertIn('build target', refused.stderr)
         self.assertEqual(lc.publications(self.store), before)
+
+    def test_build_target_scan_reads_every_toml_spelling(self):
+        for text in ('[build]\ntarget = "x"\n', 'build.target = "x"\n', 'build = { jobs = 2, target = "x" }\n'):
+            self.assertTrue(lc.sets_build_target(text), text)
+        for text in ('[build]\ntarget-dir = "x"\n', '[target.x]\nlinker = "y"\n', '[build]\n# target = "x"\n'):
+            self.assertFalse(lc.sets_build_target(text), text)
 
     def test_dirty_source_and_failed_build_preserve_previous_handoff(self):
         self.run_tool('handoff')

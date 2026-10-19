@@ -6,7 +6,7 @@ description: Preserve build handoffs and reclaim disposable compilation output w
 # Finish the work and its workspace
 
 Read the project's `.agent-lifecycle.json` and handover contract.
-The helper requires Python 3.11+ on macOS or Linux.
+The helper runs on any Python 3.9+ on macOS or Linux, so macOS's own `python3` serves; its Cargo layout check needs `cargo` on PATH.
 The shared CLI is `python3 <this-skill>/scripts/lifecycle.py --repo <checkout>`;
 configured repositories also provide `./session-lifecycle.sh`.
 No configuration means no guessed artifact or cache paths.
@@ -61,6 +61,6 @@ A GitHub lookup failure retains artifacts.
 If protected artifacts exceed the budget, report that fact rather than evicting them.
 The budget covers preserved deliverables; active source/build caches can still exceed it and are not forcibly deleted.
 
-Install or update with `python3 scripts/install.py --repo /path/to/repository` (repeat `--repo` for each project).
-The installer links this skill into the Claude and shared agent catalogs, installs the deterministic job, and retains unrelated hooks and settings.
+Install or update with agent-config's `scripts/install.sh --repo /path/to/repository` (repeat `--repo` for each project; a rerun keeps those registered).
+It links this skill into the Claude and shared agent catalogs, then runs `scripts/install.py`, which installs the deterministic job and retains unrelated hooks and settings.
 Shared global defaults come from agent-config's existing global instruction links; they take effect in new sessions after that revision is installed.

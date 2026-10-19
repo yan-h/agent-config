@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -211,21 +212,49 @@ def validate_layout(repo, cfg):
     forbidden = ('--target', '--profile', '--target-dir', '--build-dir', '--config')
     if any(arg.split('=', 1)[0] in forbidden for arg in cfg['build']):
         raise Refused('custom Cargo output/profile arguments are not supported')
-    # Cargo's own answer covers every config layer, `include` and CARGO_HOME,
-    # and needs no TOML parser, which keeps these scripts on macOS's own
-    # python3 (3.9). It does not report a `build.target` triple from a config
-    # file; that moves output under target/<triple>, where handoff refuses for
-    # missing artifacts and trim's removals stay inside target/.
+    # Cargo's own answer for where output goes covers every config layer,
+    # `include` and CARGO_HOME, and needs no TOML parser, which keeps these
+    # scripts on macOS's own python3 (3.9). No auto-installed toolchain inside
+    # an hourly sweep, and no lock held on a hung cargo.
     if (repo / 'Cargo.toml').is_file():
-        result = subprocess.run(['cargo', 'metadata', '--no-deps', '--offline', '--format-version', '1'],
-                                cwd=repo, capture_output=True, text=True)
+        try:
+            result = subprocess.run(['cargo', 'metadata', '--no-deps', '--offline', '--format-version', '1'],
+                                    cwd=repo, capture_output=True, text=True, timeout=120,
+                                    env=dict(os.environ, RUSTUP_AUTO_INSTALL='0'))
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise Refused('cannot read the Cargo layout: ' + str(error))
         if result.returncode:
             raise Refused('cannot read the Cargo layout: ' + result.stderr.strip())
         metadata = json.loads(result.stdout)
         for field in ('target_directory', 'build_directory'):
             if metadata.get(field) and Path(metadata[field]).resolve() != (repo / 'target').resolve():
                 raise Refused('custom Cargo output configuration: ' + field + ' is ' + metadata[field])
+    # cargo metadata does not report a `build.target` triple, which moves the
+    # build under target/<triple> while an earlier build's deliverable still
+    # stands at target/release, and handoff would publish that stale file
+    # under the new commit. So the config files are scanned for it; a false
+    # positive is a refusal, the safe direction.
+    directories = [directory / '.cargo' for directory in [repo, *repo.parents]]
+    directories.append(Path(os.environ.get('CARGO_HOME', Path.home() / '.cargo')))
+    for directory in directories:
+        for name in ('config', 'config.toml'):
+            path = directory / name
+            if path.is_file() and sets_build_target(path.read_text()):
+                raise Refused('custom Cargo build target: ' + str(path))
     inside(repo, 'target')
+
+
+def sets_build_target(text):
+    table = None
+    for line in text.splitlines():
+        line = line.split('#', 1)[0].strip()
+        if line.startswith('['):
+            table = line.strip('[] ')
+        elif re.match(r'target\s*=', line) and table == 'build':
+            return True
+        elif table is None and re.match(r'build\s*\.\s*target\s*=|build\s*=\s*\{.*\btarget\s*=', line):
+            return True
+    return False
 
 
 def handoff(repo, store, keep_cache=False):

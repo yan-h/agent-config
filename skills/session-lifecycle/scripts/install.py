@@ -44,7 +44,7 @@ with plist.open('wb') as out:
 if not args.no_launch:
     subprocess.run(['launchctl', 'bootout', f'gui/{os.getuid()}/{label}'], capture_output=True)
     subprocess.run(['launchctl', 'bootstrap', f'gui/{os.getuid()}', str(plist)], check=True)
-print('Installed skill from: ' + str(skill))
+print('Hourly sweep runs the scripts in: ' + str(skill))
 print('Hourly project sweep: ' + ', '.join(sorted(projects)))
 print('Log: ' + str(log))
 print('Keep this source checkout until reinstalling from another revision.')
