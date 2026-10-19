@@ -8,7 +8,11 @@ import fcntl
 import hashlib
 import json
 import os
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:  # macOS's own python3 is 3.9
+    raise SystemExit('session-lifecycle needs Python 3.11+ as python3; install one '
+                     '(brew install python) and rerun agent-config\'s scripts/install.sh') from None
 from pathlib import Path
 import shutil
 import subprocess

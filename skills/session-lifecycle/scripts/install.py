@@ -9,9 +9,15 @@ import subprocess
 import sys
 
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument('--repo', type=Path, action='append', required=True)
+parser.add_argument('--repo', type=Path, action='append', default=[],
+                    help='a project to sweep; a rerun keeps the projects already registered')
 parser.add_argument('--no-launch', action='store_true', help='write installation without loading launchd')
 args = parser.parse_args()
+# The job runs sweep_installed.py, and through it lifecycle.py, under this
+# interpreter; on 3.9 that fails every hour into a log nobody reads.
+if sys.version_info < (3, 11):
+    parser.error(f'needs Python 3.11+, and {sys.executable} is {sys.version.split()[0]}; '
+                 'run it with a newer python3 (brew install python)')
 if sys.platform != 'darwin' and not args.no_launch:
     parser.error('automatic scheduling currently supports macOS only')
 skill = Path(__file__).resolve().parent.parent
@@ -31,6 +37,8 @@ for repo in args.repo:
     common = subprocess.check_output(['git', '-C', str(repo), 'worktree', 'list', '--porcelain'], text=True)
     main = next(line[9:] for line in common.splitlines() if line.startswith('worktree '))
     projects.add(str(Path(main).resolve()))
+if not projects:
+    parser.error('no project is registered for the sweep yet; pass --repo for each one')
 config.write_text(json.dumps({'projects': sorted(projects)}, indent=2) + '\n')
 log = home / 'Library/Logs/agent-lifecycle.log'
 log.parent.mkdir(parents=True, exist_ok=True)

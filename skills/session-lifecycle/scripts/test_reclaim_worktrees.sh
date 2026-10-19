@@ -919,6 +919,28 @@ check_wrapper() {
   fi
 }
 
+# A python3 too old for lifecycle.py makes every removal and prune fail, so the
+# hook has to say so, and before the df gate: without RECLAIM_FORCE, a roomy
+# disk would otherwise end the run in silence first.
+check_old_python() {
+  desc="a python3 older than 3.11 is reported before the df gate"
+  work="$TMP/old-python"
+  main="$work/main"
+  mkdir -p "$work/bin"
+  (init_repo "$main" && mkdir -p .claude/worktrees) || { fail "$desc: could not build the fixture"; return; }
+  printf '#!/usr/bin/env bash\nexit 1\n' > "$work/bin/python3"
+  chmod +x "$work/bin/python3"
+
+  msg=$(cd "$main" && PATH="$work/bin:$PATH" CLAUDE_PROJECT_DIR="$main" \
+    RECLAIM_NO_NETWORK=1 "$SCRIPT" </dev/null 2>/dev/null)
+  if grep -q '"systemMessage"' <<<"$msg" && grep -q '3.11' <<<"$msg"; then
+    echo "✓ $desc"
+  else
+    fail "$desc: the run said nothing a session would see"
+    printf '%s\n' "${msg:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
 # A CLAIMED spare is a live session. Its argv is fixed at exec and still names
 # the claim socket it was offered on, so argv alone cannot say it was taken —
 # the socket being GONE from disk is what says so. This is the case that makes
@@ -975,6 +997,7 @@ check_force_retry_gate unknown \
 check_refused_removal_is_audible
 check_missing_git_link
 check_wrapper
+check_old_python
 
 echo
 if [ "$failures" -gt 0 ]; then

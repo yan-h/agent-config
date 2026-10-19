@@ -43,12 +43,18 @@ git clone https://github.com/yan-h/agent-config.git ~/projects/agent-config
 
 Back up any existing instruction files and merge their contents into the shared
 source before replacing them. For Claude, run the install script; it links
-Claude's file, which imports the shared one, and every skill into `~/.claude`,
-and sets up `ask-api` (see `skills/api-second-opinion`). Rerun it after adding
-or removing a skill; it replaces only links and skips any real file in the way.
+Claude's file, which imports the shared one, into `~/.claude`, links every
+skill into both `~/.claude/skills` and `~/.agents/skills`, installs
+session-lifecycle's hourly sweep for each `--repo` (see
+[Session lifecycle installation](#session-lifecycle-installation)), and sets up
+`ask-api` (see `skills/api-second-opinion`). The sweep needs Python 3.11+ as
+`python3`, and macOS ships 3.9, so install one first (`brew install python`).
+Rerun it after adding or removing a skill; it replaces only links, skips any
+real file in the way, and keeps the projects already registered.
 
 ```sh
-~/projects/agent-config/scripts/install.sh
+brew install python
+~/projects/agent-config/scripts/install.sh --repo ~/projects/harmonigraph --repo ~/projects/otonal
 ```
 
 Link the shared file into each other host you use:
@@ -169,8 +175,8 @@ and non-empty instructions.
 
 ## Make skills discoverable
 
-For a personal installation, link each skill directory from this checkout
-into both user catalogs (`scripts/install.sh` makes the Claude links):
+For a personal installation, `scripts/install.sh` links each skill directory
+from this checkout into both user catalogs:
 
 ```text
 ~/.claude/skills/<skill-name> -> <checkout>/skills/<skill-name>
@@ -226,12 +232,15 @@ Projects declare builds and deliverables in `.agent-lifecycle.json` and provide 
 After installing the global instruction revision, new sessions of every linked host follow the same procedure.
 Already-running sessions need an explicit update; cloud jobs need the project-local contract.
 
-Install the skill links and hourly deterministic macOS fallback with:
+`scripts/install.sh` installs the skill links and hourly deterministic macOS fallback by running:
 
 ```sh
 python3 skills/session-lifecycle/scripts/install.py --repo /path/to/project --repo /path/to/another-project
 ```
 
+It needs Python 3.11+ and refuses an older interpreter, because the job runs under the one that installed it.
+A rerun without `--repo` keeps the registered projects.
+A project's SessionStart hook reports an old `python3` or a missing skill rather than skipping cleanup in silence.
 This installs `com.yan.agent-lifecycle` and a local project list; it does not modify unrelated agent hooks.
 The job waits until each main checkout contains the lifecycle integration, so installing before project PRs merge is safe.
 Its runtime remains linked to this source checkout: after installing from a PR worktree, reinstall from main before removing that worktree.
