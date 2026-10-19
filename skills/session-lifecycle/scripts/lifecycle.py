@@ -8,11 +8,6 @@ import fcntl
 import hashlib
 import json
 import os
-try:
-    import tomllib
-except ModuleNotFoundError:  # macOS's own python3 is 3.9
-    raise SystemExit('session-lifecycle needs Python 3.11+ as python3; install one '
-                     '(brew install python) and rerun agent-config\'s scripts/install.sh') from None
 from pathlib import Path
 import shutil
 import subprocess
@@ -216,15 +211,20 @@ def validate_layout(repo, cfg):
     forbidden = ('--target', '--profile', '--target-dir', '--build-dir', '--config')
     if any(arg.split('=', 1)[0] in forbidden for arg in cfg['build']):
         raise Refused('custom Cargo output/profile arguments are not supported')
-    directories = [directory / '.cargo' for directory in [repo, *repo.parents]]
-    directories.append(Path(os.environ.get('CARGO_HOME', Path.home() / '.cargo')))
-    for directory in directories:
-        for name in ('config', 'config.toml'):
-            path = directory / name
-            if path.is_file():
-                build = tomllib.loads(path.read_text()).get('build', {})
-                if any(field in build for field in ('target-dir', 'build-dir', 'target')):
-                    raise Refused('custom Cargo output configuration: ' + str(path))
+    # Cargo's own answer covers every config layer, `include` and CARGO_HOME,
+    # and needs no TOML parser, which keeps these scripts on macOS's own
+    # python3 (3.9). It does not report a `build.target` triple from a config
+    # file; that moves output under target/<triple>, where handoff refuses for
+    # missing artifacts and trim's removals stay inside target/.
+    if (repo / 'Cargo.toml').is_file():
+        result = subprocess.run(['cargo', 'metadata', '--no-deps', '--offline', '--format-version', '1'],
+                                cwd=repo, capture_output=True, text=True)
+        if result.returncode:
+            raise Refused('cannot read the Cargo layout: ' + result.stderr.strip())
+        metadata = json.loads(result.stdout)
+        for field in ('target_directory', 'build_directory'):
+            if metadata.get(field) and Path(metadata[field]).resolve() != (repo / 'target').resolve():
+                raise Refused('custom Cargo output configuration: ' + field + ' is ' + metadata[field])
     inside(repo, 'target')
 
 

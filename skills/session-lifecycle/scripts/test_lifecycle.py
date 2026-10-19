@@ -90,11 +90,6 @@ class LifecycleTests(unittest.TestCase):
             self.run_tool('handoff', ok=False, env=env)
         self.assertEqual(lc.publications(self.store), [])
         self.assertTrue(cache.exists())
-        custom = Path(self.tmp.name) / 'custom-cargo'
-        custom.mkdir()
-        (custom / 'config.toml').write_text('[build]\ntarget-dir = "elsewhere"\n')
-        self.run_tool('handoff', ok=False, env=dict(os.environ, CARGO_HOME=str(custom)))
-        self.assertEqual(lc.publications(self.store), [])
         outside = Path(self.tmp.name) / 'valuable'
         outside.mkdir()
         (outside / 'precious').write_text('keep')
@@ -103,6 +98,24 @@ class LifecycleTests(unittest.TestCase):
         cache.parent.symlink_to(outside, target_is_directory=True)
         self.run_tool('finish', '--source-only', ok=False)
         self.assertTrue((outside / 'precious').exists())
+
+    def test_cargo_config_output_dir_refused_before_publication(self):
+        # A config file reaches the check only through cargo, and only in a
+        # Cargo project, so the fixture becomes one; the plain handoff first
+        # proves a default layout passes.
+        (self.repo / 'Cargo.toml').write_text('[package]\nname = "fixture"\nversion = "0.0.0"\n')
+        (self.repo / 'src').mkdir()
+        (self.repo / 'src/lib.rs').write_text('')
+        self.git('add', '.')
+        self.git('commit', '-qm', 'cargo project')
+        self.run_tool('handoff')
+        custom = Path(self.tmp.name) / 'custom-cargo'
+        custom.mkdir()
+        (custom / 'config.toml').write_text('[build]\ntarget-dir = "elsewhere"\n')
+        before = lc.publications(self.store)
+        refused = self.run_tool('handoff', ok=False, env=dict(os.environ, CARGO_HOME=str(custom)))
+        self.assertIn('target_directory', refused.stderr)
+        self.assertEqual(lc.publications(self.store), before)
 
     def test_dirty_source_and_failed_build_preserve_previous_handoff(self):
         self.run_tool('handoff')

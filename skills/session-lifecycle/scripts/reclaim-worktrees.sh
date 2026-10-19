@@ -296,16 +296,6 @@ if [ ! -d "$WT_DIR" ]; then
   exit 0
 fi
 
-# Every removal and prune runs lifecycle.py, which needs Python 3.11, and
-# macOS's own python3 is 3.9. Checked before the df gate, which ends nearly
-# every run in silence: a roomy disk is exactly when nobody would notice that
-# no cleanup could ever happen.
-if ! python3 -c 'import sys; sys.exit(sys.version_info < (3, 11))' 2>/dev/null; then
-  note "python3 is $(python3 -V 2>&1 || echo missing); lifecycle.py needs 3.11+"
-  printf '{"systemMessage":"%s"}\n' "Worktree cleanup cannot run: session-lifecycle needs python3 3.11+ on PATH. Install one (brew install python) and rerun agent-config's scripts/install.sh."
-  exit 0
-fi
-
 # TRANSITIONAL: earlier versions pruned by renaming a cache to
 # `target/.reclaiming-*` and deleting it in the background. Sweep any staging
 # dir such a run left behind, BEFORE the df gate: a killed background delete is

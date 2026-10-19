@@ -2,7 +2,7 @@
 # Link this checkout's Claude instructions into ~/.claude and its skills into
 # ~/.claude/skills and ~/.agents/skills, install session-lifecycle's hourly
 # sweep, and set up ask-api. Safe to rerun: it replaces only links, never a
-# real file.
+# real file. Every rerun also restarts the sweep, which runs once at load.
 # --repo PATH (repeatable): a project for the sweep to cover. A rerun keeps the
 # projects already registered, so only a new machine or project needs it.
 # --cloud: also installs ask-api into /usr/local/bin and adds a SessionStart hook
@@ -49,18 +49,10 @@ for catalog in "$HOME/.claude/skills" "$HOME/.agents/skills"; do
   done
 done
 
-# session-lifecycle needs Python 3.11 (tomllib), and macOS ships 3.9 as
-# python3. Without this check a new machine got the skill links, no sweep, and
-# a traceback only when a session first ran a build through the helper.
-if ! $cloud; then
-  if ! python3 -c 'import sys; sys.exit(sys.version_info < (3, 11))' 2>/dev/null; then
-    echo "install: session-lifecycle is not set up: python3 is $(python3 -V 2>&1 || echo missing), and it needs 3.11+;" \
-      "install a newer one (brew install python) and rerun" >&2
-    status=1
-  elif ! python3 "$repo/skills/session-lifecycle/scripts/install.py" ${repos[@]+"${repos[@]}"}; then
-    echo "install: session-lifecycle is not set up: its installer failed (above)" >&2
-    status=1
-  fi
+# The hourly sweep, which a cloud environment neither needs nor can schedule.
+if ! $cloud && ! python3 "$repo/skills/session-lifecycle/scripts/install.py" ${repos[@]+"${repos[@]}"}; then
+  echo "install: session-lifecycle's hourly sweep is not set up: its installer failed (above)" >&2
+  status=1
 fi
 
 # ask-api is optional: a failure here must not cost the instructions and skills above.

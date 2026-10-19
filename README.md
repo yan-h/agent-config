@@ -47,13 +47,11 @@ Claude's file, which imports the shared one, into `~/.claude`, links every
 skill into both `~/.claude/skills` and `~/.agents/skills`, installs
 session-lifecycle's hourly sweep for each `--repo` (see
 [Session lifecycle installation](#session-lifecycle-installation)), and sets up
-`ask-api` (see `skills/api-second-opinion`). The sweep needs Python 3.11+ as
-`python3`, and macOS ships 3.9, so install one first (`brew install python`).
-Rerun it after adding or removing a skill; it replaces only links, skips any
-real file in the way, and keeps the projects already registered.
+`ask-api` (see `skills/api-second-opinion`). Rerun it after adding or removing
+a skill; it replaces only links, skips any real file in the way, and keeps the
+projects already registered.
 
 ```sh
-brew install python
 ~/projects/agent-config/scripts/install.sh --repo ~/projects/harmonigraph --repo ~/projects/otonal
 ```
 
@@ -232,18 +230,19 @@ Projects declare builds and deliverables in `.agent-lifecycle.json` and provide 
 After installing the global instruction revision, new sessions of every linked host follow the same procedure.
 Already-running sessions need an explicit update; cloud jobs need the project-local contract.
 
-`scripts/install.sh` installs the skill links and hourly deterministic macOS fallback by running:
+`scripts/install.sh` links the skill into both catalogs and installs the hourly deterministic macOS fallback by running:
 
 ```sh
 python3 skills/session-lifecycle/scripts/install.py --repo /path/to/project --repo /path/to/another-project
 ```
 
-It needs Python 3.11+ and refuses an older interpreter, because the job runs under the one that installed it.
-A rerun without `--repo` keeps the registered projects.
-A project's SessionStart hook reports an old `python3` or a missing skill rather than skipping cleanup in silence.
+The scripts run on macOS's own `python3` (3.9), and `scripts/check.py` also tests them under `/usr/bin/python3` to hold that floor.
+The job runs `python3` from the `PATH` the installer saw, as the projects' hooks and wrappers do.
+A rerun without `--repo` keeps the registered projects, and every rerun restarts the job, which sweeps once at load.
+A project's own SessionStart wrapper reports a missing skill, since the shared reclaimer is then not there to run.
 This installs `com.yan.agent-lifecycle` and a local project list; it does not modify unrelated agent hooks.
 The job waits until each main checkout contains the lifecycle integration, so installing before project PRs merge is safe.
-Its runtime remains linked to this source checkout: after installing from a PR worktree, reinstall from main before removing that worktree.
+Its runtime and both catalogs' links remain linked to this source checkout: after installing from a PR worktree, reinstall from main before removing that worktree.
 The log is `~/Library/Logs/agent-lifecycle.log`.
 To stop it, use `launchctl bootout gui/$(id -u)/com.yan.agent-lifecycle`.
 

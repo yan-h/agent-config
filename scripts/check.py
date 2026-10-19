@@ -13,6 +13,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = ROOT / "skills"
 VALID_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+# session-lifecycle's scripts run under whatever python3 a machine has, down
+# to macOS's own 3.9, which is no prerequisite to install. Every machine with
+# a newer python3 would pass a 3.10+ feature, and it would surface only on the
+# next new Mac, so its scripts are also compiled and tested under that floor.
+FLOOR_PYTHON = Path("/usr/bin/python3")
+FLOOR_SCRIPTS = SKILLS / "session-lifecycle" / "scripts"
 
 
 def frontmatter_value(lines: list[str], key: str) -> str | None:
@@ -123,21 +129,25 @@ def run_skill_tests() -> int:
         for test in sorted(SKILLS.glob("*/scripts/test_*"))
         if test.suffix in runners
     ]
+    runs = [(f"{test.relative_to(ROOT)}", [*runners[test.suffix], str(test)]) for test in tests]
+    if FLOOR_PYTHON.is_file():
+        floor = f"under {FLOOR_PYTHON}"
+        scripts = [str(script) for script in sorted(FLOOR_SCRIPTS.glob("*.py"))]
+        runs.append((f"session-lifecycle's scripts compiled {floor}", [str(FLOOR_PYTHON), "-m", "py_compile", *scripts]))
+        runs += [
+            (f"{test.relative_to(ROOT)} {floor}", [str(FLOOR_PYTHON), str(test)])
+            for test in sorted(FLOOR_SCRIPTS.glob("test_*.py"))
+        ]
     failed = 0
-    for test in tests:
-        result = subprocess.run(
-            [*runners[test.suffix], str(test)],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-        )
+    for label, command in runs:
+        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
         if result.returncode:
             failed += 1
-            print(f"error: {test.relative_to(ROOT)} failed", file=sys.stderr)
+            print(f"error: {label} failed", file=sys.stderr)
             print(result.stdout + result.stderr, file=sys.stderr)
     if failed:
         return 1
-    print(f"Passed {len(tests)} skill test file(s).")
+    print(f"Passed {len(runs)} skill test run(s).")
     return 0
 
 
