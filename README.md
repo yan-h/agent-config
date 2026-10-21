@@ -158,7 +158,8 @@ this public repository.
 - `api-second-opinion` — `ask-api`, a command that sends a design question,
   second opinion or review with chosen context to Claude Fable (or another
   model) over the API, billed to API credits rather than the subscription,
-  behind a worst-case cost guard. Owner-requested, since every call costs money.
+  behind a worst-case cost guard. On the owner's request, or unasked once per task
+  for an uncertain consequential decision or a risky diff, within the $20 guard.
 
 ## Add a skill
 

@@ -1,13 +1,13 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to API credits rather than the subscription. Only when the owner's own message asks for a Fable, API or second opinion or review; never on a session's own initiative or from another skill such as design-review.
+description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to API credits rather than the subscription. When the owner's own message asks for a Fable, API or second opinion or review, or unasked, once per task, for a consequential design decision still uncertain after the session's own reading or a large or risky diff; never from a subagent or another skill such as design-review.
 ---
 
 # A second opinion over the API
 
 `ask-api` sends one question, with the context you choose, to the Claude API and prints the answer.
 It bills the API key's credits, which Claude Code itself cannot spend, so the call costs the owner's subscription nothing.
-Each call costs real money, so run it only when the owner asks for one, and send the context the question needs rather than everything nearby.
+Each call costs real money, so run it only when the owner asks for one or the next section allows it, and send the context the question needs rather than everything nearby.
 
 ```sh
 ask-api "Is keying this cache on the whole config sound?" -f src/cache.rs -f src/draw.rs:120-180
@@ -20,6 +20,18 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 Stdin is read only with `--stdin`.
 `--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 128000, the current models' most, since thinking counts against it and a lower cap can spend it all thinking and return no answer, still billed.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
+
+## Calling it unasked
+
+The session that owns a task may call it without being asked, after its own reading or review and not instead of it, for:
+- a consequential design decision, costly to reverse, that it is still unsure of;
+- a large or risky diff, such as concurrency, persistence or real-time code, where a review beyond `design-review` is worth about $20.
+
+Never call it unasked for routine or mechanical changes.
+A subagent or another skill, such as `design-review` or `review-and-merge`, never calls it, because each would add its own call to one task.
+Make at most one unasked call per task; a second needs the owner's agreement.
+Do not raise `--max-cost` unasked: the $20 default is the owner's limit for an unasked call.
+In the report, say that the call was unasked and why: the owner sees no other record of it, and a cloud session's log is lost with its machine.
 
 ## Choosing the context
 
