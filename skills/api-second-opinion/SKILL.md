@@ -18,6 +18,7 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 ```
 
 `--model` takes `fable` (the default), `opus` or `sonnet`, each meaning the newest active model of that line, or a full model ID to pin one.
+Use another model only when the owner asks: Fable is what the API adds, and in Claude Code a subagent runs Opus or Sonnet with tools, from quota rather than credits.
 Stdin is read only with `--stdin`.
 `--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 128000, the current models' most, since thinking counts against it and a lower cap can spend it all thinking and return no answer, still billed.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
@@ -56,7 +57,7 @@ Treat the answer as a lead, not a verdict.
 Check each finding against the code before reporting it, and report which held, which did not and why, and the cost line `ask-api` printed.
 Report a call the owner did not ask for in the same way, with why you made it: they see no other record of it, and a cloud session's log is lost with its machine.
 Check first the code the model says it was not shown: its claims about what it saw are usually sound, and its open questions are where findings hide.
-Exit codes: 3 means the model declined (there is no automatic fallback, because its second attempt would escape the cost guard; re-ask with `--model opus`, under its own cost guard, if the answer is still worth it), 4 means the answer was cut off at `--max-tokens`.
+Exit codes: 3 means the model declined (there is no automatic fallback, because its second attempt would escape the cost guard; hand the question to a subagent or answer it yourself, if it is still worth answering), 4 means the answer was cut off at `--max-tokens`.
 
 ## What the credits pay for
 
