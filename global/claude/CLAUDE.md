@@ -18,7 +18,7 @@ The `ultra` level stays the user's to launch.
 ## Fable over the API
 
 Subscription Fable uses four times Opus's usage, while API Fable costs 2.5 times API Opus from separate prepaid credits, so the API is the cheaper way to get Fable's judgement.
-When the subagent guidance calls for the strongest model on judgement over context you can gather and send, such as a design question, a second opinion or a design pass over a diff, use the `api-second-opinion` skill instead of a Fable subagent, including where another skill asks for such a subagent.
+This changes how to get Fable's judgement, not when it is warranted: where you would run a Fable subagent for judgement over context you can gather and send, such as a design question, a second opinion or a design pass over a diff, use the `api-second-opinion` skill instead, including where another skill delegates that work.
 This is the ask the subagent guidance requires before launching another CLI.
 Keep Fable subagents for work that needs tools: exploring code you cannot name in advance, running commands, or editing.
 Such a call is that delegation, not an unasked call under the skill's one-per-task limit, and it stays within the $20 guard.
