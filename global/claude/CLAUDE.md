@@ -17,8 +17,8 @@ The `ultra` level stays the user's to launch.
 
 ## Model costs
 
-Subscription quota per token, relative to Opus: Haiku 1/40, Sonnet 1/2, Fable 4.
-Fable's is observed; Haiku's and Sonnet's assume the API's price ratios.
+Subscription Fable uses about four times Opus's quota, as observed.
+Haiku's and Sonnet's quota are unmeasured; by API price per token, Sonnet costs 1/2 of Opus, and Haiku 1/40 up to a 100k-token prompt and 1/8 beyond, which a subagent that reads many files reaches.
 Fable through the `api-second-opinion` skill uses no quota, and costs 2.5 times API Opus's price from separate prepaid credits.
 An API call returns one answer over only the context you send, without tools; a subagent can explore, run commands and edit.
 Choosing the API is the ask the subagent guidance requires before launching another CLI.
