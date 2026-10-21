@@ -56,7 +56,7 @@ Treat the answer as a lead, not a verdict.
 Check each finding against the code before reporting it, and report which held, which did not and why, and the cost line `ask-api` printed.
 Report a call the owner did not ask for in the same way, with why you made it: they see no other record of it, and a cloud session's log is lost with its machine.
 Check first the code the model says it was not shown: its claims about what it saw are usually sound, and its open questions are where findings hide.
-Exit codes: 3 means the model declined (there is no automatic fallback, because its second attempt would escape the cost guard; re-ask with `--model opus` if the owner agrees), 4 means the answer was cut off at `--max-tokens`.
+Exit codes: 3 means the model declined (there is no automatic fallback, because its second attempt would escape the cost guard; re-ask with `--model opus`, under its own cost guard, if the answer is still worth it), 4 means the answer was cut off at `--max-tokens`.
 
 ## What the credits pay for
 
