@@ -15,11 +15,9 @@ Resume a subagent after a long gap only when its context is worth rewriting; oth
 Choose the effort level to fit the risk, and skip it for small, mechanical or documentation-only changes.
 The `ultra` level stays the user's to launch.
 
-## Fable over the API
+## Fable over the API or a subagent
 
-Subscription Fable uses four times Opus's usage, while API Fable costs 2.5 times API Opus from separate prepaid credits, so the API is the cheaper way to get Fable's judgement.
-This changes how to get Fable's judgement, not when it is warranted: where you would run a Fable subagent for judgement over context you can gather and send, such as a design question, a second opinion or a design pass over a diff, use the `api-second-opinion` skill instead, including where another skill delegates that work.
-This is the ask the subagent guidance requires before launching another CLI.
-Keep Fable subagents for work that needs tools: exploring code you cannot name in advance, running commands, or editing.
-Such a call is that delegation, not an unasked call under the skill's one-per-task limit, and it stays within the $20 guard.
-Where `ask-api` is not set up or its credits have run out, use the subagent.
+Subscription Fable uses four times Opus's quota; Fable through the `api-second-opinion` skill uses none, costing 2.5 times API Opus's price from separate prepaid credits.
+An API call returns one answer over only the context you send, without tools; a subagent can explore, run commands and edit.
+Weigh quota and credits against the quality the problem needs when choosing between them, an Opus subagent, or doing the work yourself.
+Choosing the API is the ask the subagent guidance requires before launching another CLI.

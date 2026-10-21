@@ -1,13 +1,14 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to API credits rather than the subscription. When the owner's own message asks for a Fable, API or second opinion or review; in place of a Fable subagent where the owner's global guidance says so; or unasked, once per task, for a consequential design decision still uncertain after the session's own reading or a large or risky diff; never from a subagent, nor in addition to a Fable subagent.
+description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for a Fable, API or second opinion or review, or when the session judges such an answer worth the call's cost; never from a subagent.
 ---
 
 # A second opinion over the API
 
 `ask-api` sends one question, with the context you choose, to the Claude API and prints the answer.
 It bills the API key's credits, which Claude Code itself cannot spend, so the call costs the owner's subscription nothing.
-Each call costs real money, so run it only when the owner asks for one, their global guidance routes a Fable subagent's work here, or the next section allows it, and send the context the question needs rather than everything nearby.
+Each call costs real money, up to about $6.50 for a Fable question and $20 for an `xhigh` review, so make one when the answer is worth that, and send the context the question needs rather than everything nearby.
+Only the session that owns the task calls it, not a subagent, so one session sees the task's whole spend.
 
 ```sh
 ask-api "Is keying this cache on the whole config sound?" -f src/cache.rs -f src/draw.rs:120-180
@@ -20,18 +21,6 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 Stdin is read only with `--stdin`.
 `--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 128000, the current models' most, since thinking counts against it and a lower cap can spend it all thinking and return no answer, still billed.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
-
-## Calling it unasked
-
-The session that owns a task may call it without being asked, after its own reading or review and not instead of it, for:
-- a consequential design decision, costly to reverse, that it is still unsure of;
-- a large or risky diff, such as concurrency, persistence or real-time code, where a review beyond `design-review` is worth about $20.
-
-Never call it unasked for routine or mechanical changes.
-A subagent never calls it, and a skill such as `design-review` or `review-and-merge` uses it only in place of a subagent, never beside one, because each would add its own call to one task.
-Make at most one unasked call per task; a second needs the owner's agreement.
-Do not raise `--max-cost` unasked: the $20 default is the owner's limit for an unasked call.
-In the report, say that the call was unasked and why: the owner sees no other record of it, and a cloud session's log is lost with its machine.
 
 ## Choosing the context
 
@@ -54,7 +43,7 @@ Ask the model to check the proposal's claims against the excerpts and to say wha
 
 Before sending, `ask-api` counts the input tokens and prints the worst case: the input plus `--max-tokens` of output at the model's price.
 Over `--max-cost` (default $20), or for a model with no known price, it stops with exit code 2.
-Do not pass `--yes` unless the owner has agreed to that call's cost; narrow the context or ask instead.
+Do not pass `--yes` or raise `--max-cost` unless the owner has agreed to that call's cost; narrow the context or ask instead.
 `--dry-run` prints the estimate and the included context without sending.
 
 A model released after the price table's newest row for its line borrows that row's price, and the estimate says so.
@@ -65,6 +54,7 @@ An older or unlisted model has no price, since it may cost more.
 
 Treat the answer as a lead, not a verdict.
 Check each finding against the code before reporting it, and report which held, which did not and why, and the cost line `ask-api` printed.
+Report a call the owner did not ask for in the same way, with why you made it: they see no other record of it, and a cloud session's log is lost with its machine.
 Check first the code the model says it was not shown: its claims about what it saw are usually sound, and its open questions are where findings hide.
 Exit codes: 3 means the model declined (there is no automatic fallback, because its second attempt would escape the cost guard; re-ask with `--model opus` if the owner agrees), 4 means the answer was cut off at `--max-tokens`.
 
