@@ -7,7 +7,7 @@ description: Ask Claude Fable (or another Claude model) over the Claude API for 
 
 `ask-api` sends one question, with the context you choose, to the Claude API and prints the answer.
 It bills the API key's credits, which Claude Code itself cannot spend, so the call costs the owner's subscription nothing.
-Each call costs real money, up to about $6.50 for a Fable question and $20 for an `xhigh` review, so make one when the answer is worth that, and send the context the question needs rather than everything nearby.
+Each call costs real money: a Fable call's worst case is about $6.40 of output plus $1 per 100k tokens of input, so make one when the answer is worth that, and send the context the question needs rather than everything nearby.
 Only the session that owns the task calls it, not a subagent, so one session sees the task's whole spend.
 
 ```sh
@@ -35,6 +35,7 @@ A `--review` already includes every changed file in full.
 ## Reviewing a design
 
 When the owner asks for one, the call stands in for the `design-review` skill's whole review, at whatever depth that takes.
+Unasked, it can serve as that skill's design pass when you judge Fable worth the cost; the correctness review still runs beside it.
 Every call sends that skill's `references/design-pass.md` in the system prompt, and `--review` asks for its report shape.
 
 For a design not yet written as code, put the proposal first in a file, then numbered questions, then the code excerpts it rests on, and pass it with `--stdin` or `-f`.
@@ -55,7 +56,7 @@ An older or unlisted model has no price, since it may cost more.
 
 Treat the answer as a lead, not a verdict.
 Check each finding against the code before reporting it, and report which held, which did not and why, and the cost line `ask-api` printed.
-Report a call the owner did not ask for in the same way, with why you made it: they see no other record of it, and a cloud session's log is lost with its machine.
+Report a call the owner did not ask for in the same way, with why you made it: they did not see it start, and a cloud session's log is lost with its machine.
 Check first the code the model says it was not shown: its claims about what it saw are usually sound, and its open questions are where findings hide.
 Exit codes: 3 means the model declined (there is no automatic fallback, because its second attempt would escape the cost guard; hand the question to a subagent or answer it yourself, if it is still worth answering), 4 means the answer was cut off at `--max-tokens`.
 

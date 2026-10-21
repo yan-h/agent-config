@@ -38,6 +38,7 @@ Skip it for small, mechanical or documentation-only changes.
 Delegate useful, independent subtasks to subagents at your discretion when that improves speed or quality.
 This is a standing request across all projects: do not ask permission, and do not delegate in a task where I ask you not to.
 Delegate through your host's own subagents; do not launch another agent product or CLI unless I ask.
+The `api-second-opinion` skill is not one: it makes one API call, returning one answer over only the context you send, without tools, where a subagent can explore, run commands and edit.
 
 Choose each subagent's model and effort explicitly, weighing what they cost against the quality the task needs and what a weaker result would cost to catch and redo.
 Faster models suit bounded lookup, inventory, and mechanical work; stronger ones earn their cost on complex, ambiguous, cross-cutting, or consequential work.
