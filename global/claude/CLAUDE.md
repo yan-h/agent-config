@@ -15,9 +15,10 @@ Resume a subagent after a long gap only when its context is worth rewriting; oth
 Choose the effort level to fit the risk, and skip it for small, mechanical or documentation-only changes.
 The `ultra` level stays the user's to launch.
 
-## Fable over the API or a subagent
+## Model costs
 
-Subscription Fable uses four times Opus's quota; Fable through the `api-second-opinion` skill uses none, costing 2.5 times API Opus's price from separate prepaid credits.
+Subscription quota per token, relative to Opus: Haiku 1/40, Sonnet 1/2, Fable 4.
+Fable's is observed; Haiku's and Sonnet's assume the API's price ratios.
+Fable through the `api-second-opinion` skill uses no quota, and costs 2.5 times API Opus's price from separate prepaid credits.
 An API call returns one answer over only the context you send, without tools; a subagent can explore, run commands and edit.
-Weigh quota and credits against the quality the problem needs when choosing between them, an Opus subagent, or doing the work yourself.
 Choosing the API is the ask the subagent guidance requires before launching another CLI.
