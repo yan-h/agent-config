@@ -13,8 +13,6 @@ and skills stay in the project that owns them.
   agents, context, and the 5h/7d quota meters.
 - `global/claude/remote-control-at-login.sh` and `com.yan.claude-remote-control.plist` — macOS
   LaunchAgent that starts `claude remote-control` in listed projects at login, inside tmux.
-- `global/claude/quota-poll.sh` and `com.yan.claude-quota.plist` — macOS LaunchAgent that
-  records the subscription quota meters from `claude -p /usage` every 5 minutes.
 - `skills/` — reusable skills shared by agent hosts.
 - `scripts/` — repository maintenance helpers.
 - Root `AGENTS.md` — instructions for maintaining this repository.
@@ -48,8 +46,7 @@ source before replacing them. For Claude, run the install script; it links
 Claude's file, which imports the shared one, into `~/.claude`, links every
 skill into both `~/.claude/skills` and `~/.agents/skills`, installs
 session-lifecycle's hourly sweep for each `--repo` (see
-[Session lifecycle installation](#session-lifecycle-installation)), installs the
-quota poller (see `global/claude/quota-poll.sh`), and sets up
+[Session lifecycle installation](#session-lifecycle-installation)), and sets up
 `ask-api` (see `skills/api-second-opinion`). Rerun it after adding or removing
 a skill; it replaces only links, skips any real file in the way, and keeps the
 projects already registered.
@@ -102,13 +99,6 @@ A window started by an older version of the script keeps its old command until i
 To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-control` rather than
 running the script from a Claude session, where tmux would belong to the app.
 Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.
-
-`scripts/install.sh` installs the quota poller, which needs `jq`. Every 5 minutes it appends one row per reading to `~/.claude/quota-usage.jsonl`, such as
-`{"t":1792777060,"five_hour":{"used":7,"resets":"Oct 23 at 1:40pm (America/Los_Angeles)"},"seven_day":{...},"seven_day_fable":{...}}`.
-`/usage` sends no model request, so polling costs no quota. A failed poll writes no row and
-logs why to `~/.claude/quota-poll.log`. Stop it with
-`launchctl bootout gui/$(id -u)/com.yan.claude-quota`; it comes back at the next login or
-`install.sh` run unless `~/Library/LaunchAgents/com.yan.claude-quota.plist` is deleted too.
 
 Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.
