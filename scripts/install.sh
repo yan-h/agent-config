@@ -61,19 +61,23 @@ fi
 if ! $cloud; then
   link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
   if ! python3 - "$HOME/.claude/settings.json" <<'EOF'
-import json, os, sys
-path = sys.argv[1]
+import json, os, shutil, sys
+# realpath: replacing a symlinked settings.json would turn the link into a copy.
+path = os.path.realpath(sys.argv[1])
 want = {"type": "command", "command": "~/.claude/statusline.sh", "refreshInterval": 2}
 settings = {}
 if os.path.exists(path):
     with open(path) as f:
-        settings = json.load(f)
+        text = f.read()
+    settings = json.loads(text) if text.strip() else {}
 have = settings.get("statusLine")
 if have is None:
     settings["statusLine"] = want
     with open(path + ".tmp", "w") as f:
         json.dump(settings, f, indent=2)
         f.write("\n")
+    if os.path.exists(path):   # keep its mode: settings can hold tokens in env
+        shutil.copymode(path, path + ".tmp")
     os.replace(path + ".tmp", path)
 elif have != want:
     print(f"install: {path} has another statusLine; left as it is", file=sys.stderr)
@@ -87,7 +91,8 @@ fi
 
 # Remote Control at login, only where the owner has listed projects for it: the list is
 # per machine and stays out of this repository. The agent is reloaded only when its plist
-# changed; the reload is harmless anyway, since the script skips every tmux window that exists.
+# changed or it is not loaded: bootstrap straight after bootout can fail with error 5 while
+# launchd is still tearing the job down, and an ordinary rerun need not risk that.
 rc_list="$HOME/.claude/remote-control-projects"
 if ! $cloud && [ -e "$rc_list" ]; then
   agent="$HOME/Library/LaunchAgents/com.yan.claude-remote-control.plist"

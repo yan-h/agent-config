@@ -69,11 +69,14 @@ ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
 
 `scripts/install.sh` links Claude's status line to `~/.claude/statusline.sh` and adds
 `statusLine` to `~/.claude/settings.json`, leaving a different existing `statusLine` alone.
-It needs `jq`; the optional `ant` CLI refreshes its context-window table.
+The status line needs `jq`, which the installer checks for but does not install; the optional
+`ant` CLI refreshes its context-window table.
 
 To restart `claude remote-control` servers at login on macOS, list one project per line
 (optionally followed by `claude remote-control` flags), then rerun `scripts/install.sh`, which
 links the script and loads the LaunchAgent whenever the list exists. It needs `tmux`.
+Deleting the list later does not unload the agent: also run
+`launchctl bootout gui/$(id -u)/com.yan.claude-remote-control`.
 
 ```sh
 printf '%s\n' '~/projects/app --spawn worktree' > ~/.claude/remote-control-projects
