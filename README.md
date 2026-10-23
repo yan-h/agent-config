@@ -13,6 +13,8 @@ and skills stay in the project that owns them.
   agents, context, and the 5h/7d quota meters.
 - `global/claude/remote-control-at-login.sh` and `com.yan.claude-remote-control.plist` — macOS
   LaunchAgent that starts `claude remote-control` in listed projects at login, inside tmux.
+- `global/claude/quota-poll.sh` and `com.yan.claude-quota.plist` — macOS LaunchAgent that
+  records the subscription quota meters from `claude -p /usage` every 5 minutes.
 - `skills/` — reusable skills shared by agent hosts.
 - `scripts/` — repository maintenance helpers.
 - Root `AGENTS.md` — instructions for maintaining this repository.
@@ -99,6 +101,21 @@ A window started by an older version of the script keeps its old command until i
 To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-control` rather than
 running the script from a Claude session, where tmux would belong to the app.
 Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.
+
+To record the subscription quota meters on macOS, link the script and load the LaunchAgent.
+It needs `jq`.
+
+```sh
+ln -s ~/projects/agent-config/global/claude/quota-poll.sh ~/.claude/quota-poll.sh
+cp ~/projects/agent-config/global/claude/com.yan.claude-quota.plist ~/Library/LaunchAgents/
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.yan.claude-quota.plist
+```
+
+Every 5 minutes it appends one row per reading to `~/.claude/quota-usage.jsonl`, such as
+`{"t":1792777060,"five_hour":{"used":7,"resets":"Oct 23 at 1:40pm (America/Los_Angeles)"},"seven_day":{...},"seven_day_fable":{...}}`.
+`/usage` sends no model request, so polling costs no quota. A failed poll writes no row and
+logs why to `~/.claude/quota-poll.log`. Stop it with
+`launchctl bootout gui/$(id -u)/com.yan.claude-quota`.
 
 Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.
