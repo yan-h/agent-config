@@ -11,6 +11,8 @@ and skills stay in the project that owns them.
 - `global/claude/CLAUDE.md` — imports the shared defaults, then adds Claude-only sections.
 - `global/claude/statusline.sh` — Claude Code status line: location, model, effort, running
   agents, context, and the 5h/7d quota meters.
+  It displays the meters but does not record them: the private repo `yan-h/claude-usage` does,
+  and its README lists what a new machine must install.
 - `global/claude/remote-control-at-login.sh` and `com.yan.claude-remote-control.plist` — macOS
   LaunchAgent that starts `claude remote-control` in listed projects at login, inside tmux.
 - `skills/` — reusable skills shared by agent hosts.
