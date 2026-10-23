@@ -48,8 +48,9 @@ source before replacing them. For Claude, run the install script; it links
 Claude's file, which imports the shared one, into `~/.claude`, links every
 skill into both `~/.claude/skills` and `~/.agents/skills`, installs
 session-lifecycle's hourly sweep for each `--repo` (see
-[Session lifecycle installation](#session-lifecycle-installation)), and sets up
-`ask-api` (see `skills/api-second-opinion`). Rerun it after adding or removing
+[Session lifecycle installation](#session-lifecycle-installation)), sets up the
+status line, Remote Control at login (both below) and `ask-api` (see
+`skills/api-second-opinion`). Rerun it after adding or removing
 a skill; it replaces only links, skips any real file in the way, and keeps the
 projects already registered.
 
@@ -66,28 +67,16 @@ ln -s ~/projects/agent-config/global/AGENTS.md ~/.gemini/GEMINI.md
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
 ```
 
-For Claude's status line, link the script and point `statusLine` in
-`~/.claude/settings.json` at the link:
-
-```sh
-ln -s ~/projects/agent-config/global/claude/statusline.sh ~/.claude/statusline.sh
-```
-
-```json
-"statusLine": { "type": "command", "command": "~/.claude/statusline.sh", "refreshInterval": 2 }
-```
-
+`scripts/install.sh` links Claude's status line to `~/.claude/statusline.sh` and adds
+`statusLine` to `~/.claude/settings.json`, leaving a different existing `statusLine` alone.
 It needs `jq`; the optional `ant` CLI refreshes its context-window table.
 
-To restart `claude remote-control` servers at login on macOS, link the script,
-list one project per line (optionally followed by `claude remote-control` flags),
-and load the LaunchAgent. It needs `tmux`.
+To restart `claude remote-control` servers at login on macOS, list one project per line
+(optionally followed by `claude remote-control` flags), then rerun `scripts/install.sh`, which
+links the script and loads the LaunchAgent whenever the list exists. It needs `tmux`.
 
 ```sh
-ln -s ~/projects/agent-config/global/claude/remote-control-at-login.sh ~/.claude/remote-control-at-login.sh
 printf '%s\n' '~/projects/app --spawn worktree' > ~/.claude/remote-control-projects
-cp ~/projects/agent-config/global/claude/com.yan.claude-remote-control.plist ~/Library/LaunchAgents/
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.yan.claude-remote-control.plist
 ```
 
 Each server runs in its own window of the tmux session `claude-rc`; see them with
