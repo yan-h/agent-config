@@ -48,7 +48,8 @@ source before replacing them. For Claude, run the install script; it links
 Claude's file, which imports the shared one, into `~/.claude`, links every
 skill into both `~/.claude/skills` and `~/.agents/skills`, installs
 session-lifecycle's hourly sweep for each `--repo` (see
-[Session lifecycle installation](#session-lifecycle-installation)), and sets up
+[Session lifecycle installation](#session-lifecycle-installation)), installs the
+quota poller (see `global/claude/quota-poll.sh`), and sets up
 `ask-api` (see `skills/api-second-opinion`). Rerun it after adding or removing
 a skill; it replaces only links, skips any real file in the way, and keeps the
 projects already registered.
@@ -102,16 +103,7 @@ To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-contr
 running the script from a Claude session, where tmux would belong to the app.
 Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.
 
-To record the subscription quota meters on macOS, link the script and load the LaunchAgent.
-It needs `jq`.
-
-```sh
-ln -s ~/projects/agent-config/global/claude/quota-poll.sh ~/.claude/quota-poll.sh
-cp ~/projects/agent-config/global/claude/com.yan.claude-quota.plist ~/Library/LaunchAgents/
-launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.yan.claude-quota.plist
-```
-
-Every 5 minutes it appends one row per reading to `~/.claude/quota-usage.jsonl`, such as
+`scripts/install.sh` installs the quota poller, which needs `jq`. Every 5 minutes it appends one row per reading to `~/.claude/quota-usage.jsonl`, such as
 `{"t":1792777060,"five_hour":{"used":7,"resets":"Oct 23 at 1:40pm (America/Los_Angeles)"},"seven_day":{...},"seven_day_fable":{...}}`.
 `/usage` sends no model request, so polling costs no quota. A failed poll writes no row and
 logs why to `~/.claude/quota-poll.log`. Stop it with
