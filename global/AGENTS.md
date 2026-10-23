@@ -67,4 +67,3 @@ Keep project-specific build commands and required deliverables in that project's
 Preserve loadable deliverables before reclaiming compilation output; keep unfinished source and paused work.
 Subagents sharing a checkout leave cleanup to their owner.
 Release worktrees through their host's ownership mechanism, and never create a permanent manual worktree lock.
-Report any blocked owner release rather than silently leaving cleanup unfinished.
