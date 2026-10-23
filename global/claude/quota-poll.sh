@@ -18,8 +18,9 @@ t=$(date +%s)
 
 # Without --no-session-persistence every poll would leave a transcript in ~/.claude/projects.
 # --bare cannot be used: it drops the subscription login, and /usage then reports no meters.
-if ! reply=$(cd "$HOME" && claude -p /usage --output-format json --no-session-persistence 2>&1); then
-  print -r -- "$(date '+%F %T') claude -p /usage failed: ${reply[1,500]}" >>"$log"
+# stderr goes to the log, not into $reply: a warning there would break the JSON for jq.
+if ! reply=$(cd "$HOME" && claude -p /usage --output-format json --no-session-persistence 2>>"$log"); then
+  print -r -- "$(date '+%F %T') claude -p /usage failed (its stderr is above): ${reply[1,500]}" >>"$log"
   exit 1
 fi
 

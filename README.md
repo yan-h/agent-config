@@ -107,7 +107,8 @@ Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing w
 `{"t":1792777060,"five_hour":{"used":7,"resets":"Oct 23 at 1:40pm (America/Los_Angeles)"},"seven_day":{...},"seven_day_fable":{...}}`.
 `/usage` sends no model request, so polling costs no quota. A failed poll writes no row and
 logs why to `~/.claude/quota-poll.log`. Stop it with
-`launchctl bootout gui/$(id -u)/com.yan.claude-quota`.
+`launchctl bootout gui/$(id -u)/com.yan.claude-quota`; it comes back at the next login or
+`install.sh` run unless `~/Library/LaunchAgents/com.yan.claude-quota.plist` is deleted too.
 
 Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.

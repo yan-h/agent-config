@@ -68,6 +68,8 @@ if ! $cloud; then
     echo "install: the quota poller is not set up: copying or loading its LaunchAgent failed" >&2
     status=1
   fi
+  command -v jq >/dev/null ||
+    { echo "install: the quota poller needs jq, which is not on PATH; every poll will fail" >&2; status=1; }
 fi
 
 # ask-api is optional: a failure here must not cost the instructions and skills above.
