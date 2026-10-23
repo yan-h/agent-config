@@ -1,8 +1,9 @@
 #!/bin/bash
 # Link this checkout's Claude instructions into ~/.claude and its skills into
 # ~/.claude/skills and ~/.agents/skills, install session-lifecycle's hourly
-# sweep, and set up ask-api. Safe to rerun: it replaces only links, never a
-# real file. Every rerun also restarts the sweep, which runs once at load.
+# sweep, set up the status line and ask-api, and install Remote Control at login
+# where ~/.claude/remote-control-projects exists. Safe to rerun: it replaces only
+# links, never a real file. Every rerun also restarts the sweep, which runs once at load.
 # --repo PATH (repeatable): a project for the sweep to cover. A rerun keeps the
 # projects already registered, so only a new machine or project needs it.
 # --cloud: also installs ask-api into /usr/local/bin and adds a SessionStart hook
@@ -53,6 +54,62 @@ done
 if ! $cloud && ! python3 "$repo/skills/session-lifecycle/scripts/install.py" ${repos[@]+"${repos[@]}"}; then
   echo "install: session-lifecycle's hourly sweep is not set up: its installer failed (above)" >&2
   status=1
+fi
+
+# The status line, which a cloud session has no terminal to show. An existing different
+# statusLine is the owner's choice and is left alone.
+if ! $cloud; then
+  link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+  if ! python3 - "$HOME/.claude/settings.json" <<'EOF'
+import json, os, shutil, sys
+# realpath: replacing a symlinked settings.json would turn the link into a copy.
+path = os.path.realpath(sys.argv[1])
+want = {"type": "command", "command": "~/.claude/statusline.sh", "refreshInterval": 2}
+settings = {}
+if os.path.exists(path):
+    with open(path) as f:
+        text = f.read()
+    settings = json.loads(text) if text.strip() else {}
+have = settings.get("statusLine")
+if have is None:
+    settings["statusLine"] = want
+    with open(path + ".tmp", "w") as f:
+        json.dump(settings, f, indent=2)
+        f.write("\n")
+    if os.path.exists(path):   # keep its mode: settings can hold tokens in env
+        shutil.copymode(path, path + ".tmp")
+    os.replace(path + ".tmp", path)
+elif have != want:
+    print(f"install: {path} has another statusLine; left as it is", file=sys.stderr)
+EOF
+  then
+    echo "install: the status line is not set up: updating settings.json failed (above)" >&2
+    status=1
+  fi
+  command -v jq >/dev/null || { echo "install: the status line needs jq, which is not on PATH" >&2; status=1; }
+fi
+
+# Remote Control at login, only where the owner has listed projects for it: the list is
+# per machine and stays out of this repository. The agent is reloaded only when its plist
+# changed or it is not loaded: bootstrap straight after bootout can fail with error 5 while
+# launchd is still tearing the job down, and an ordinary rerun need not risk that.
+rc_list="$HOME/.claude/remote-control-projects"
+if ! $cloud && [ -e "$rc_list" ]; then
+  agent="$HOME/Library/LaunchAgents/com.yan.claude-remote-control.plist"
+  link "$repo/global/claude/remote-control-at-login.sh" "$HOME/.claude/remote-control-at-login.sh"
+  if ! cmp -s "$repo/global/claude/com.yan.claude-remote-control.plist" "$agent" ||
+     ! launchctl print "gui/$(id -u)/com.yan.claude-remote-control" >/dev/null 2>&1; then
+    mkdir -p "${agent%/*}"
+    launchctl bootout "gui/$(id -u)/com.yan.claude-remote-control" 2>/dev/null
+    if ! { cp "$repo/global/claude/com.yan.claude-remote-control.plist" "$agent" &&
+           launchctl bootstrap "gui/$(id -u)" "$agent"; }; then
+      echo "install: Remote Control at login is not set up: copying or loading its LaunchAgent failed" >&2
+      status=1
+    fi
+  fi
+  command -v tmux >/dev/null || { echo "install: Remote Control at login needs tmux, which is not on PATH" >&2; status=1; }
+elif ! $cloud; then
+  echo "install: Remote Control at login skipped: list projects in $rc_list and rerun to enable it"
 fi
 
 # ask-api is optional: a failure here must not cost the instructions and skills above.
