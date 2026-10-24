@@ -34,34 +34,6 @@ link() {  # link TARGET LINK
   ln -sfn "$1" "$2"
 }
 
-add_wait_guard() {  # the PreToolUse hook that keeps long waits out of subagents
-  link "$repo/global/claude/subagent-wait-guard.sh" "$HOME/.claude/subagent-wait-guard.sh"
-  if ! python3 - "$HOME/.claude/settings.json" <<'EOF'
-import json, os, shutil, sys
-path = os.path.realpath(sys.argv[1])
-command = "~/.claude/subagent-wait-guard.sh"
-settings = {}
-if os.path.exists(path):
-    with open(path) as f:
-        text = f.read()
-    settings = json.loads(text) if text.strip() else {}
-groups = settings.setdefault("hooks", {}).setdefault("PreToolUse", [])
-if not any(h.get("command") == command for g in groups for h in g.get("hooks", [])):
-    groups.append({"matcher": "Bash|Monitor|ScheduleWakeup|CronCreate",
-                   "hooks": [{"type": "command", "command": command}]})
-    with open(path + ".tmp", "w") as f:
-        json.dump(settings, f, indent=2)
-        f.write("\n")
-    if os.path.exists(path):
-        shutil.copymode(path, path + ".tmp")
-    os.replace(path + ".tmp", path)
-EOF
-  then
-    echo "install: the subagent wait guard is not set up: updating settings.json failed (above)" >&2
-    status=1
-  fi
-}
-
 mkdir -p "$HOME/.claude/skills" "$HOME/.agents/skills" "$bin"
 link "$repo/global/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 # Both catalogs: Codex reads ~/.agents/skills, and so do the projects' own
@@ -85,38 +57,70 @@ if ! $cloud && ! python3 "$repo/skills/session-lifecycle/scripts/install.py" ${r
   status=1
 fi
 
-# The status line, which a cloud session has no terminal to show. An existing different
-# statusLine is the owner's choice and is left alone.
-if ! $cloud; then
-  link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
-  if ! python3 - "$HOME/.claude/settings.json" <<'EOF'
+# A cloud environment's settings.json gets the hook that pulls this checkout, but
+# only when this script creates the file.
+settings="$HOME/.claude/settings.json"
+if $cloud; then
+  if [ -e "$settings" ]; then
+    echo "install: $settings exists; not adding the pull hook" >&2
+  else
+    cat >"$settings" <<EOF
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "git -C '$repo' pull -q --ff-only || true" }] }
+    ]
+  }
+}
+EOF
+  fi
+fi
+
+# settings.json also gets the status line, which a cloud session has no terminal to
+# show (an existing different statusLine is the owner's choice and is left alone),
+# and the PreToolUse hook that refuses subagents' waits past their five-minute prompt
+# cache, whose matcher a rerun keeps current.
+$cloud || link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+link "$repo/global/claude/subagent-wait-guard.sh" "$HOME/.claude/subagent-wait-guard.sh"
+if ! python3 - "$settings" "$cloud" <<'EOF'
 import json, os, shutil, sys
 # realpath: replacing a symlinked settings.json would turn the link into a copy.
 path = os.path.realpath(sys.argv[1])
-want = {"type": "command", "command": "~/.claude/statusline.sh", "refreshInterval": 2}
 settings = {}
 if os.path.exists(path):
     with open(path) as f:
         text = f.read()
     settings = json.loads(text) if text.strip() else {}
-have = settings.get("statusLine")
-if have is None:
-    settings["statusLine"] = want
+before = json.dumps(settings, sort_keys=True)
+if sys.argv[2] != "true":
+    want = {"type": "command", "command": "~/.claude/statusline.sh", "refreshInterval": 2}
+    have = settings.get("statusLine")
+    if have is None:
+        settings["statusLine"] = want
+    elif have != want:
+        print(f"install: {path} has another statusLine; left as it is", file=sys.stderr)
+guard = "~/.claude/subagent-wait-guard.sh"
+matcher = "Bash|Monitor|ScheduleWakeup|CronCreate"
+groups = settings.setdefault("hooks", {}).setdefault("PreToolUse", [])
+mine = [g for g in groups if any(h.get("command") == guard for h in g.get("hooks", []))]
+for g in mine:
+    g["matcher"] = matcher
+if not mine:
+    groups.append({"matcher": matcher, "hooks": [{"type": "command", "command": guard}]})
+if json.dumps(settings, sort_keys=True) != before:
     with open(path + ".tmp", "w") as f:
         json.dump(settings, f, indent=2)
         f.write("\n")
     if os.path.exists(path):   # keep its mode: settings can hold tokens in env
         shutil.copymode(path, path + ".tmp")
     os.replace(path + ".tmp", path)
-elif have != want:
-    print(f"install: {path} has another statusLine; left as it is", file=sys.stderr)
 EOF
-  then
-    echo "install: the status line is not set up: updating settings.json failed (above)" >&2
-    status=1
-  fi
-  command -v jq >/dev/null || { echo "install: the status line needs jq, which is not on PATH" >&2; status=1; }
+then
+  echo "install: the status line and subagent wait guard are not set up: updating settings.json failed (above)" >&2
+  status=1
 fi
+# Without jq the status line is blank and the wait guard allows every call.
+command -v jq >/dev/null || { echo "install: the status line and subagent wait guard need jq, which is not on PATH" >&2; status=1; }
 
 # Remote Control at login, only where the owner has listed projects for it: the list is
 # per machine and stays out of this repository. The agent is reloaded only when its plist
@@ -151,27 +155,6 @@ else
   status=1
 fi
 
-if ! $cloud; then
-  add_wait_guard
-fi
-
-if $cloud; then
-  settings="$HOME/.claude/settings.json"
-  if [ -e "$settings" ]; then
-    echo "install: $settings exists; not adding the pull hook" >&2
-  else
-    cat >"$settings" <<EOF
-{
-  "hooks": {
-    "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "git -C '$repo' pull -q --ff-only || true" }] }
-    ]
-  }
-}
-EOF
-  fi
-  add_wait_guard
-  # A cloud environment fails to start when its setup script exits non-zero.
-  exit 0
-fi
+# A cloud environment fails to start when its setup script exits non-zero.
+$cloud && exit 0
 exit $status
