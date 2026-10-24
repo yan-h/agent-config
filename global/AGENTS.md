@@ -30,9 +30,6 @@ When several defects share a design cause, explain that cause and consider wheth
 Avoid cosmetic churn, speculative abstractions, and unsupported performance claims.
 If the current approach is sound, say so.
 
-Run the `design-review` skill on your own change without asking when the change warrants it: a substantial, cross-cutting or risky diff, or a design you are unsure of.
-Skip it for small, mechanical or documentation-only changes.
-
 ## Subagent delegation
 
 Delegate useful, independent subtasks to subagents at your discretion when that improves speed or quality.
