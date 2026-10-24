@@ -1,7 +1,8 @@
 #!/bin/bash
 # Link this checkout's Claude instructions into ~/.claude and its skills into
 # ~/.claude/skills and ~/.agents/skills, install session-lifecycle's hourly
-# sweep, set up the status line and ask-api, and install Remote Control at login
+# sweep, set up the status line, the subagent wait guard and ask-api, and
+# install Remote Control at login
 # where ~/.claude/remote-control-projects exists. Safe to rerun: it replaces only
 # links, never a real file. Every rerun also restarts the sweep, which runs once at load.
 # --repo PATH (repeatable): a project for the sweep to cover. A rerun keeps the
@@ -31,6 +32,34 @@ link() {  # link TARGET LINK
     return
   fi
   ln -sfn "$1" "$2"
+}
+
+add_wait_guard() {  # the PreToolUse hook that keeps long waits out of subagents
+  link "$repo/global/claude/subagent-wait-guard.sh" "$HOME/.claude/subagent-wait-guard.sh"
+  if ! python3 - "$HOME/.claude/settings.json" <<'EOF'
+import json, os, shutil, sys
+path = os.path.realpath(sys.argv[1])
+command = "~/.claude/subagent-wait-guard.sh"
+settings = {}
+if os.path.exists(path):
+    with open(path) as f:
+        text = f.read()
+    settings = json.loads(text) if text.strip() else {}
+groups = settings.setdefault("hooks", {}).setdefault("PreToolUse", [])
+if not any(h.get("command") == command for g in groups for h in g.get("hooks", [])):
+    groups.append({"matcher": "Bash|Monitor|ScheduleWakeup|CronCreate",
+                   "hooks": [{"type": "command", "command": command}]})
+    with open(path + ".tmp", "w") as f:
+        json.dump(settings, f, indent=2)
+        f.write("\n")
+    if os.path.exists(path):
+        shutil.copymode(path, path + ".tmp")
+    os.replace(path + ".tmp", path)
+EOF
+  then
+    echo "install: the subagent wait guard is not set up: updating settings.json failed (above)" >&2
+    status=1
+  fi
 }
 
 mkdir -p "$HOME/.claude/skills" "$HOME/.agents/skills" "$bin"
@@ -122,6 +151,10 @@ else
   status=1
 fi
 
+if ! $cloud; then
+  add_wait_guard
+fi
+
 if $cloud; then
   settings="$HOME/.claude/settings.json"
   if [ -e "$settings" ]; then
@@ -137,6 +170,7 @@ if $cloud; then
 }
 EOF
   fi
+  add_wait_guard
   # A cloud environment fails to start when its setup script exits non-zero.
   exit 0
 fi
