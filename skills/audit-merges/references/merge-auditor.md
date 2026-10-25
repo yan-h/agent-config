@@ -47,7 +47,7 @@ Weight this toward skills and scripts because they often carry code-shaped facts
 Use `test -e` on paths that scripts glob, grep, or copy.
 
 Prose a session loads or executes — `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, skills, scripts — is a finding, because a wrong fact there misroutes the next agent;
-so is a step in any other document that a session would follow as an instruction.
+so is a step in any other document that one of these sends a session to run.
 Reference documentation and design notes go under **Documentation drift** instead:
 name the file and the claim that no longer holds and move on.
 Do not let that second list set the size of your report;

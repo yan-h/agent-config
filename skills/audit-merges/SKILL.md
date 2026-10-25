@@ -53,14 +53,18 @@ The calling agent validates every candidate.
 A finding is not a finding until a test or focused reproduction fails on the old code.
 Observe the failure, fix it, and observe it pass.
 
-Attempt the same reproduction for every suspicion a survey agent returns.
+Give every suspicion a survey agent returns one focused attempt from the input it names, building no new harness for it.
 One that reproduces is a finding.
-One that does not is filed as an issue saying what evidence is still missing, or dropped with the reason in the report.
+Drop one only when the attempt shows that input behaving correctly;
+otherwise file it with the evidence still missing.
 
 **Nothing the audit leaves unfixed lives only in its pull request:** it is filed as an issue or dropped with a reason.
-Across thirteen audits every filed issue was fixed within two days,
-while about forty suspicions and a reported defect listed only in pull request bodies were never looked at again —
-of the few suspicions that were filed, most proved real.
+Across thirteen audits every filed issue was fixed within two days, and each of the few suspicions filed proved real,
+while no follow-up was found for about forty suspicions and a reported defect listed only in pull request bodies.
+Before filing, search the open issues and the closed ones the owner declined;
+add to or link the one that covers it instead of filing again,
+because a clean audit leaves no marker and the next one finds the same things.
+In a project with no tracker, file into a Markdown file in the repository.
 
 Follow the repository's local contract for worktrees, validation, commits, and pull requests.
 
@@ -68,17 +72,18 @@ Follow the repository's local contract for worktrees, validation, commits, and p
 
 **Repair** the prose a session runs on:
 `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, the skills, and the helper scripts,
-and any step in another document that a session would follow as an instruction.
+and any step in another document that one of these sends a session to run.
 These are loaded or executed every session, so a wrong path or a falsified claim in them misroutes the next agent —
 they are code with no compiler, and this audit is the only gate they have.
 
 **File, and do not fix,** drift in reference documentation and long-form design notes:
-one issue per audit, or an addition to an open drift issue, naming each file and the claim that no longer holds.
+one grouped issue per audit, naming each file and the claim that no longer holds.
 Fixed in the audit's pull request, this drift grows to dominate the finding count —
 it is the easiest thing to find and the least likely to be read,
 and an audit that spends its pull request on it buries the defects it exists to catch.
 Listed only in the pull request, the same claims came back audit after audit — one file in eight of eleven — and each survey paid to find them again.
-Where a document has drifted across several audits, ask in the issue whether it still earns its place rather than another repair.
+Where the search shows a document's drift filed before, ask whether it still earns its place in an issue of its own,
+so the grouped issue needs no decision and `sweep-issues` can take it.
 
 Comments in source files follow the code they sit beside:
 repair one in a file the audit is already changing, file it with the drift otherwise.
