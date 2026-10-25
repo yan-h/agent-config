@@ -46,7 +46,8 @@ If the range changed a subsystem described by `AGENTS.md`, `CLAUDE.md`, an agent
 Weight this toward skills and scripts because they often carry code-shaped facts without compiler coverage.
 Use `test -e` on paths that scripts glob, grep, or copy.
 
-Prose a session loads or executes — `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, skills, scripts — is a finding, because a wrong fact there misroutes the next agent.
+Prose a session loads or executes — `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, skills, scripts — is a finding, because a wrong fact there misroutes the next agent;
+so is a step in any other document that a session would follow as an instruction.
 Reference documentation and design notes go under **Documentation drift** instead:
 name the file and the claim that no longer holds and move on.
 Do not let that second list set the size of your report;
@@ -63,7 +64,7 @@ If you cannot construct that, report it as a suspicion and say what evidence is 
 Then give what breaks, the exact input or state, the real-world trigger a person would hit, and where you would fix it.
 If you cannot write that first line, say so plainly and say what state the defect needs;
 the caller files those rather than fixing them, so an honest "only reachable at X" is more useful than a symptom you had to invent.
-- **Suspicions** — separate and explicitly unproven.
-- **Documentation drift** — stale reference documentation and design notes, named but not proposed for repair.
+- **Suspicions** — separate and explicitly unproven, each with the input or state you would try first to reproduce it; the caller makes that attempt.
+- **Documentation drift** — stale reference documentation and design notes, named for the caller to file, not proposed for repair.
 - **Also checked, clean** — name the areas and hypotheses examined.
 - **Range** — give the `<since>..HEAD` range and the pull requests or merges it contains.

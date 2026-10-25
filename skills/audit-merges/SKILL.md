@@ -53,25 +53,35 @@ The calling agent validates every candidate.
 A finding is not a finding until a test or focused reproduction fails on the old code.
 Observe the failure, fix it, and observe it pass.
 
-Anything that cannot be reproduced stays under a separate **Suspicions** heading and is not fixed.
+Attempt the same reproduction for every suspicion a survey agent returns.
+One that reproduces is a finding.
+One that does not is filed as an issue saying what evidence is still missing, or dropped with the reason in the report.
+
+**Nothing the audit leaves unfixed lives only in its pull request:** it is filed as an issue or dropped with a reason.
+Across thirteen audits every filed issue was fixed within two days,
+while about forty suspicions and a reported defect listed only in pull request bodies were never looked at again —
+of the few suspicions that were filed, most proved real.
 
 Follow the repository's local contract for worktrees, validation, commits, and pull requests.
 
-### Repair the prose agents execute; only report the rest
+### Repair the prose agents execute; file the rest
 
 **Repair** the prose a session runs on:
-`AGENTS.md`, `CLAUDE.md`, the agent configuration directory, the skills, and the helper scripts.
+`AGENTS.md`, `CLAUDE.md`, the agent configuration directory, the skills, and the helper scripts,
+and any step in another document that a session would follow as an instruction.
 These are loaded or executed every session, so a wrong path or a falsified claim in them misroutes the next agent —
 they are code with no compiler, and this audit is the only gate they have.
 
-**Report, and do not fix,** drift in reference documentation and long-form design notes.
-List it under a **Documentation drift** heading with the file and the claim that no longer holds, so it is on the record and cheap to pick up.
-Left to itself this drift grows to dominate the finding count —
+**File, and do not fix,** drift in reference documentation and long-form design notes:
+one issue per audit, or an addition to an open drift issue, naming each file and the claim that no longer holds.
+Fixed in the audit's pull request, this drift grows to dominate the finding count —
 it is the easiest thing to find and the least likely to be read,
 and an audit that spends its pull request on it buries the defects it exists to catch.
+Listed only in the pull request, the same claims came back audit after audit — one file in eight of eleven — and each survey paid to find them again.
+Where a document has drifted across several audits, ask in the issue whether it still earns its place rather than another repair.
 
 Comments in source files follow the code they sit beside:
-repair one in a file the audit is already changing, report it otherwise.
+repair one in a file the audit is already changing, file it with the drift otherwise.
 
 ## Lead every finding with what someone would have noticed
 
@@ -90,6 +100,7 @@ and a list that opens with mechanism reads as uniform whether it holds six live 
 ## Report the result
 
 If there are findings, describe each one with the observable line above, then what breaks, the real-world trigger, the reproduction, and the fix.
+List the issues filed and the suspicions dropped, with their reasons.
 Also name the areas and hypotheses checked clean, and record the `<since>..HEAD` range and the pull requests or merges it contains.
 Where the range's fixes return to a mechanism that earlier fixes also corrected, name it and those PRs and say a maintainability audit of it looks due:
 repeated corrections are the debt that audit exists to find, and a scheduled one can run before most of them land.
