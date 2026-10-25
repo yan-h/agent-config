@@ -59,12 +59,11 @@ Drop one only when the attempt shows that input behaving correctly;
 otherwise file it with the evidence still missing.
 
 **Nothing the audit leaves unfixed lives only in its pull request:** it is filed as an issue or dropped with a reason.
-Across thirteen audits every filed issue was fixed within two days, and each of the few suspicions filed proved real,
+Across thirteen audits every filed issue was fixed within two days, and the four suspicions filed were all fixed,
 while no follow-up was found for about forty suspicions and a reported defect listed only in pull request bodies.
 Before filing, search the open issues and the closed ones the owner declined;
 add to or link the one that covers it instead of filing again,
 because a clean audit leaves no marker and the next one finds the same things.
-In a project with no tracker, file into a Markdown file in the repository.
 
 Follow the repository's local contract for worktrees, validation, commits, and pull requests.
 
