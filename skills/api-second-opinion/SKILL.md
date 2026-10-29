@@ -1,13 +1,16 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for a Fable, API or second opinion or review, or when the session judges such an answer worth the call's cost; never from a subagent.
+description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for a Fable, API or second opinion or review, or unasked when Fable's one answer would be significantly more useful than a subagent's; never from a subagent.
 ---
 
 # A second opinion over the API
 
 `ask-api` sends one question, with the context you choose, to the Claude API and prints the answer.
 It bills the API key's credits, which Claude Code itself cannot spend, so the call costs the owner's subscription nothing.
-Each call costs real money: a Fable call's worst case is about $6.40 of output plus $1 per 100k tokens of input, so make one when the answer is worth that, and send the context the question needs rather than everything nearby.
+The credits are an allowance of about $100 a month that does not carry over: credit left at the month's end is lost, not saved.
+Calls so far have cost $0.70 to $4.10, about $1.60 on average, so the allowance covers around two a day;
+a Fable call's worst case is about $6.40 of output plus $1 per 100k tokens of input.
+Send the context the question needs rather than everything nearby.
 Only the session that owns the task calls it, not a subagent, so one session sees the task's whole spend.
 
 ```sh
@@ -23,6 +26,20 @@ Stdin is read only with `--stdin`.
 `--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 128000, the current models' most, since thinking counts against it and a lower cap can spend it all thinking and return no answer, still billed.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
 
+## When to call it unasked
+
+Call it without being asked whenever Fable's answer would be significantly more useful than a subagent's on the same task (in Claude, an Opus subagent's).
+Underuse is the failure seen so far: of 77 review sessions in the week after unasked calls were allowed, 12 called it at all, and nearly all of those only after the owner mentioned Fable.
+So weigh an unasked call against the subagent it would replace, not against keeping the money.
+
+Fable is the stronger choice when the answer is judgement rather than search, the context it turns on can be named and sent, and a better judgement could change what happens next:
+
+- the design pass on a change with real logic, shared or cached state, concurrency or persistence;
+- choosing between architectures, or weighing a rework's cost against its gains;
+- a correctness or performance diagnosis that has stalled once the evidence is gathered.
+
+A subagent is the better choice when the work needs exploring, running or editing, when the answer turns on code you cannot name in advance, or when the question is routine enough that a stronger model would answer it the same way.
+
 ## Choosing the context
 
 The model sees only what you send: the question, the files named with `-f`, the diff, and piped input.
@@ -35,7 +52,7 @@ A `--review` already includes every changed file in full.
 ## Reviewing a design
 
 When the owner asks for one, the call stands in for the `design-review` skill's whole review, at whatever depth that takes.
-Unasked, it can serve as that skill's design pass when you judge Fable worth the cost; the correctness review still runs beside it.
+Unasked, it serves as that skill's design pass where the test above holds; the correctness review still runs beside it.
 Every call sends that skill's `references/design-pass.md` in the system prompt, and `--review` asks for its report shape.
 
 For a design not yet written as code, put the proposal first in a file, then numbered questions, then the code excerpts it rests on, and pass it with `--stdin` or `-f`.

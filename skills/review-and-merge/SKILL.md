@@ -34,9 +34,7 @@ State the decision and its reason in one line.
 Run the correctness review as the `design-review` skill's Correctness section describes:
 an agent other than whoever wrote the change, reading the whole diff.
 
-Alongside it, run that skill's design pass:
-a fresh subagent, briefed with the PR, the project contract and that skill's Design section, returning its verdict and alternatives.
-It is consequential judgement; size it by the global subagent guidance.
+Alongside it, run that skill's design pass as its Design section says, by a fresh subagent or by one `ask-api --review` call, returning its verdict and alternatives.
 
 When both have returned, match each confirmed defect against the design alternatives.
 A defect that an alternative in this change would remove is fixed by making that alternative, not patched first.
