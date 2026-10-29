@@ -27,6 +27,8 @@ the review tool the project contract names, or else whatever review command the 
 Do this pass yourself, unless you wrote or shaped the change: its author is anchored to the design it chose.
 Then brief a fresh agent with the change, the project contract, this section and `references/design-pass.md`, and use its result as the design pass.
 It is consequential judgement; size it by the global subagent guidance.
+Where the `api-second-opinion` skill's test for an unasked call holds, one `ask-api --review` call is the pass instead, whether you would have done it yourself or briefed an agent:
+add with `-f` the files beyond the diff that the design turns on, because the model cannot open them.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).
 
