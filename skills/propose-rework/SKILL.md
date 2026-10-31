@@ -12,7 +12,7 @@ If it names no outcome — what should become cheaper, faster, or impossible to 
 This skill borrows from the `audit-drift` skill, installed beside this one; if it is not installed, say so and stop.
 
 Read the project's local contract before starting, with its roadmap, recorded decisions, and the intent records of every area the rework touches.
-Recorded decisions are not reopened silently; a rework that contradicts one says so and makes it a question.
+A recorded decision is weighed as the global preferences say; a rework that collides with one says so and makes it a question.
 
 The owner will usually pay substantial upfront work for a significant, lasting gain, and not for a marginal one.
 

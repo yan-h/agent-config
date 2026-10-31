@@ -39,6 +39,9 @@ A slow pattern off the hot path is not a finding, however slow it looks.
 7. **GPU work.**
    Overdraw from padded or overlapping geometry, full-screen passes that could be skipped or run at lower resolution,
    a pass redrawing pixels an earlier one already produced, and bandwidth from large or high-precision targets.
+8. **Work a user action has no reason to cause.**
+   For each frequent action, what it should cost against what it triggers: recompiles, restarts, discarded state, refusals.
+   A steady workload's profile shows none of this, so trace the action.
 
 ## Return to the caller
 

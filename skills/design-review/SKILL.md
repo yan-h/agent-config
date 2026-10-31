@@ -13,7 +13,7 @@ In Claude that text is `$ARGUMENTS`; in Codex it is the text following `$design-
 
 Read the project's local contract, and the issue or PR description behind the change, before starting.
 What counts as maintainable depends on where the project is going: its roadmap, its recorded decisions, and the scale it must support.
-Recorded decisions are not reopened here; one that the evidence strongly contradicts becomes a question for the owner.
+A recorded decision the change collides with is weighed as the global preferences say and becomes a question for the owner; none is reopened here otherwise.
 
 The owner will usually spend substantial upfront work for a significant, lasting gain in maintainability, and not for a marginal one.
 

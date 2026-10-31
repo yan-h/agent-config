@@ -14,7 +14,7 @@ Codex does not, so in Codex this paragraph is the rule itself.
 Read the project's local contract before starting, with its roadmap and recorded decisions.
 Worktrees, branch and PR conventions, and where intent records live all come from there;
 where it says nothing about intent records, use `docs/intent/<area>.md`.
-Recorded decisions are not reopened here; one the evidence strongly contradicts becomes a question for the owner.
+A recorded decision is weighed as the global preferences say; one that paid-for changes show costs more than its reasons still justify becomes a question for the owner, citing those changes.
 
 This audit shares its area map, report layout and answer records with the `audit-drift` skill, installed beside this one.
 Read that skill's `SKILL.md` for the sections named below; if it is not installed, say so and stop.

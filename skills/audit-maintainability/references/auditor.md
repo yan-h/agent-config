@@ -50,6 +50,9 @@ The shapes that cost most across a whole area; naming, formatting and local tidi
    Tests that break when the structure changes and behaviour does not, and slow tests every change in the area must wait for.
 8. **Speculative generality.**
    Abstractions, options and extension points with one user and no planned second.
+9. **One representation, two readers.**
+   A list, order, field or id read for unrelated reasons, so a change one reader needs reaches the others.
+   Read why each reader reads it, not how many do.
 
 When a finding is really a reason that moved — a mechanism kept after its case went — mark it as drift and keep going.
 
