@@ -51,6 +51,9 @@ Prefer bounded context when it is sufficient so model and effort can be selected
 Delegate a subtask only when it needs little of your context and can return a compact result: an independent research path, a separate area, or a check that should not see your reasoning.
 Keep coupled work, whose results feed your next step, in your own loop with parallel tool calls; each handoff loses detail that one context would keep.
 
+Local builds share one machine, so parallelism can stop paying well before the agent limit: watch load against core count and cap concurrent builds to fit.
+Run a full gate only on the head that will land: finish review and its fixes first, then gate once.
+
 Follow each project's rules for worktrees and concurrent edits, and avoid overlapping writes.
 The main agent remains responsible for integrating and verifying delegated results and completing the task.
 
