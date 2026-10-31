@@ -11,7 +11,7 @@ whether another design, perhaps a larger change now, would leave the code simple
 The target is the PR, branch or path the invocation names, or the current branch's diff against the primary branch when it names none.
 In Claude that text is `$ARGUMENTS`; in Codex it is the text following `$design-review`.
 
-Read the project's local contract and the issue or request behind the change before starting, and the PR description only once the design pass has a design of its own.
+Read the project's local contract, and the issue or PR description behind the change, before starting.
 What counts as maintainable depends on where the project is going: its roadmap, its recorded decisions, and the scale it must support.
 A recorded decision the change collides with is weighed as the global preferences say and becomes a question for the owner; none is reopened here otherwise.
 

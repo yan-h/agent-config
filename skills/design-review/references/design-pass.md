@@ -2,13 +2,11 @@
 
 ## Design
 
-State the problem from the issue or request, in terms of behaviour rather than code.
-Design your own solution in this codebase before reading the diff or the author's reasoning, reading as far as the answer needs.
+First state the problem the change solves, in terms of behaviour rather than code.
+Then ask how you would solve that problem in this codebase if the change did not exist, reading beyond the diff as far as the answer needs.
 The best alternative often changes existing code the diff only works around.
 
-Then compare the change against that design.
-An alternative the author rejected is a claim to check in the code, not a settled point.
-Look in particular for:
+Compare the change against that design. Look in particular for:
 
 - state with more than one owner, or derived state stored rather than computed;
 - a new mechanism that parallels one the codebase already has;
