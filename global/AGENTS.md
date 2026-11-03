@@ -36,6 +36,12 @@ When several defects share a design cause, explain that cause and consider wheth
 Avoid cosmetic churn, speculative abstractions, and unsupported performance claims.
 If the current approach is sound, say so.
 
+## Splitting work
+
+Every separate pull request, branch, subagent, or session repeats fixed costs: setup, in reading the contract and code and warming a build; a review, CI run, and merge; a rebase and gate for each one that lands before it; and a handoff that loses context one session would keep.
+Splitting pays when the parts gain from independence: parallel wall-clock time, being reviewed, merged, or reverted on their own schedule, a check that must not see the work it checks, or more attention per item than one agent can give a large body of material.
+Weigh both sides at each split, and before starting a new pull request, branch, or session, look for an open one this work could join.
+
 ## Subagent delegation
 
 Delegate useful, independent subtasks to subagents at your discretion when that improves speed or quality.
@@ -49,7 +55,7 @@ Higher effort spends more tokens and pays off mainly on hard problems.
 Where your host's global file lists relative model costs, use them.
 Prefer bounded context when it is sufficient so model and effort can be selected; inherit the parent configuration when losing context could affect correctness.
 Delegate a subtask only when it needs little of your context and can return a compact result: an independent research path, a separate area, or a check that should not see your reasoning.
-Keep coupled work, whose results feed your next step, in your own loop with parallel tool calls; each handoff loses detail that one context would keep.
+Keep coupled work, whose results feed your next step, in your own loop with parallel tool calls.
 
 Local builds share one machine, so parallelism can stop paying well before the agent limit: watch load against core count and cap concurrent builds to fit.
 Run a full gate only on the head that will land: finish review and its fixes first, then gate once.
@@ -59,8 +65,6 @@ The main agent remains responsible for integrating and verifying delegated resul
 
 ## Pull requests
 
-Combine related changes into one pull request when they serve one purpose, touch the same code, or would be reviewed together; do not split one piece of work into a pull request per step.
-When an unmerged pull request for the same work is already open, add to it instead of opening another.
 Keep commits logically separated within a combined pull request.
 Squash-merge by default; use a merge commit only when the commits are separable decisions, each worth finding on its own, rather than revisions of one another.
 
