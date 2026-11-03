@@ -42,18 +42,17 @@ Do not close issues directly; an issue closes when its fix merges.
 
 ## Plan
 
-Group issues that change the same code into one branch, or order them.
+Group the issues into branches by the global guidance on splitting work.
 Record which merges must precede which, including dependencies on PRs outside this sweep.
 
 ## Fix
 
-One issue, or one tight group, per branch.
 Implementers run fast checks, and the coordinating session runs the full gates.
 
-Keep each branch to its issue.
+Keep each branch to its issues.
 Implementers and reviewers report other problems they find to the coordinating session rather than fixing them in passing.
 The coordinating session triages each one by the same bar:
-a small no-input fix joins the sweep on its own branch, or rides along when it is a line or two in code the branch already changes;
+a small no-input fix joins the sweep, on a branch chosen the same way;
 anything else is filed as an issue.
 
 If a fix turns out to need a decision after all, stop that issue, leave its branch as a draft PR, and ask.
