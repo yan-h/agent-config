@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Tests for ask-api's model resolution, price assumption, cost guard and
-line ranges.
+"""Tests for ask-api's model resolution, price assumption, cost guard, line
+ranges and review attachments.
 They need neither the SDK nor a network: the SDK is imported only in main()."""
 
 from __future__ import annotations
@@ -60,17 +60,35 @@ class Price(unittest.TestCase):
 class Guard(unittest.TestCase):
     def test_unknown_price_or_a_worst_case_over_the_limit_refuses_unless_confirmed(self):
         price = (10.0, 50.0, None)
-        worst, refusal = ask_api.guard(price, 40_000, 32_000, 3.0, False)
+        worst, refusal = ask_api.guard(price, 40_000, 32_000, 3.0, 200_000, False)
         self.assertAlmostEqual(worst, 2.0)
         self.assertIsNone(refusal)
-        worst, refusal = ask_api.guard(price, 140_000, 32_000, 3.0, False)
+        worst, refusal = ask_api.guard(price, 140_000, 32_000, 3.0, 200_000, False)
         self.assertAlmostEqual(worst, 3.0)
         self.assertIsNone(refusal)
-        _, refusal = ask_api.guard(price, 140_001, 32_000, 3.0, False)
+        _, refusal = ask_api.guard(price, 140_001, 32_000, 3.0, 200_000, False)
         self.assertIn("over the $3.00 limit", refusal)
-        self.assertIsNone(ask_api.guard(price, 140_001, 32_000, 3.0, True)[1])
-        self.assertIsNotNone(ask_api.guard(None, 10, 10, 3.0, False)[1])
-        self.assertIsNone(ask_api.guard(None, 10, 10, 3.0, True)[1])
+        self.assertIsNone(ask_api.guard(price, 140_001, 32_000, 3.0, 200_000, True)[1])
+        self.assertIsNotNone(ask_api.guard(None, 10, 10, 3.0, 200_000, False)[1])
+        self.assertIsNone(ask_api.guard(None, 10, 10, 3.0, 200_000, True)[1])
+
+    def test_input_over_its_limit_refuses_unless_confirmed_and_still_reports_the_cost(self):
+        price = (10.0, 50.0, None)
+        worst, refusal = ask_api.guard(price, 100_001, 0, 20.0, 100_000, False)
+        self.assertAlmostEqual(worst, 1.00001)
+        self.assertIn("over the 100,000 limit", refusal)
+        self.assertIsNone(ask_api.guard(price, 100_000, 0, 20.0, 100_000, False)[1])
+        self.assertIsNone(ask_api.guard(price, 100_001, 0, 20.0, 100_000, True)[1])
+
+
+class Attach(unittest.TestCase):
+    def test_smallest_files_fill_the_budget_and_both_lists_keep_diff_order(self):
+        sizes = [("big.rs", 900), ("a.rs", 300), ("doc.md", 500), ("b.rs", 200)]
+        self.assertEqual(
+            ask_api.attach_within(sizes, 1000), (["a.rs", "doc.md", "b.rs"], ["big.rs"])
+        )
+        self.assertEqual(ask_api.attach_within(sizes, 100), ([], ["big.rs", "a.rs", "doc.md", "b.rs"]))
+        self.assertEqual(ask_api.attach_within(sizes, 5000), (["big.rs", "a.rs", "doc.md", "b.rs"], []))
 
 
 class LineRanges(unittest.TestCase):
