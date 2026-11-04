@@ -8,8 +8,9 @@ description: Ask Claude Fable (or another Claude model) over the Claude API for 
 `ask-api` sends one question, with the context you choose, to the Claude API and prints the answer.
 It bills the API key's credits, which Claude Code itself cannot spend, so the call costs the owner's subscription nothing.
 The credits are an allowance of about $100 a month that does not carry over: credit left at the month's end is lost, not saved.
-Calls so far have cost $0.70 to $4.10, about $1.60 on average, so the allowance covers around two a day;
-a Fable call's worst case is about $6.40 of output plus $1 per 100k tokens of input.
+Over its first two weeks, 34 calls cost $0.67 to $9.77, $2.19 on average, about $5 a day, more than the allowance.
+Output costs about $1 for a question and $2 for a review; the rest is $1 per 100k tokens of input, which made every call over $3.50 a review that sent large files whole.
+So a call over 100k input tokens goes to a Fable subagent instead, on the subscription, whose spare quota the owner fills with whatever tasks it fits rather than keeps (see the cost guard).
 Send the context the question needs rather than everything nearby.
 Only the session that owns the task calls it, not a subagent, so one session sees the task's whole spend.
 
@@ -46,8 +47,8 @@ The model sees only what you send: the question, the files named with `-f`, the 
 It cannot open a caller, a test or the place a value is built.
 Before asking, read enough yourself to name the files the answer turns on, and add them:
 for a cache, where its key and its inputs are built; for a new branch, the test meant to reach it.
-A `--review` already includes every changed file in full.
-`-f path:START-END` sends only those lines; use it for the parts of a large file the answer turns on.
+A `--review` sends its diff with 10 lines of context and attaches changed files whole, smallest first, up to 150k characters; it names the files it left out.
+`-f path:START-END` sends only those lines; use it for the parts of a large or left-out file the answer turns on.
 
 ## Reviewing a design
 
@@ -61,8 +62,9 @@ Ask the model to check the proposal's claims against the excerpts and to say wha
 ## The cost guard
 
 Before sending, `ask-api` counts the input tokens and prints the worst case: the input plus `--max-tokens` of output at the model's price.
-Over `--max-cost` (default $20), or for a model with no known price, it stops with exit code 2.
-Do not pass `--yes` or raise `--max-cost` unless the owner has agreed to that call's cost; narrow the context or ask instead.
+Over `--max-input` (default 100k tokens), over `--max-cost` (default $20), or for a model with no known price, it stops with exit code 2.
+Over the input limit, narrow the context if the answer turns on less of it; otherwise ask a Fable subagent (in Claude, the Agent tool with model `fable`), which reads only what it needs, with the same question and the files to start from.
+Do not pass `--yes` or raise either limit unless the owner has agreed to that call's cost; narrow the context or ask instead.
 `--dry-run` prints the estimate and the included context without sending.
 
 A model released after the price table's newest row for its line borrows that row's price, and the estimate says so.

@@ -33,6 +33,14 @@ DESIGN_PASS = SCRIPT.parents[2] / "design-review" / "references" / "design-pass.
 API_URL = "https://api.anthropic.com"  # never an inherited gateway: it would see the key
 LINES = ("fable", "opus", "sonnet")
 CATALOG_TTL = 24 * 3600
+# A review attaches changed files whole only up to this many characters, about
+# 60k tokens of code. Past calls spent most of their input on large files
+# changed by a line or two, which the diff already shows.
+REVIEW_FILE_BUDGET = 150_000
+# Context lines around each change in a review's diff, which is all the model
+# sees of a file left out. Not --function-context: without a diff driver it
+# widens a Rust method to its whole impl block, 3-4 times the diff.
+REVIEW_CONTEXT = 10
 
 # USD per million tokens (line, input, output); newest row of each line last.
 # A model released after its line's last row borrows that row's price until it
@@ -115,14 +123,21 @@ def guard(
     input_tokens: int,
     max_tokens: int,
     limit: float,
+    max_input: int,
     confirmed: bool,
 ) -> tuple[float | None, str | None]:
     """(worst-case cost, refusal reason or None)."""
-    if price is None:
-        reason = None if confirmed else "no price is known for this model; pass --yes to send anyway"
-        return None, reason
-    worst = (input_tokens * price[0] + max_tokens * price[1]) / 1e6
-    if worst > limit and not confirmed:
+    worst = None if price is None else (input_tokens * price[0] + max_tokens * price[1]) / 1e6
+    if confirmed:
+        return worst, None
+    if input_tokens > max_input:
+        return worst, (
+            f"{input_tokens:,} input tokens is over the {max_input:,} limit; narrow "
+            "the context, or ask a Fable subagent, which reads only what it needs"
+        )
+    if worst is None:
+        return None, "no price is known for this model; pass --yes to send anyway"
+    if worst > limit:
         return worst, (
             f"worst case ${worst:.2f} is over the ${limit:.2f} limit; narrow the "
             "context, lower --max-tokens, or pass --yes"
@@ -178,6 +193,20 @@ def select_lines(text: str, start: int, end: int) -> str:
     return "".join(text.splitlines(keepends=True)[start - 1 : end])
 
 
+def attach_within(sizes: list[tuple[str, int]], budget: int) -> tuple[list[str], list[str]]:
+    """(attached, left out): the smallest files first while their total fits
+    the budget, so a large file changed by a line never crowds out the rest."""
+    attached, left_out, total = [], [], 0
+    for name, size in sorted(sizes, key=lambda item: item[1]):
+        if total + size <= budget:
+            attached.append(name)
+            total += size
+        else:
+            left_out.append(name)
+    order = {name: i for i, (name, _) in enumerate(sizes)}
+    return sorted(attached, key=order.get), sorted(left_out, key=order.get)
+
+
 def review_base() -> str:
     for ref in ("origin/main", "main"):
         result = subprocess.run(
@@ -215,14 +244,29 @@ def build_prompt(args: argparse.Namespace) -> tuple[str, str, list[str]]:
     named = [file_arg(f) for f in args.file]
     files: list[tuple[Path, tuple[int, int] | None]] = []
     if diff_args:
-        diff = git("diff", *diff_args)
+        context = [f"-U{REVIEW_CONTEXT}"] if args.review else []
+        diff = git("diff", *context, *diff_args)
         if not diff.strip():
             fail(f"git diff {' '.join(diff_args)} is empty")
-        parts.append(f'<diff args="{" ".join(diff_args)}">\n{diff}</diff>')
-        included.append(f"diff {' '.join(diff_args)}")
+        parts.append(f'<diff args="{" ".join(context + diff_args)}">\n{diff}</diff>')
+        included.append(f"diff {' '.join(context + diff_args)}")
         if args.review and root:
             changed = git("diff", "--name-only", "--diff-filter=d", *diff_args).split()
-            files = [(root / c, None) for c in changed]
+            sizes = [(c, len(text)) for c in changed if (text := read_text(root / c)) is not None]
+            attached, left_out = attach_within(sizes, REVIEW_FILE_BUDGET)
+            files = [(root / c, None) for c in attached]
+            if left_out:
+                parts.append(
+                    "<left_out>These changed files were too large to include whole; "
+                    f"the diff shows their changes with {REVIEW_CONTEXT} lines of "
+                    f"context: {', '.join(left_out)}</left_out>"
+                )
+                included.append(f"{len(left_out)} changed files left out")
+                note(
+                    f"left out {len(left_out)} changed files over the "
+                    f"{REVIEW_FILE_BUDGET:,}-character budget: {', '.join(left_out)}; "
+                    "add the parts the review turns on with -f PATH:START-END"
+                )
     seen: set[tuple[Path, tuple[int, int] | None]] = set()
     for path, span in files + named:
         if (path.resolve(), span) in seen:
@@ -380,7 +424,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--effort", choices=["low", "medium", "high", "xhigh", "max"], help="default high, xhigh for --review")
     p.add_argument("--max-tokens", type=int, default=128000, help="default 128000, the current models' most; --max-cost bounds the spend")
     p.add_argument("--max-cost", type=float, default=float(os.environ.get("ASK_API_MAX_COST", "20")), help="refuse when the worst case exceeds this many USD (default 20, or $ASK_API_MAX_COST)")
-    p.add_argument("-y", "--yes", action="store_true", help="send even over the cost limit or with no known price")
+    p.add_argument("--max-input", type=int, default=int(os.environ.get("ASK_API_MAX_INPUT", "100000")), help="refuse over this many input tokens (default 100000, or $ASK_API_MAX_INPUT)")
+    p.add_argument("-y", "--yes", action="store_true", help="send even over the cost or input limit, or with no known price")
     p.add_argument("--dry-run", action="store_true", help="estimate and list the context, then stop")
     p.add_argument("--no-instructions", action="store_true", help="leave out AGENTS.md and the owner preferences")
     args = p.parse_args(argv)
@@ -410,7 +455,9 @@ def main(argv: list[str]) -> int:
         ).input_tokens
     except anthropic.NotFoundError:
         fail(f"model {model} was not found (retired?); --model fable or opus picks the newest")
-    worst, refusal = guard(price, input_tokens, args.max_tokens, args.max_cost, args.yes)
+    worst, refusal = guard(
+        price, input_tokens, args.max_tokens, args.max_cost, args.max_input, args.yes
+    )
 
     label = model if args.model == model else f"{args.model} → {model}"
     assumed = f" (price assumed from {price[2]}; add a PRICES row in {SCRIPT})" if price and price[2] else ""
