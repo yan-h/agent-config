@@ -1,6 +1,6 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for a Fable, API or second opinion or review, or unasked when Fable's one answer would be significantly more useful than a subagent's; never from a subagent.
+description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for an API call or a second opinion, or unasked for a design question whose context can be named and sent; not for reviewing code unless the owner asks for it over the API; never from a subagent.
 ---
 
 # A second opinion over the API
@@ -9,37 +9,34 @@ description: Ask Claude Fable (or another Claude model) over the Claude API for 
 It bills the API key's credits, which Claude Code itself cannot spend, so the call costs the owner's subscription nothing.
 The credits are an allowance of about $100 a month that does not carry over: credit left at the month's end is lost, not saved.
 Over its first two weeks, 34 calls cost $0.67 to $9.77, $2.19 on average, about $5 a day, more than the allowance.
-Output costs about $1 for a question and $2 for a review; the rest is $1 per 100k tokens of input, which made every call over $3.50 a review that sent large files whole.
-So a call over 100k input tokens goes to a Fable subagent instead, on the subscription, whose spare quota the owner fills with whatever tasks it fits rather than keeps (see the cost guard).
+Questions averaged $1.35 and reviews of code $4.54: output costs about $1 for a question and $2 for a review, and the rest is $1 per 100k tokens of input.
+So the credits go to questions, and code is reviewed by a subagent on the subscription, whose spare quota the owner fills with whatever tasks fit it rather than keeps.
 Send the context the question needs rather than everything nearby.
 Only the session that owns the task calls it, not a subagent, so one session sees the task's whole spend.
 
 ```sh
 ask-api "Is keying this cache on the whole config sound?" -f src/cache.rs -f src/draw.rs:120-180
-ask-api --review                          # branch vs its merge base with main, plus every changed file
+ask-api --review                          # branch vs its merge base with main, plus the changed files that fit
 ask-api --review --diff "HEAD~3" "focus on the persistence change"
 git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been fixing?"
 ```
 
 `--model` takes `fable` (the default), `opus` or `sonnet`, each meaning the newest active model of that line, or a full model ID to pin one.
-Use another model only when the owner asks: Fable is what the API adds, and in Claude Code a subagent runs Opus or Sonnet with tools, from quota rather than credits.
+Use another model only when the owner asks: in Claude Code a subagent runs any of them with tools, from quota rather than credits.
 Stdin is read only with `--stdin`.
 `--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 128000, the current models' most, since thinking counts against it and a lower cap can spend it all thinking and return no answer, still billed.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
 
 ## When to call it unasked
 
-Call it without being asked whenever Fable's answer would be significantly more useful than a subagent's on the same task (in Claude, an Opus subagent's).
-Underuse is the failure seen so far: of 77 review sessions in the week after unasked calls were allowed, 12 called it at all, and nearly all of those only after the owner mentioned Fable.
-So weigh an unasked call against the subagent it would replace, not against keeping the money.
+Call it without being asked when the answer is judgement rather than search, the context it turns on can be named and sent, and a better judgement could change what happens next:
 
-Fable is the stronger choice when the answer is judgement rather than search, the context it turns on can be named and sent, and a better judgement could change what happens next:
-
-- the design pass on a change with real logic, shared or cached state, concurrency or persistence;
 - choosing between architectures, or weighing a rework's cost against its gains;
+- a design written as a proposal, before its code;
 - a correctness or performance diagnosis that has stalled once the evidence is gathered.
 
-A subagent is the better choice when the work needs exploring, running or editing, when the answer turns on code you cannot name in advance, or when the question is routine enough that a stronger model would answer it the same way.
+Review code in a subagent instead, choosing its model by the global subagent guidance: a review turns on callers, tests and definitions the diff does not show, which a subagent can open and an API call cannot.
+A subagent is also the better choice when the work needs exploring, running or editing, or when the question is routine enough that a stronger model would answer it the same way.
 
 ## Choosing the context
 
@@ -52,8 +49,7 @@ A `--review` sends its diff with 10 lines of context and attaches changed files 
 
 ## Reviewing a design
 
-When the owner asks for one, the call stands in for the `design-review` skill's whole review, at whatever depth that takes.
-Unasked, it serves as that skill's design pass where the test above holds; the correctness review still runs beside it.
+When the owner asks for a review over the API, the call stands in for the `design-review` skill's whole review, at whatever depth that takes.
 Every call sends that skill's `references/design-pass.md` in the system prompt, and `--review` asks for its report shape.
 
 For a design not yet written as code, put the proposal first in a file, then numbered questions, then the code excerpts it rests on, and pass it with `--stdin` or `-f`.
@@ -63,7 +59,7 @@ Ask the model to check the proposal's claims against the excerpts and to say wha
 
 Before sending, `ask-api` counts the input tokens and prints the worst case: the input plus `--max-tokens` of output at the model's price.
 Over `--max-input` (default 100k tokens), over `--max-cost` (default $20), or for a model with no known price, it stops with exit code 2.
-Over the input limit, narrow the context if the answer turns on less of it; otherwise ask a Fable subagent (in Claude, the Agent tool with model `fable`), which reads only what it needs, with the same question and the files to start from.
+Over the input limit, narrow the context if the answer turns on less of it; otherwise give the question to a subagent, which reads only what it needs, with the files to start from.
 Do not pass `--yes` or raise either limit unless the owner has agreed to that call's cost; narrow the context or ask instead.
 `--dry-run` prints the estimate and the included context without sending.
 
