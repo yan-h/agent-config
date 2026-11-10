@@ -4,6 +4,7 @@ import fcntl
 import importlib.util
 import json
 import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -75,7 +76,10 @@ class LifecycleTests(unittest.TestCase):
     def test_busy_build_and_cargo_profile_lock_keep_caches(self):
         path = self.cache()
         with lc.lock(self.store / 'locks' / (lc.key(self.repo) + '.lock')):
-            self.assertIn('busy', self.run_tool('finish', '--source-only', ok=False).stderr)
+            refusal = self.run_tool('finish', '--source-only', ok=False).stderr
+            self.assertIn('busy', refusal)
+            if shutil.which('lsof'):
+                self.assertIn('open in pid ' + str(os.getpid()), refusal)
         with lc.lock(self.repo / 'target/release/.cargo-lock'):
             self.assertIn('busy', self.run_tool('finish', '--source-only', ok=False).stderr)
         self.assertTrue(path.exists())
@@ -99,6 +103,7 @@ class LifecycleTests(unittest.TestCase):
         self.run_tool('finish', '--source-only', ok=False)
         self.assertTrue((outside / 'precious').exists())
 
+    @unittest.skipUnless(shutil.which('cargo'), 'needs cargo')
     def test_cargo_config_output_dir_refused_before_publication(self):
         # A config file reaches the check only through cargo, and only in a
         # Cargo project, so the fixture becomes one; the plain handoff first
@@ -141,6 +146,30 @@ class LifecycleTests(unittest.TestCase):
         self.run_tool('handoff', ok=False)
         self.assertTrue(cache.exists())
         self.assertEqual(lc.publications(self.store), previous)
+
+    def test_dirty_submodule_hidden_by_config_is_refused(self):
+        other = Path(self.tmp.name) / 'other'
+        other.mkdir()
+        lc.git(other, 'init', '-q', '-b', 'main')
+        (other / 'file').write_text('one')
+        lc.git(other, 'add', '.')
+        lc.git(other, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.test', 'commit', '-qm', 'other')
+        self.git('-c', 'protocol.file.allow=always', 'submodule', '--quiet', 'add', str(other), 'sub')
+        self.git('commit', '-qm', 'submodule')
+        self.git('config', 'diff.ignoreSubmodules', 'all')
+        self.run_tool('handoff')
+        (self.repo / 'sub/file').write_text('two')
+        self.assertEqual(self.git('status', '--porcelain'), '')
+        self.run_tool('handoff', ok=False)
+
+    def test_main_ref_falls_back_to_origin_main(self):
+        self.assertEqual(lc.main_ref(self.repo), 'main')
+        self.git('update-ref', 'refs/remotes/origin/main', 'HEAD')
+        self.git('checkout', '-qb', 'feature')
+        self.git('branch', '-qD', 'main')
+        self.assertEqual(lc.main_ref(self.repo), 'origin/main')
+        self.git('update-ref', '-d', 'refs/remotes/origin/main')
+        self.assertIsNone(lc.main_ref(self.repo))
 
     def test_budget_evicts_superseded_but_protects_selected_and_unresolved(self):
         self.git('checkout', '-qb', 'feature')
