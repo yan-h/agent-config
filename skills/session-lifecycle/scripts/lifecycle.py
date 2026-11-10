@@ -86,8 +86,19 @@ def lock(path):
         try:
             fcntl.flock(stream, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
-            raise Refused('busy: ' + str(path)) from None
+            raise Refused('busy: ' + str(path) + holders(path)) from None
         yield stream
+
+
+def holders(path):
+    # A daemon that inherited the descriptor holds the lock with no lifecycle
+    # process running, so the refusal names who has the file open.
+    try:
+        found = subprocess.run(['lsof', '-t', '--', str(path)], text=True, capture_output=True, timeout=10).stdout.split()
+    except (OSError, subprocess.TimeoutExpired):
+        return ''
+    pids = sorted({int(pid) for pid in found if pid.isdigit()} - {os.getpid()})
+    return ' (open in pid ' + ', '.join(map(str, pids)) + ')' if pids else ''
 
 
 def key(repo):
@@ -95,7 +106,9 @@ def key(repo):
 
 
 def source(repo):
-    if git(repo, 'status', '--porcelain', '--untracked-files=all'):
+    # The flags match porcelain() in reclaim-worktrees.sh: git config must not
+    # hide untracked files or a dirty submodule from either check.
+    if git(repo, 'status', '--porcelain', '--untracked-files=all', '--ignore-submodules=none'):
         raise Refused('uncommitted/untracked work; preserve the checkout and finish after committing')
     branch = git(repo, 'symbolic-ref', '--quiet', '--short', 'HEAD')
     return {'commit': git(repo, 'rev-parse', 'HEAD'), 'branch': branch}
@@ -331,6 +344,15 @@ def resolved_heads(repo):
     return {p['headRefOid'] for p in json.loads(text) if p['state'] in ('MERGED', 'CLOSED')}
 
 
+def main_ref(repo):
+    # The same order as MAIN_REF in reclaim-worktrees.sh.
+    for ref in ('main', 'origin/main'):
+        if subprocess.run(['git', '-C', str(repo), 'rev-parse', '--verify', '--quiet', ref],
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
+            return ref
+    return None
+
+
 def retention(repo, store, budget, age_days, apply):
     with lock(store / 'catalog.lock'):
         items = publications(store)
@@ -345,6 +367,7 @@ def retention(repo, store, budget, age_days, apply):
         if not items or (total <= budget and all(m['created'] >= cutoff for _, m in items)):
             return
         resolved = resolved_heads(repo)
+        main = main_ref(repo)
         latest = {}
         for path, m in items:
             if m['branch'] not in latest or m['created'] > latest[m['branch']][1]['created']:
@@ -354,7 +377,7 @@ def retention(repo, store, budget, age_days, apply):
             if str(path) == selected or (path / 'PIN').exists():
                 continue
             superseded = latest[m['branch']][0] != path
-            in_main = subprocess.run(['git', '-C', str(repo), 'merge-base', '--is-ancestor', m['commit'], 'main'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+            in_main = bool(main) and subprocess.run(['git', '-C', str(repo), 'merge-base', '--is-ancestor', m['commit'], main], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
             if not superseded and m['commit'] not in resolved and not in_main:
                 continue
             if total <= budget and m['created'] >= cutoff:
