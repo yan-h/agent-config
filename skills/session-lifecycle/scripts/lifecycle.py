@@ -92,9 +92,11 @@ def lock(path):
 
 def holders(path):
     # A daemon that inherited the descriptor holds the lock with no lifecycle
-    # process running, so the refusal names who has the file open.
+    # process running, so the refusal names who has the file open. The short
+    # timeout bounds a stalled lsof, since a busy lock is routine at session
+    # start; -b, the reclaimer's guard against that, cannot look up a path.
     try:
-        found = subprocess.run(['lsof', '-t', '--', str(path)], text=True, capture_output=True, timeout=10).stdout.split()
+        found = subprocess.run(['lsof', '-nP', '-w', '-t', '--', str(path)], text=True, capture_output=True, timeout=2).stdout.split()
     except (OSError, subprocess.TimeoutExpired):
         return ''
     pids = sorted({int(pid) for pid in found if pid.isdigit()} - {os.getpid()})
@@ -106,8 +108,9 @@ def key(repo):
 
 
 def source(repo):
-    # The flags match porcelain() in reclaim-worktrees.sh: git config must not
-    # hide untracked files or a dirty submodule from either check.
+    # Like porcelain() in reclaim-worktrees.sh, this names both settings so git
+    # config cannot hide untracked files or a dirty submodule. Only emptiness is
+    # read, so listing untracked files as `all` here and `normal` there agrees.
     if git(repo, 'status', '--porcelain', '--untracked-files=all', '--ignore-submodules=none'):
         raise Refused('uncommitted/untracked work; preserve the checkout and finish after committing')
     branch = git(repo, 'symbolic-ref', '--quiet', '--short', 'HEAD')
