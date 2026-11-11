@@ -48,6 +48,7 @@ REVIEW_CONTEXT = 10
 # No haiku: Haiku 5.5's price changes past 100K input tokens.
 PRICES = {
     "claude-fable-5-1": ("fable", 10.00, 50.00),
+    "claude-fable-5-2": ("fable", 8.00, 40.00),
     "claude-opus-5-5": ("opus", 4.00, 20.00),
     "claude-sonnet-5-5": ("sonnet", 2.00, 10.00),
 }
