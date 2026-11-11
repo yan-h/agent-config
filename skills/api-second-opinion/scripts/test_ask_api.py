@@ -42,12 +42,14 @@ class Price(unittest.TestCase):
             model("claude-opus-5-5", "opus", "2026-09-01T00:00:00+00:00"),
             model("claude-opus-6", "opus", "2026-12-01T00:00:00+00:00"),
             model("claude-fable-5-1", "fable", "2026-08-01T00:00:00+00:00"),
+            model("claude-fable-5-2", "fable", "2026-10-01T00:00:00+00:00"),
             model("claude-fable-6", "fable", "2026-12-01T00:00:00+00:00"),
             model("claude-preview", None, "2026-12-02T00:00:00+00:00"),
         ]
         self.assertEqual(ask_api.price_for("claude-fable-5-1", models), (10.0, 50.0, None))
+        self.assertEqual(ask_api.price_for("claude-fable-5-2", models), (8.0, 40.0, None))
         self.assertEqual(
-            ask_api.price_for("claude-fable-6", models), (10.0, 50.0, "claude-fable-5-1")
+            ask_api.price_for("claude-fable-6", models), (8.0, 40.0, "claude-fable-5-2")
         )
         self.assertEqual(
             ask_api.price_for("claude-opus-6", models), (4.0, 20.0, "claude-opus-5-5")
