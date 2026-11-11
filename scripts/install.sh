@@ -78,6 +78,7 @@ fi
 
 # settings.json also gets the status line, which a cloud session has no terminal to
 # show (an existing different statusLine is the owner's choice and is left alone),
+# a year of transcript retention, which a cloud container does not outlive,
 # and the PreToolUse hook that refuses subagents' waits past their five-minute prompt
 # cache, whose matcher a rerun keeps current.
 $cloud || link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
@@ -99,6 +100,9 @@ if sys.argv[2] != "true":
         settings["statusLine"] = want
     elif have != want:
         print(f"install: {path} has another statusLine; left as it is", file=sys.stderr)
+    # Claude Code deletes transcripts after 30 days by default, which leaves nothing
+    # to compare a new model against. An existing value is the owner's choice.
+    settings.setdefault("cleanupPeriodDays", 365)
 guard = "~/.claude/subagent-wait-guard.sh"
 matcher = "Bash|Monitor|ScheduleWakeup|CronCreate"
 groups = settings.setdefault("hooks", {}).setdefault("PreToolUse", [])
@@ -116,7 +120,7 @@ if json.dumps(settings, sort_keys=True) != before:
     os.replace(path + ".tmp", path)
 EOF
 then
-  echo "install: the status line and subagent wait guard are not set up: updating settings.json failed (above)" >&2
+  echo "install: the status line, transcript retention and subagent wait guard are not set up: updating settings.json failed (above)" >&2
   status=1
 fi
 # Without jq the status line is blank and the wait guard allows every call.
