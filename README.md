@@ -69,6 +69,8 @@ ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
 
 `scripts/install.sh` links Claude's status line to `~/.claude/statusline.sh` and adds
 `statusLine` to `~/.claude/settings.json`, leaving a different existing `statusLine` alone.
+Outside the cloud it also sets `cleanupPeriodDays` to 365 unless one is already set, so
+transcripts outlive Claude Code's 30-day default (about 20 GB a year at current use).
 The status line needs `jq`, which the installer checks for but does not install; the optional
 `ant` CLI refreshes its context-window table.
 
