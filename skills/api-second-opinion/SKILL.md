@@ -1,16 +1,16 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for an API call or a second opinion, or unasked for a design question whose context can be named and sent; not for reviewing code unless the owner asks for it over the API; never from a subagent.
+description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for an API call or a second opinion, or unasked wherever a Fable subagent would otherwise take on judgement whose context can be named and sent, a change's design pass included; never from a subagent.
 ---
 
 # A second opinion over the API
 
 `ask-api` sends one question, with the context you choose, to the Claude API and prints the answer.
 It bills the API key's credits, which Claude Code itself cannot spend, so the call costs the owner's subscription nothing.
-The credits are an allowance of about $100 a month that does not carry over: credit left at the month's end is lost, not saved.
-Over its first two weeks, 34 calls cost $0.67 to $9.77, $2.19 on average, about $5 a day, more than the allowance.
+The credits are an allowance of about $200 a month, about $6.50 a day, that does not carry over: credit left at the month's end is lost, not saved.
+Over its first two weeks, 34 calls cost $0.67 to $9.77, $2.19 on average, about $5 a day, with design passes on code included.
 Questions averaged $1.35 and reviews of code $4.54: output costs about $1 for a question and $2 for a review, and the rest is $1 per 100k tokens of input.
-So the credits go to questions, and code is reviewed by a subagent on the subscription, whose spare quota the owner fills with whatever tasks fit it rather than keeps.
+So the credits can take every call that does a Fable subagent's work about as well, leaving Fable quota, which runs out first, for work that needs tools.
 Send the context the question needs rather than everything nearby.
 Only the session that owns the task calls it, not a subagent, so one session sees the task's whole spend.
 
@@ -29,14 +29,16 @@ The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go
 
 ## When to call it unasked
 
-Call it without being asked when the answer is judgement rather than search, the context it turns on can be named and sent, and a better judgement could change what happens next:
+Call it without being asked wherever you would otherwise brief a Fable subagent and one answer would serve about as well: the answer is judgement rather than search, and you can name and send the context it turns on.
 
+- the design pass on a change, with `--review` and, with `-f`, the files beyond the diff that the design turns on;
 - choosing between architectures, or weighing a rework's cost against its gains;
 - a design written as a proposal, before its code;
 - a correctness or performance diagnosis that has stalled once the evidence is gathered.
 
-Review code in a subagent instead, choosing its model by the global subagent guidance: a review turns on callers, tests and definitions the diff does not show, which a subagent can open and an API call cannot.
-A subagent is also the better choice when the work needs exploring, running or editing, or when the question is routine enough that a stronger model would answer it the same way.
+Keep the subagent when the work needs exploring, running or editing, or when the answer turns on code you cannot name in advance:
+a correctness review hunts through callers, tests and definitions the diff does not show, which a subagent can open and an API call cannot.
+Where an Opus subagent would serve, because Fable would answer the same way, use that rather than the API.
 
 ## Choosing the context
 
@@ -50,6 +52,7 @@ A `--review` sends its diff with 10 lines of context and attaches changed files 
 ## Reviewing a design
 
 When the owner asks for a review over the API, the call stands in for the `design-review` skill's whole review, at whatever depth that takes.
+Unasked, it stands in only for that skill's design pass; the correctness review still runs beside it.
 Every call sends that skill's `references/design-pass.md` in the system prompt, and `--review` asks for its report shape.
 
 For a design not yet written as code, put the proposal first in a file, then numbered questions, then the code excerpts it rests on, and pass it with `--stdin` or `-f`.
