@@ -45,7 +45,8 @@ A defect that an alternative in this change would remove is fixed by making that
 When several defects trace to an alternative the verdict placed in a follow-up, place it in this change instead.
 
 Fix every other finding the review confirms, and fix or answer the uncertain ones in the PR description.
-Keep fixes inside the PR's scope; anything else found along the way is reported, not fixed here.
+Keep fixes inside the PR's scope; anything else found along the way goes where the project contract sends it,
+and where it says nothing is reported, not fixed here.
 A finding that is a design question rather than a defect stops the run and goes to the owner.
 Commit and push the fixes, and redo any build or check the project contract owes for them.
 
@@ -66,6 +67,9 @@ A failing check is fixed, not merged past; one failing for a reason outside the 
 ## Merge
 
 Mark the PR ready if it is a draft, then merge it by the project's method, or by the global merge default if the contract names none.
+Do not pass `--delete-branch` to `gh pr merge` where the head branch has a worktree:
+run from another worktree, gh 2.102 removes that worktree with the branch,
+and took a merged branch's gitignored renders and release build seconds after the merge, before the owner had loaded them.
 Confirm the merge landed on the remote primary branch before reporting, and clean up the branch as the project contract says.
 
 ## Report
