@@ -10,6 +10,9 @@ Compare the change against that design. Look in particular for:
 
 - state with more than one owner, or derived state stored rather than computed;
 - a new mechanism that parallels one the codebase already has;
+- a rule, list or sequence the change edits that is spelled at other sites too:
+  search for each one's other spellings, and name those the change missed as defects and the single owner as the alternative
+  (two audits of one project traced eleven of thirteen live defects to a change that reached one copy);
 - special cases a better representation or boundary would remove;
 - edge-case handling out of proportion to how often the case occurs and what it costs when it does;
 - invariants every caller must remember, where the type or module could hold them instead;

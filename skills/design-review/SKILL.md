@@ -29,6 +29,7 @@ Then brief a fresh agent with the change, the project contract, this section and
 It is consequential judgement; size it by the global subagent guidance.
 Where that guidance picks Fable and the `api-second-opinion` skill's test for an unasked call holds, one `ask-api --review` call is the pass instead:
 add with `-f` the files beyond the diff that the design turns on, because the model cannot open them.
+Those include the other sites that spell a rule, list or sequence the diff edits, which you search for before the call.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).
 
