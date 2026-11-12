@@ -104,7 +104,7 @@ Then sort what survived:
 ## Report
 
 Lay the report out as the `audit-drift` skill's "Report so it can be taken piecemeal" section describes,
-with the rework candidates ranked together after the index, by net benefit, since they often cross areas.
+with the rework candidates ranked together after the index, by lasting net benefit, since they often cross areas.
 List the auditors' drift items in their area's section, for the next drift audit.
 When the owner asks for the fixes too, make them as that skill's "Fix what needs no answer, when the owner asks" section describes;
 a rework candidate is built only once the owner has taken it.

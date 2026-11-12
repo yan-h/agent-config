@@ -14,6 +14,13 @@ Resume a subagent after a long gap only when its context is worth rewriting; oth
 
 When a skill runs `/code-review`, choose the effort level to fit the diff's risk; with no level it reuses the last one typed.
 
+## Consent to merge and to write to issues
+
+Auto mode counts only my own words in the chat as consent to merge a pull request or to edit or close an issue.
+It has passed a `/review-and-merge` I typed, and refused a `/sweep-issues` run's first merge and another's issue edits, merges authorized only in an umbrella issue, and a handover session's merge after my bare "go ahead" to its brief.
+So before a run that will merge or write to issues on anything less, ask me up front to say so in chat, naming merges and issue writes in one question: a run refused at its first merge waits there with its gates already run.
+Do not retry or route around a refusal.
+
 ## Model costs
 
 Subscription Fable 5.2 uses about three times Opus 5.5's quota per token, as measured.

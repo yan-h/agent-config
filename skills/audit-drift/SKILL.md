@@ -99,15 +99,14 @@ Put the areas with the most consequential questions first.
 ## Fix what needs no answer, when the owner asks
 
 The audit ends at its report unless the owner's own message asks for its fixes to be made, or made and merged.
-Then, once the report is filed, the mechanical issues and the reproduced live defects are worked as a sweep:
-follow the `sweep-issues` skill's "Plan", "Fix", "Review" and "Merge" sections, with its chat confirmation of merges,
+Then, once the report is filed, sweep the issues this run filed:
+follow the `sweep-issues` skill from its "Triage" section with those issues as the scope,
 stopping before "Merge" and leaving draft pull requests when the owner asked only for fixes.
 Following those sections does not invoke that skill; if it is not installed, say so and leave the fixes filed.
 
-Questions for the owner, rework candidates and any fix that would change behaviour stay in the report.
-A fix that fails its gates or its review is dropped, not forced through, and the tracking issue says what was tried and why it failed, so the next audit does not file it again:
-in one run, three fixes the audit had called mechanical were built and reverted.
-Tick each area in the index as its fixes land.
+Triage holds the audit's sorting to the sweep's bar; the report's questions and its rework candidates are outside the sweep.
+When a fix the audit called mechanical proves wrong once built or reviewed, say on its issue what was tried and why it failed, and link the draft:
+in one run three such fixes were built and reverted, and the issue is what the next sweep and the next audit read.
 
 ## Record the answers
 

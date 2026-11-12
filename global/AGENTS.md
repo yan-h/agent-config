@@ -71,7 +71,7 @@ The main agent remains responsible for integrating and verifying delegated resul
 
 Keep commits logically separated within a combined pull request.
 Squash-merge by default; use a merge commit only when the commits are separable decisions, each worth finding on its own, rather than revisions of one another.
-In a pull request body, keep GitHub's closing verbs (fix, close, resolve, in any tense) away from the number of an issue the merge should leave open:
+In a pull request body or a commit message, keep GitHub's closing verbs (fix, close, resolve, in any tense) away from the number of an issue the merge should leave open:
 "Filed rather than fixed: #N" closed #N. Write "tracked in #N".
 
 ## Session lifecycle

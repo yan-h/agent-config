@@ -93,8 +93,10 @@ A window started by an older version of the script keeps its old command until i
 `tmux kill-session -t claude-rc`, then kickstart.
 The agent's `ProcessType` is likewise fixed when the tmux server starts, so a change to it
 needs `tmux kill-server` before the kickstart, which ends every running Remote Control session.
-So is the `PATH` its sessions inherit, which the script takes from `~/.zprofile`: put a tool
-every session needs, such as `cargo`, on `PATH` there, and restart the tmux server the same way.
+Each server runs under a login shell, so its sessions get the `PATH` that `~/.zprofile` sets:
+put a tool every session needs, such as `cargo`, there. A server reads the profile when it
+starts, so after a change run `tmux kill-window -t claude-rc:<project>` and the next rerun
+brings that server back, ending only that project's sessions.
 To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-control` rather than
 running the script from a Claude session, where tmux would belong to the app.
 Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.
@@ -104,6 +106,8 @@ The import resolves relative to the linked file's real location, so it follows t
 An older `~/.claude/CLAUDE.md` link straight to `global/AGENTS.md` still loads the shared
 defaults but misses the Claude-only sections; re-link it with `ln -sfn`.
 The Gemini path is also used by Antigravity.
+An older `~/.codex/AGENTS.md` link to `global/codex/AGENTS.md`, which is gone, dangles and
+loads nothing; re-link it to `global/AGENTS.md` the same way.
 Start a new agent session to load the instructions.
 These paths configure local coding agents, not ordinary web chats or cloud jobs.
 Claude Cowork skips user instruction symlinks outside its working directory.
@@ -126,22 +130,21 @@ this public repository.
   never starts one for itself, and a host that can enforce that should.
 - `sweep-issues` — fix and merge every open issue that needs no owner input,
   asking simple decisions up front and reporting the rest. Owner-invoked, and
-  invoking it grants merge permission for the run, which it also asks the
-  owner to confirm in chat, because a host's permission check may want that.
+  invoking it grants merge permission for the run.
 - `review-and-merge` — review one PR for correctness and design if its diff
   warrants it, fix what the review confirms, wait for its checks, then merge.
   Makes design adjustments itself; a verdict to rethink the approach stops it
   for the owner. Owner-requested: the owner's own message naming it, alone or
   chained after other work, grants merge permission for that PR.
 - `design-review` — review a change for correctness and for whether another
-  design would leave less long-term debt, weighing upfront cost against
-  maintainability. Read-only; the owner picks which alternatives to take.
+  design would leave less long-term debt. Read-only; the owner picks which
+  alternatives to take.
 - `audit-drift` — audit every area of a project, or one named area, for drift
   from the owner's intent: machinery whose reason has gone, frozen values,
   tests guarding a mechanism, stale prose. Reports a few yes/no questions per
   area in a piecemeal tracking issue and records the owner's answers in
   per-area intent records. Owner-invoked. When the owner asks, it and the two
-  audits below also fix, and may merge, the findings that need no answer.
+  audits below also fix and merge what needs no answer.
 - `audit-performance` — audit every workload of a project, or one named area
   or workload, for costs a user would notice. Measures before reading code,
   proves each finding with a measurement, fixes the local ones with numbers
@@ -149,8 +152,8 @@ this public repository.
   larger changes as rework candidates. Owner-invoked.
 - `audit-maintainability` — audit every area of a project, or one named area,
   for structure that makes its actual changes costly, citing the commits that
-  paid for it. Files mechanical cleanups and ranks rework candidates by net
-  benefit. Owner-invoked.
+  paid for it. Files mechanical cleanups and ranks rework candidates by lasting
+  net benefit. Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
   named problem, as a costed proposal: target and cheaper alternative,
   behaviour changes as owner questions, an incremental migration, and a spike

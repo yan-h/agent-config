@@ -12,11 +12,6 @@ set -u
 # launchd starts agents with a bare environment: no Homebrew or ~/.local/bin on PATH, no locale.
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 export LANG="${LANG:-en_US.UTF-8}"
-# Every session the servers spawn inherits this PATH through tmux, and Claude's shell does not
-# read ~/.zprofile itself, so take the login profile's PATH here: without it 88 sessions in under a
-# month had no cargo, which the profile adds. The line above is the floor if the profile fails.
-# Silenced because this runs every 5 minutes and logs only news.
-[[ -r $HOME/.zprofile ]] && source "$HOME/.zprofile" >/dev/null 2>&1
 
 exec >>"$HOME/.claude/remote-control-at-login.log" 2>&1
 
@@ -63,7 +58,12 @@ while IFS= read -r line || [[ -n $line ]]; do
   # The server exits on its own (e.g. "Persistent errors for 10 minutes, giving up"), and the
   # rerun skips a window that exists, so the window restarts it rather than idling in a shell.
   # Earlier output stays in the scrollback; each exit is also noted in the log.
-  cmd="while :; do claude remote-control ${(j: :)${(@q)words[2,-1]}}; s=\$?"
+  # Each server runs under a login shell: launchd's environment above has no login profile, and
+  # Claude's own shell does not read ~/.zprofile, so otherwise no session the server spawns has
+  # what the profile puts on PATH (cargo, for one). Run here rather than sourced above, a profile
+  # that exits or fails is a logged server exit, and a profile edit needs only this window restarted.
+  run="exec claude remote-control ${(j: :)${(@q)words[2,-1]}}"
+  cmd="while :; do /bin/zsh -lc ${(q)run}; s=\$?"
   cmd+="; echo \"--- \$(date '+%F %T') \"${(q)name}\": remote-control exited (\$s), restarting in 60s\""
   cmd+=" | tee -a ${(q)HOME}/.claude/remote-control-at-login.log; sleep 60; done"
   if tmux has-session -t "$session" 2>/dev/null; then

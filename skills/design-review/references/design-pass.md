@@ -11,7 +11,8 @@ Compare the change against that design. Look in particular for:
 - state with more than one owner, or derived state stored rather than computed;
 - a new mechanism that parallels one the codebase already has;
 - a rule, list or sequence the change edits that is spelled at other sites too:
-  search for each one's other spellings, and name those the change missed as defects and the single owner as the alternative
+  search for each one's other spellings, or where you cannot search say which sites you were shown,
+  and name those the change missed as defects and the single owner as the alternative
   (two audits of one project traced eleven of thirteen live defects to a change that reached one copy);
 - special cases a better representation or boundary would remove;
 - edge-case handling out of proportion to how often the case occurs and what it costs when it does;
@@ -35,5 +36,5 @@ Lead with a one-line verdict: merge as is, adjust within this change, merge and 
 Then:
 
 - **Correctness:** each confirmed defect, and each uncertain one marked as such, naming the alternative that would remove it if one would.
-- **Design:** the current approach in a few sentences, then the alternatives ranked by net benefit, counting the defects each removes, each with its tradeoff as above.
+- **Design:** the current approach in a few sentences, then the alternatives ranked by lasting net benefit, counting the defects each removes, each with its tradeoff as above.
 - **Questions:** decisions that belong to the owner, with a recommendation for each.
