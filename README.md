@@ -92,6 +92,8 @@ A server that exits (it gives up after 10 minutes of connection errors) is resta
 own window a minute later, with the earlier output left in the scrollback.
 A window started by an older version of the script keeps its old command until it is recreated:
 `tmux kill-session -t claude-rc`, then kickstart.
+The agent's `ProcessType` is likewise fixed when the tmux server starts, so a change to it
+needs `tmux kill-server` before the kickstart, which ends every running Remote Control session.
 To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-control` rather than
 running the script from a Claude session, where tmux would belong to the app.
 Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.

@@ -23,5 +23,11 @@
 	<!-- The script exits once tmux is started; keep launchd from killing what it leaves behind. -->
 	<key>AbandonProcessGroup</key>
 	<true/>
+
+	<!-- Without this launchd runs the job at background priority, and the tmux server and every
+	     session under it inherit that: work spread over many cores ran about three times slower
+	     (measured 2026-11-09). Takes effect for a tmux server started after the change. -->
+	<key>ProcessType</key>
+	<string>Interactive</string>
 </dict>
 </plist>
