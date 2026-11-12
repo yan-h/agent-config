@@ -94,6 +94,8 @@ A window started by an older version of the script keeps its old command until i
 `tmux kill-session -t claude-rc`, then kickstart.
 The agent's `ProcessType` is likewise fixed when the tmux server starts, so a change to it
 needs `tmux kill-server` before the kickstart, which ends every running Remote Control session.
+So is the `PATH` its sessions inherit, which the script takes from `~/.zprofile`: put a tool
+every session needs, such as `cargo`, on `PATH` there, and restart the tmux server the same way.
 To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-control` rather than
 running the script from a Claude session, where tmux would belong to the app.
 Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.

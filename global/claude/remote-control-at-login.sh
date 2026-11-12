@@ -12,6 +12,11 @@ set -u
 # launchd starts agents with a bare environment: no Homebrew or ~/.local/bin on PATH, no locale.
 export PATH="$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:$PATH"
 export LANG="${LANG:-en_US.UTF-8}"
+# Every session the servers spawn inherits this PATH through tmux, and Claude's shell does not
+# read ~/.zprofile itself, so take the login profile's PATH here: without it 88 sessions in under a
+# month had no cargo, which the profile adds. The line above is the floor if the profile fails.
+# Silenced because this runs every 5 minutes and logs only news.
+[[ -r $HOME/.zprofile ]] && source "$HOME/.zprofile" >/dev/null 2>&1
 
 exec >>"$HOME/.claude/remote-control-at-login.log" 2>&1
 
