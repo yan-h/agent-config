@@ -155,8 +155,8 @@ this public repository.
   second opinion or review with chosen context to Claude Fable (or another
   model) over the API, billed to API credits rather than the subscription,
   behind input and worst-case cost guards. On the owner's request, or unasked
-  for a design question whose context can be named; code reviews go to a
-  subagent.
+  wherever it would do a Fable subagent's judgement about as well, a change's
+  design pass included; correctness reviews go to a subagent.
 
 ## Add a skill
 
