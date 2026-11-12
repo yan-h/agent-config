@@ -19,7 +19,6 @@ When a skill runs `/code-review`, choose the effort level to fit the diff's risk
 Subscription Fable 5.2 uses about three times Opus 5.5's quota per token, as measured.
 It also fills its own weekly Fable limit about twice as fast as the all-models weekly limit, so heavy Fable use runs out there first.
 Haiku's and Sonnet's quota are unmeasured; by API price per token, Sonnet costs 1/2 of Opus, and Haiku 1/40 up to a 100k-token prompt and 1/8 beyond, which a subagent that reads many files reaches.
-Fable through the `api-second-opinion` skill uses no quota; it spends API credits, an allowance of about $200 a month that does not carry over.
-That is about $6.50 a day, above the $5 a day calls averaged when design passes on code went to the API too, so Fable quota runs out before the credits do.
+Fable through the `api-second-opinion` skill uses no quota; it spends API credits, a monthly allowance that does not carry over, and Fable quota runs out before the credits do (that skill has the figures).
 So wherever a Fable subagent would do the work, make one API call instead if it would do about as well, as that skill's test for an unasked call says; keep the subagent for the rest.
 Choose Fable over Opus for a subagent where its better judgement is worth three times the quota.
