@@ -142,7 +142,8 @@ this public repository.
   from the owner's intent: machinery whose reason has gone, frozen values,
   tests guarding a mechanism, stale prose. Reports a few yes/no questions per
   area in a piecemeal tracking issue and records the owner's answers in
-  per-area intent records. Owner-invoked.
+  per-area intent records. Owner-invoked. When the owner asks, it and the two
+  audits below also fix, and may merge, the findings that need no answer.
 - `audit-performance` — audit every workload of a project, or one named area
   or workload, for costs a user would notice. Measures before reading code,
   proves each finding with a measurement, fixes the local ones with numbers
