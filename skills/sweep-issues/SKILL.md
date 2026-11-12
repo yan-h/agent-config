@@ -36,6 +36,12 @@ file formats, public interfaces, dependencies, and anything that conflicts with 
 When unsure, the issue is not a no-input issue.
 
 Ask every simple decision in one message, each with its options and a recommendation.
+In the same message, ask the owner to confirm in chat that this run may merge its pull requests and edit and close issues,
+unless their own message already says so.
+A host's permission check may not count the invocation as the owner's words:
+Claude's auto mode refused one sweep's first merge and another's issue edits until the owner confirmed in chat,
+and a run refused at its first merge waits there with its gates already run.
+Do not retry or route around such a refusal.
 Start the no-input work without waiting for the answers; answered issues join it.
 
 Do not close issues directly; an issue closes when its fix merges.

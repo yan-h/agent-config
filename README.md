@@ -128,7 +128,8 @@ this public repository.
   never starts one for itself, and a host that can enforce that should.
 - `sweep-issues` — fix and merge every open issue that needs no owner input,
   asking simple decisions up front and reporting the rest. Owner-invoked, and
-  invoking it grants merge permission for the run.
+  invoking it grants merge permission for the run, which it also asks the
+  owner to confirm in chat, because a host's permission check may want that.
 - `review-and-merge` — review one PR for correctness and design if its diff
   warrants it, fix what the review confirms, wait for its checks, then merge.
   Makes design adjustments itself; a verdict to rethink the approach stops it
