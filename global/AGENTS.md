@@ -7,7 +7,9 @@ Correctness and performance gains must justify their complexity and ongoing main
 Consider the problem's likely frequency and severity.
 Rare but severe failures can warrant substantial work.
 
-For long-running projects, give somewhat more weight to lasting gains in maintainability, performance, and correctness than to upfront implementation effort.
+For long-running projects, recommend by what lasts: maintainability, performance, correctness, and costs that recur, such as runtime capacity.
+State upfront implementation effort as a fact beside the recommendation, never as a reason for a cheaper half or a deferral:
+what the effort is worth is mine to decide, and asked on design, rework and audit questions in two projects I said to ignore it.
 Reassess when a small fix grows into machinery or repeated exceptions; sunk effort is no reason to continue.
 
 When a change removes or replaces the reason a mechanism exists, account for the mechanism's remaining uses: keep each only for a reason that still holds, and remove it otherwise.
@@ -61,12 +63,16 @@ Local builds share one machine, so parallelism can stop paying well before the a
 Run a full gate only on the head that will land: finish review and its fixes first, then gate once.
 
 Follow each project's rules for worktrees and concurrent edits, and avoid overlapping writes.
+Brief a read-only subagent that shares a checkout not to change its checked-out branch:
+a reviewer's `git checkout` of the pull request's head left a builder's worktree on a detached HEAD under a second reviewer, where the next fixer's commits would have landed on no branch.
 The main agent remains responsible for integrating and verifying delegated results and completing the task.
 
 ## Pull requests
 
 Keep commits logically separated within a combined pull request.
 Squash-merge by default; use a merge commit only when the commits are separable decisions, each worth finding on its own, rather than revisions of one another.
+In a pull request body or a commit message, keep GitHub's closing verbs (fix, close, resolve, in any tense) away from the number of an issue the merge should leave open:
+"Filed rather than fixed: #N" closed #N. Write "tracked in #N".
 
 ## Session lifecycle
 

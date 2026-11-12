@@ -7,7 +7,6 @@ and skills stay in the project that owns them.
 ## Layout
 
 - `global/AGENTS.md` — shared personal defaults for coding agents across projects.
-- `global/codex/AGENTS.md` — symlink to the shared defaults, preserving existing installs.
 - `global/claude/CLAUDE.md` — imports the shared defaults, then adds Claude-only sections.
 - `global/claude/statusline.sh` — Claude Code status line: location, model, effort, running
   agents, context, and the 5h/7d quota meters.
@@ -94,6 +93,10 @@ A window started by an older version of the script keeps its old command until i
 `tmux kill-session -t claude-rc`, then kickstart.
 The agent's `ProcessType` is likewise fixed when the tmux server starts, so a change to it
 needs `tmux kill-server` before the kickstart, which ends every running Remote Control session.
+Each server runs under a login shell, so its sessions get the `PATH` that `~/.zprofile` sets:
+put a tool every session needs, such as `cargo`, there. A server reads the profile when it
+starts, so after a change run `tmux kill-window -t claude-rc:<project>` and the next rerun
+brings that server back, ending only that project's sessions.
 To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-control` rather than
 running the script from a Claude session, where tmux would belong to the app.
 Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.
@@ -103,7 +106,8 @@ The import resolves relative to the linked file's real location, so it follows t
 An older `~/.claude/CLAUDE.md` link straight to `global/AGENTS.md` still loads the shared
 defaults but misses the Claude-only sections; re-link it with `ln -sfn`.
 The Gemini path is also used by Antigravity.
-An existing Codex link to `global/codex/AGENTS.md` still resolves to the shared source.
+An older `~/.codex/AGENTS.md` link to `global/codex/AGENTS.md`, which is gone, dangles and
+loads nothing; re-link it to `global/AGENTS.md` the same way.
 Start a new agent session to load the instructions.
 These paths configure local coding agents, not ordinary web chats or cloud jobs.
 Claude Cowork skips user instruction symlinks outside its working directory.
@@ -133,13 +137,14 @@ this public repository.
   for the owner. Owner-requested: the owner's own message naming it, alone or
   chained after other work, grants merge permission for that PR.
 - `design-review` — review a change for correctness and for whether another
-  design would leave less long-term debt, weighing upfront cost against
-  maintainability. Read-only; the owner picks which alternatives to take.
+  design would leave less long-term debt. Read-only; the owner picks which
+  alternatives to take.
 - `audit-drift` — audit every area of a project, or one named area, for drift
   from the owner's intent: machinery whose reason has gone, frozen values,
   tests guarding a mechanism, stale prose. Reports a few yes/no questions per
   area in a piecemeal tracking issue and records the owner's answers in
-  per-area intent records. Owner-invoked.
+  per-area intent records. Owner-invoked. When the owner asks, it and the two
+  audits below also fix and merge what needs no answer.
 - `audit-performance` — audit every workload of a project, or one named area
   or workload, for costs a user would notice. Measures before reading code,
   proves each finding with a measurement, fixes the local ones with numbers
@@ -147,8 +152,8 @@ this public repository.
   larger changes as rework candidates. Owner-invoked.
 - `audit-maintainability` — audit every area of a project, or one named area,
   for structure that makes its actual changes costly, citing the commits that
-  paid for it. Files mechanical cleanups and ranks rework candidates by net
-  benefit. Owner-invoked.
+  paid for it. Files mechanical cleanups and ranks rework candidates by lasting
+  net benefit. Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
   named problem, as a costed proposal: target and cheaper alternative,
   behaviour changes as owner questions, an incremental migration, and a spike
@@ -183,18 +188,6 @@ from this checkout into both user catalogs:
 
 Link individual skills rather than the whole catalog so each host can also
 keep tool-specific skills in its native directory.
-
-For a repository-pinned installation, vendor this repository into the
-consumer as `.shared-skills` using a Git subtree or submodule, then expose
-the selected skills with internal relative links:
-
-```text
-.claude/skills/<skill-name> -> ../../.shared-skills/skills/<skill-name>
-.agents/skills              -> ../.claude/skills
-```
-
-Internal relative links survive clones and worktrees. Do not check in links
-to a sibling checkout outside the consumer repository.
 
 ## Cloud sessions
 

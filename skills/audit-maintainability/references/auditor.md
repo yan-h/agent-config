@@ -68,7 +68,7 @@ Copies that already disagree are a live defect as well as debt: say so, and give
 
 ## Report
 
-- **Findings, ranked by net benefit:**
+- **Findings, ranked by lasting net benefit:**
   the structure, `file:line`, the evidence, the fix, its rough upfront cost, what it removes,
   and whether it is mechanical, a rework candidate, or needs the owner's call — phrased as a yes/no question when it does.
 - **Shared causes:** findings that one restructuring would dissolve together.

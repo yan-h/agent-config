@@ -1,6 +1,6 @@
 ---
 name: design-review
-description: Review a change for correctness and for whether a different design would leave less long-term debt, weighing upfront cost against maintainability. Use when asked to review a diff, branch or PR for design, simplicity or maintainability, not only bugs.
+description: Review a change for correctness and for whether a different design would leave less long-term debt. Use when asked to review a diff, branch or PR for design, simplicity or maintainability, not only bugs.
 ---
 
 # Review the design, not only the diff
@@ -15,8 +15,6 @@ Read the project's local contract, and the issue or PR description behind the ch
 What counts as maintainable depends on where the project is going: its roadmap, its recorded decisions, and the scale it must support.
 A recorded decision the change collides with is weighed as the global preferences say and becomes a question for the owner; none is reopened here otherwise.
 
-The owner will usually spend substantial upfront work for a significant, lasting gain in maintainability, and not for a marginal one.
-
 ## Correctness
 
 Run a correctness review in parallel with the design pass, in a subagent:
@@ -28,7 +26,7 @@ Do this pass yourself, unless you wrote or shaped the change: its author is anch
 Then brief a fresh agent with the change, the project contract, this section and `references/design-pass.md`, and use its result as the design pass.
 It is consequential judgement; size it by the global subagent guidance.
 Where that guidance picks Fable and the `api-second-opinion` skill's test for an unasked call holds, one `ask-api --review` call is the pass instead:
-add with `-f` the files beyond the diff that the design turns on, because the model cannot open them.
+add with `-f` the files beyond the diff that the design turns on, chosen as that skill's "Choosing the context" section says, because the model cannot open them.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).
 

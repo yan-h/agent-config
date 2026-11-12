@@ -32,7 +32,7 @@ The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go
 Call it without being asked wherever you would otherwise brief a Fable subagent and one answer would serve about as well: the answer is judgement rather than search, and you can name and send the context it turns on.
 
 - the design pass on a change, with `--review` and, with `-f`, the files beyond the diff that the design turns on;
-- choosing between architectures, or weighing a rework's cost against its gains;
+- choosing between architectures, or judging a rework's lasting costs against its gains;
 - a design written as a proposal, before its code;
 - a correctness or performance diagnosis that has stalled once the evidence is gathered.
 
@@ -45,7 +45,8 @@ Where an Opus subagent would serve, because Fable would answer the same way, use
 The model sees only what you send: the question, the files named with `-f`, the diff, and piped input.
 It cannot open a caller, a test or the place a value is built.
 Before asking, read enough yourself to name the files the answer turns on, and add them:
-for a cache, where its key and its inputs are built; for a new branch, the test meant to reach it.
+for a cache, where its key and its inputs are built; for a new branch, the test meant to reach it;
+for a rule, list or sequence the change edits, the other sites that spell it, which you search for first.
 A `--review` sends its diff with 10 lines of context and attaches changed files whole, smallest first, up to 150k characters; it names the files it left out.
 `-f path:START-END` sends only those lines; use it for the parts of a large or left-out file the answer turns on.
 

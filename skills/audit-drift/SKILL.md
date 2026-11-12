@@ -16,7 +16,7 @@ Worktrees, branch and PR conventions, and where intent records live all come fro
 where it says nothing about intent records, use `docs/intent/<area>.md`.
 
 The `audit-performance`, `audit-maintainability` and `propose-rework` skills use "Choose the scope", "Report so it can be taken piecemeal",
-"Record the answers" and the describer brief by name; rename them only together with those skills.
+"Fix what needs no answer, when the owner asks", "Record the answers" and the describer brief by name; rename them only together with those skills.
 
 ## What drift is
 
@@ -95,6 +95,18 @@ One tracking issue per run (a Markdown file in the repository if the project has
   its questions, the mechanical issue filed for it, and anything notable that needed no decision.
 
 Put the areas with the most consequential questions first.
+
+## Fix what needs no answer, when the owner asks
+
+The audit ends at its report unless the owner's own message asks for its fixes to be made, or made and merged.
+Then, once the report is filed, sweep the issues this run filed:
+follow the `sweep-issues` skill from its "Triage" section with those issues as the scope,
+stopping before "Merge" and leaving draft pull requests when the owner asked only for fixes.
+Following those sections does not invoke that skill; if it is not installed, say so and leave the fixes filed.
+
+Triage holds the audit's sorting to the sweep's bar; the report's questions and its rework candidates are outside the sweep.
+When a fix the audit called mechanical proves wrong once built or reviewed, say on its issue what was tried and why it failed, and link the draft:
+in one run three such fixes were built and reverted, and the issue is what the next sweep and the next audit read.
 
 ## Record the answers
 
