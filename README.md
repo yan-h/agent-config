@@ -7,7 +7,6 @@ and skills stay in the project that owns them.
 ## Layout
 
 - `global/AGENTS.md` — shared personal defaults for coding agents across projects.
-- `global/codex/AGENTS.md` — symlink to the shared defaults, preserving existing installs.
 - `global/claude/CLAUDE.md` — imports the shared defaults, then adds Claude-only sections.
 - `global/claude/statusline.sh` — Claude Code status line: location, model, effort, running
   agents, context, and the 5h/7d quota meters.
@@ -105,7 +104,6 @@ The import resolves relative to the linked file's real location, so it follows t
 An older `~/.claude/CLAUDE.md` link straight to `global/AGENTS.md` still loads the shared
 defaults but misses the Claude-only sections; re-link it with `ln -sfn`.
 The Gemini path is also used by Antigravity.
-An existing Codex link to `global/codex/AGENTS.md` still resolves to the shared source.
 Start a new agent session to load the instructions.
 These paths configure local coding agents, not ordinary web chats or cloud jobs.
 Claude Cowork skips user instruction symlinks outside its working directory.
@@ -187,18 +185,6 @@ from this checkout into both user catalogs:
 
 Link individual skills rather than the whole catalog so each host can also
 keep tool-specific skills in its native directory.
-
-For a repository-pinned installation, vendor this repository into the
-consumer as `.shared-skills` using a Git subtree or submodule, then expose
-the selected skills with internal relative links:
-
-```text
-.claude/skills/<skill-name> -> ../../.shared-skills/skills/<skill-name>
-.agents/skills              -> ../.claude/skills
-```
-
-Internal relative links survive clones and worktrees. Do not check in links
-to a sibling checkout outside the consumer repository.
 
 ## Cloud sessions
 
