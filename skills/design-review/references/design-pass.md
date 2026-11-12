@@ -25,6 +25,7 @@ If the current approach is sound, say so and stop looking.
 
 For each alternative worth raising, give:
 what changes and where; the upfront cost, including migration and risk; what it removes or prevents over time; and whether it belongs in this change, in a follow-up, or nowhere.
+Place it by its scope and its risk to this change; its upfront cost is stated, as the global preferences say, and does not send it to a follow-up.
 Prefer one focused restructuring that dissolves several findings over a list of local fixes.
 
 ## Report

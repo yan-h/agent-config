@@ -14,7 +14,7 @@ This skill borrows from the `audit-drift` skill, installed beside this one; if i
 Read the project's local contract before starting, with its roadmap, recorded decisions, and the intent records of every area the rework touches.
 A recorded decision is weighed as the global preferences say; a rework that collides with one says so and makes it a question.
 
-The owner will usually pay substantial upfront work for a significant, lasting gain, and not for a marginal one.
+Upfront cost is weighed as the global preferences say: the report states it, and the verdict does not count it against the rework.
 
 ## Ground the problem
 
