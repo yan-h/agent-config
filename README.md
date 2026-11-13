@@ -43,10 +43,10 @@ git clone https://github.com/yan-h/agent-config.git ~/projects/agent-config
 ```
 
 Back up any existing instruction files and merge their contents into the shared
-source before replacing them. For Claude, run the install script; it links
+source before replacing them. Run the install script; it links
 Claude's file, which imports the shared one, into `~/.claude`, links every
-skill into both `~/.claude/skills` and `~/.agents/skills`, installs
-session-lifecycle's hourly sweep for each `--repo` (see
+skill into `~/.claude/skills`, `~/.agents/skills` and `~/.gemini/config/skills`,
+installs session-lifecycle's hourly sweep for each `--repo` (see
 [Session lifecycle installation](#session-lifecycle-installation)), sets up the
 status line, Remote Control at login (both below) and `ask-api` (see
 `skills/api-second-opinion`). Rerun it after adding or removing
@@ -189,11 +189,12 @@ and non-empty instructions.
 ## Make skills discoverable
 
 For a personal installation, `scripts/install.sh` links each skill directory
-from this checkout into both user catalogs:
+from this checkout into each user catalog:
 
 ```text
-~/.claude/skills/<skill-name> -> <checkout>/skills/<skill-name>
-~/.agents/skills/<skill-name> -> <checkout>/skills/<skill-name>
+~/.claude/skills/<skill-name>        -> <checkout>/skills/<skill-name>
+~/.agents/skills/<skill-name>        -> <checkout>/skills/<skill-name>
+~/.gemini/config/skills/<skill-name> -> <checkout>/skills/<skill-name>
 ```
 
 Link individual skills rather than the whole catalog so each host can also
@@ -233,7 +234,7 @@ Projects declare builds and deliverables in `.agent-lifecycle.json` and provide 
 After installing the global instruction revision, new sessions of every linked host follow the same procedure.
 Already-running sessions need an explicit update; cloud jobs need the project-local contract.
 
-`scripts/install.sh` links the skill into both catalogs and installs the hourly deterministic macOS fallback by running:
+`scripts/install.sh` links the skill into the user catalogs and installs the hourly deterministic macOS fallback by running:
 
 ```sh
 python3 skills/session-lifecycle/scripts/install.py --repo /path/to/project --repo /path/to/another-project
@@ -245,7 +246,7 @@ A rerun without `--repo` keeps the registered projects, and every rerun restarts
 A project's own SessionStart wrapper reports a missing skill, since the shared reclaimer is then not there to run.
 This installs `com.yan.agent-lifecycle` and a local project list; it does not modify unrelated agent hooks.
 The job waits until each main checkout contains the lifecycle integration, so installing before project PRs merge is safe.
-Its runtime and both catalogs' links remain linked to this source checkout: after installing from a PR worktree, reinstall from main before removing that worktree.
+Its runtime and the catalogs' links remain linked to this source checkout: after installing from a PR worktree, reinstall from main before removing that worktree.
 The log is `~/Library/Logs/agent-lifecycle.log`.
 To stop it, use `launchctl bootout gui/$(id -u)/com.yan.agent-lifecycle`.
 

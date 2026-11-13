@@ -61,5 +61,5 @@ If protected artifacts exceed the budget, report that fact rather than evicting 
 The budget covers preserved deliverables; active source/build caches can still exceed it and are not forcibly deleted.
 
 Install or update with agent-config's `scripts/install.sh --repo /path/to/repository` (repeat `--repo` for each project; a rerun keeps those registered).
-It links this skill into the Claude and shared agent catalogs, then runs `scripts/install.py`, which installs the deterministic job and retains unrelated hooks and settings.
+It links this skill into the user catalogs, then runs `scripts/install.py`, which installs the deterministic job and retains unrelated hooks and settings.
 Shared global defaults come from agent-config's existing global instruction links; they take effect in new sessions after that revision is installed.
