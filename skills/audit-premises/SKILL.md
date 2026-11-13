@@ -31,7 +31,7 @@ The output is tested rework candidates for the `propose-rework` skill. This audi
 
 **Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds a few more.
 Invoking the skill is the owner accepting a run of that order. State the number of agents before the inventory and before each wave, so the owner can interrupt.
-The owner's ratings shrink the second wave: a candidate that gives up only don't-care guarantees needs a count, not a red team, and readers do not propose what a must-keep rules out.
+The owner's ratings shrink the second wave: readers report what a must-keep rules out as that guarantee's price, which the second wave does not test, and a don't-care needs no defending.
 In the first project the ratings removed most of the planned agents before any ran.
 Run both waves or neither: the first wave alone produced a confident, convergent ranking in which four of the top five candidates were later defeated or cut to a third or less.
 
@@ -40,7 +40,7 @@ Before any agent runs, ask the owner for those writes in one question, in whatev
 Without a tracker, or without that consent, the report is a Markdown file in the repository with each agent's report as a file beside it,
 on a branch, as a draft pull request where the project has them, and a defect is a section of the report instead of an issue.
 
-**What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates and recorded ratings in the intent records.
+**What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates in the intent records.
 Do not pass them to the readers, who would anchor on them. Use them between the waves:
 a candidate the owner declined is raised again only with evidence that was not there before, and says what changed.
 
@@ -63,7 +63,7 @@ once for the project and once per area, and hand each reader its slice: a reader
 
 [The rules](references/rules.md) define a guarantee and what each rating does to a candidate.
 
-Run one inventory agent per area with [the inventory brief](references/inventory.md), the area's paths, docs and history slice, the ratings already recorded, and a path for its report.
+Run one inventory agent per area with [the inventory brief](references/inventory.md), the area's paths, docs and history slice, the ratings already recorded in the intent records, and a path for its report.
 Size it as judgement, not lookup: the guarantees that mattered in the first project were ones no record stated.
 Merge the lists, keeping a product-wide guarantee once.
 
@@ -76,7 +76,7 @@ what counts first, how much machinery an edge case may keep, how loose performan
 
 Write the ratings file: each guarantee in user terms with its rating and any accepted form, then the run's tolerances.
 Leave out the inventory's code pointers, which would anchor the clean-room designer. Every later agent gets the file's path.
-Record each rating the owner gave in its area's intent record, as the `audit-drift` skill's "Record the answers" section describes but with no index to tick;
+Record each rating the owner gave in the intent record of every area the guarantee touches, as the `audit-drift` skill's "Record the answers" section describes but with no index to tick;
 record a don't-care as open to giving up in a rework, not as leave to remove the guarantee outside one. The run's tolerances are not recorded there.
 When the owner changes a rating, update the file and the record before the next agent starts, and recheck the candidates that rested on the old rating;
 the owner reversed one within the same session in the first project.
@@ -122,8 +122,7 @@ Read [the tester brief](references/tester.md) completely before delegating.
 Give each tester the paths of the rules, of that brief and of the ratings, the write-up, the reports behind its group, its task, a directory for outputs and a path for its report.
 
 - **One red team per premise group that holds a strong or plausible candidate:** one agent, with the single job of defeating it against the code.
-  A group with only speculative candidates is listed in the report as untested,
-  and a group whose candidates give up only don't-care guarantees and supersede no record gets fact-finding for the count instead.
+  A group with only speculative candidates is listed in the report as untested.
 - **An experiment, wherever the product can already answer:**
   - a profile before trusting an inferred split. An inferred 77/11/12 measured 65/17/16, and "about 5 times" measured 1.6;
   - an emulation with features the product already has. One candidate could be run, timed and compared using two existing settings;

@@ -1,8 +1,8 @@
 # Inventory brief
 
 You list the guarantees one area of a project gives its user, for the owner to rate before any agent proposes a design.
-Read the rules' "Guarantees and their ratings" up to the list of ratings, and "What you may do"; the rest of that file is for agents that propose or test.
-You were given the area's paths, docs and history slice, the ratings already recorded, and a path for your report.
+Read [the rules](rules.md)' "Guarantees and their ratings" up to the list of ratings, and "What you may do"; the rest of that file is for agents that propose or test.
+You were given the area's paths, docs and history slice, the ratings already recorded, which stand in for the ratings file the rules mention, and a path for your report.
 
 ## What to list
 

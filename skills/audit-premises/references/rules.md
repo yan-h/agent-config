@@ -16,7 +16,7 @@ A guarantee is what the product promises its user, recorded or not: a behaviour,
 Left to themselves, agents hold an unrecorded guarantee fixed. In the first project, three designs kept every behaviour the product had;
 the larger rework came only once the owner gave up guarantees no record stated, among them seamless output across structural edits and identical output between builds.
 
-Read the ratings file you were given before your own method. A candidate that gives up a guarantee is judged by its rating:
+Read the ratings file you were given before your own method; it overrides any rating in an intent record. A candidate that gives up a guarantee is judged by its rating:
 
 - **Must keep:** losing it is an attack on the shape. Find the form that keeps it, or the form the rating accepts instead.
   Where no form keeps it, the candidate ends, and is reported as what that guarantee costs.

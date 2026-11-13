@@ -6,7 +6,7 @@ Read [the rules](rules.md) first, then "Every stance" and the section your task 
 ## Every stance
 
 You answer the audit's question, as [the reader brief](reader.md) states it, from your stance instead of from one area.
-You were given the owner's standing preferences; apply them, and say where one decides a verdict.
+You were given the owner's standing preferences; apply them as amended by the ratings file's tolerances, and say where one decides a verdict.
 Your section's method replaces the reader brief's.
 Report your candidates in the reader brief's form, plus whatever your section asks for, in about 3,000 words at most.
 Where the project lacks something your section rests on, say so and work from what it has.
@@ -15,7 +15,7 @@ Where the project lacks something your section rests on, say so and work from wh
 
 Design before looking.
 First read only what states the goals and what a user does: the goals, the user's guide, the non-goals, the roadmap, the headline measurements and the ratings file.
-Do not open the source or the decision records yet.
+Do not open the source, the decision records or the audit's other reports yet.
 Design the product from scratch for those goals and the must-keep guarantees alone, as two architectures that differ in kind, not degree.
 Then read the design docs and the code, and for each place your designs differ from what exists, decide who is right:
 does the existing design know something yours missed, citing the record or code that shows it, or is it carrying a premise that was reasonable once?

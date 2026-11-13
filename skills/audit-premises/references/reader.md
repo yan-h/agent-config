@@ -12,7 +12,7 @@ markedly better performance, or that removes a whole class of bugs?
 "The current design is right, and here is why" is a full answer.
 Tidying, renames, file splits and anything that fits one ordinary change without superseding a decision or replacing a structure are out of scope.
 
-You were given the owner's standing preferences. They decide what counts as a cost and what does not; apply them, and say where one decides a verdict.
+You were given the owner's standing preferences. They decide what counts as a cost and what does not, as amended by the ratings file's tolerances; apply them, and say where one decides a verdict.
 
 ## Method
 
