@@ -19,7 +19,8 @@ a record weighs what its reasons and its need still weigh, as the global prefere
   a hard case it gets wrong, a capability it loses, a piece that does not work alone, a recorded need this form leaves unmet.
   It is answered by reshaping first: a wider rework, a combination with another candidate or variant, a different mechanism for the same outcome.
   The reshaped candidate is a new candidate, untested until something attacks it.
-  A candidate for which no answering shape is found is set aside with the attack recorded, not counted as defeated on the problem.
+  A candidate for which no answering shape is found is set aside with the attack recorded, not counted as defeated on the problem;
+  a lost capability with no shape that keeps it is a yes/no question for the owner instead.
 - **A smaller form is the candidate only when it leaves nothing lasting in place.**
   "This is enough for one change" is not a reason to shrink one.
 

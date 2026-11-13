@@ -51,7 +51,7 @@ If an assumption could sink the target design — a performance target, a librar
 with a throwaway prototype in a worktree.
 Do not open a PR or merge it; record what it showed and remove the worktree.
 If it fails, revise the design and test again, or end with the cheaper alternative or with leaving it.
-For such a candidate, spike only what the audit's report marks untested, and build on a prototype the audit kept as a draft pull request instead of starting another.
+For a candidate the `audit-premises` skill tested, spike only what the audit's report marks untested, and build on a prototype the audit kept as a draft pull request instead of starting another.
 
 ## Behaviour that changes
 
