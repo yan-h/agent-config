@@ -31,7 +31,8 @@ The output is tested rework candidates for the `propose-rework` skill. This audi
 
 **Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds a few more.
 Invoking the skill is the owner accepting a run of that order. State the number of agents before the inventory and before each wave, so the owner can interrupt.
-The owner's ratings of the guarantees shrink the waves: in the first project they removed most of the planned agents before any ran.
+The owner's ratings shrink the second wave: a candidate that gives up only don't-care guarantees needs a count, not a red team, and readers do not propose what a must-keep rules out.
+In the first project the ratings removed most of the planned agents before any ran.
 Run both waves or neither: the first wave alone produced a confident, convergent ranking in which four of the top five candidates were later defeated or cut to a third or less.
 
 **Where the report lives.** The run writes to the tracker: one tracking issue, each agent's report as a comment on it, an issue for each defect reproduced on the way, and later rewrites of the tracking issue's body.
@@ -39,7 +40,7 @@ Before any agent runs, ask the owner for those writes in one question, in whatev
 Without a tracker, or without that consent, the report is a Markdown file in the repository with each agent's report as a file beside it,
 on a branch, as a draft pull request where the project has them, and a defect is a section of the report instead of an issue.
 
-**What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates in the intent records.
+**What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates and recorded ratings in the intent records.
 Do not pass them to the readers, who would anchor on them. Use them between the waves:
 a candidate the owner declined is raised again only with evidence that was not there before, and says what changed.
 
@@ -60,27 +61,28 @@ once for the project and once per area, and hand each reader its slice: a reader
 
 ## Rate the guarantees
 
-A guarantee is what the product promises its user, recorded or not: a behaviour, a look, a capability, identity between runs or builds, a performance target, compatibility with saved data or a host.
-Readers hold an unrecorded guarantee fixed. In the first project, three designs kept every behaviour the product had;
-the larger rework came only once the owner gave up guarantees no record stated, among them seamless output across structural edits and identical output between builds.
+[The rules](references/rules.md) define a guarantee and what each rating does to a candidate.
 
-Run one inventory agent per area, bounded lookup, with the area's paths, docs and history slice. It lists each guarantee the area gives:
-where it is recorded, if anywhere; the code and tests that serve it, with their lines; and the commits that paid for it.
-Sizes are estimates and are labelled so.
+Run one inventory agent per area with [the inventory brief](references/inventory.md), the area's paths, docs and history slice, the ratings already recorded, and a path for its report.
+Size it as judgement, not lookup: the guarantees that mattered in the first project were ones no record stated.
+Merge the lists, keeping a product-wide guarantee once.
 
-Then go through the list with the owner in chat, one guarantee at a time:
+Then go through them with the owner in chat, area by area, largest first, one guarantee at a time, with the recorded ratings shown as standing unless the owner changes one.
+Ask first which must be kept and what form the owner would accept instead, since those prune most:
+"must keep, but a grid would do" opened a redesign of placement.
+The owner may leave a guarantee unrated where its size is too uncertain to judge; it is open, and readers size it.
+Ask too for the run's tolerances where they depart from the standing preferences in the project contract:
+what counts first, how much machinery an edge case may keep, how loose performance targets may be, and how much change in output is acceptable.
 
-- **Must keep:** a constraint every agent is given. A candidate that breaks it ends before anything tests it.
-- **Would trade for a large simplification:** open. A candidate may give it up; a red team defends it, and the owner decides with the size in hand.
-- **Don't care:** open. A candidate that removes it needs only a count of what goes.
+Write the ratings file: each guarantee in user terms with its rating and any accepted form, then the run's tolerances.
+Leave out the inventory's code pointers, which would anchor the clean-room designer. Every later agent gets the file's path.
+Record each rating the owner gave in its area's intent record, as the `audit-drift` skill's "Record the answers" section describes but with no index to tick;
+record a don't-care as open to giving up in a rework, not as leave to remove the guarantee outside one. The run's tolerances are not recorded there.
+When the owner changes a rating, update the file and the record before the next agent starts, and recheck the candidates that rested on the old rating;
+the owner reversed one within the same session in the first project.
 
-A rating may name a form the owner would accept instead, and the owner may change a rating later:
-"must keep, but a grid would do" opened a redesign of placement, and the owner kept an animation they had first given up.
-Ask too for the owner's tolerances for the run: what counts first, how much machinery an edge case may keep, how loose performance targets may be, and how much change in output is acceptable.
-
-Write the ratings and tolerances to a file every later agent is given by path, and record them as "Record the answers" describes.
-Both areas rated so far were rated with sizes from a full earlier run in hand; an inventory alone has not been shown to size guarantees well enough to rate.
-If the owner cannot rate without sizes, run the first wave on the decisions alone, rate between the waves, and point the second wave at the rated premises. Say in the report which way the run went.
+Both areas rated so far were rated with sizes from a full earlier run in hand; whether an inventory sizes guarantees well enough to rate them is untested.
+Say in the report how many guarantees the owner left unrated before the first wave.
 
 ## First wave: readers who propose
 
@@ -107,7 +109,7 @@ Agreement among readers is weak evidence: they read the same records.
 Seven readers reached one candidate that a red team then cut to a third, and five reached one that was defeated.
 
 Group the candidates by the premise each questions, across areas, and set aside what earlier runs settled.
-A guarantee a reader found that the inventory missed goes to the owner to rate before any candidate resting on it is tested.
+Show the owner each unrated guarantee with the sizes readers reported, and each that a reader found and the inventory missed, and rate them before any candidate resting on one is tested.
 Check each report's central claims yourself by reading the cited lines.
 A search that matches a word is not a check: two statements made to the owner from such searches were false.
 
@@ -120,7 +122,8 @@ Read [the tester brief](references/tester.md) completely before delegating.
 Give each tester the paths of the rules, of that brief and of the ratings, the write-up, the reports behind its group, its task, a directory for outputs and a path for its report.
 
 - **One red team per premise group that holds a strong or plausible candidate:** one agent, with the single job of defeating it against the code.
-  A group with only speculative candidates is listed in the report as untested.
+  A group with only speculative candidates is listed in the report as untested,
+  and a group whose candidates give up only don't-care guarantees and supersede no record gets fact-finding for the count instead.
 - **An experiment, wherever the product can already answer:**
   - a profile before trusting an inferred split. An inferred 77/11/12 measured 65/17/16, and "about 5 times" measured 1.6;
   - an emulation with features the product already has. One candidate could be run, timed and compared using two existing settings;
@@ -143,13 +146,13 @@ an ignored directory in a worktree that can be reclaimed is where the first run 
 Take each red team's verdict in turn:
 
 - **Defeated on the problem:** the candidate ends. Where the reason is the owner's, say where it is recorded.
-- **Loses a capability:** a yes/no question for the owner, or the shape that keeps the capability.
+- **Gives up a guarantee:** judged by its rating as the rules say; a would-trade or unrated one is a yes/no question for the owner, with what goes with it.
 - **Conditional:** combine it with the piece it names.
 - **Breaks, with no answering shape found:** look for the answer among the other candidates' pieces before setting it aside with the attack recorded.
 - **Smaller form:** it is the candidate where the red team showed it leaves nothing lasting in place; otherwise restore the full form and say what the smaller one leaves.
 
 Build the combined forms whose pieces answer each other's objections.
-A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team at each form the report's verdict would rest on.
+A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team, briefed as in the second wave with the current ratings file, at each form the report's verdict would rest on.
 A form that this red team also breaks is reported as open, with both attacks, for the owner to decide whether to spend more on it.
 Every other reshaped or combined form is marked untested wherever it appears.
 
@@ -161,7 +164,8 @@ Written as the current state:
 
 - **Verdict first,** in a few lines, then what to do next, in order.
 - **Decisions that are the owner's,** each answerable yes or no, with what happens on either answer.
-- **The ratings,** with what each would-trade and don't-care guarantee was found to cost, and which candidates gave it up.
+- **The ratings,** with what each would-trade and don't-care guarantee was found to cost, which candidates gave it up,
+  and what each must-keep ruled out, marked untested where nothing attacked it: the rating that limits the audit most is otherwise the one whose price the owner never sees.
 - **Each standing candidate:** the premise, what it costs today with evidence, the target, what it removes, what it loses,
   each record it supersedes with the reason that no longer holds, what was tested and how, what is untested, and which reader or stance proposed it.
 - **Defeated or set aside,** one line each with the reason, so it is not proposed again unchanged.

@@ -29,7 +29,7 @@ not by denser style, but by choosing structures under which the lines are not ne
 Measure where the lines are, by concern and split into source and tests, as a ledger.
 For each large concern find what multiplies it, and the structural choice behind each multiplier.
 Report the ledger today and in your design, the multipliers ranked by lines,
-the overhauls they imply ranked by lines removed per guarantee given up, and what cannot shrink.
+the overhauls they imply ranked by lines removed per would-trade guarantee given up, and what cannot shrink.
 
 ## Performance architect
 
@@ -37,7 +37,7 @@ Earlier performance work optimised inside the architecture. Ask whether a differ
 Read the measurements first and trust them over reasoning; where a claim needs a number nobody took, say so and name the probe that would take it.
 Read the hot paths whole.
 For each structural alternative give the arithmetic from measured figures, the contract or record it breaks, and what it costs in complexity.
-Say plainly whether performance is a constraint for this user at all, and which roadmap items cost blocks.
+Say plainly whether performance is a constraint for this user at all, starting from the ratings file's tolerances, and which roadmap items cost blocks.
 Report where the time goes today, the architectures that would change the class, the design you would build from scratch, and what you judged not worth it.
 
 ## Prior-art researcher
