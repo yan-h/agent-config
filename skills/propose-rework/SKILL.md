@@ -22,6 +22,7 @@ The cheaper alternative is the verdict only when it gets the lasting gain, or th
 State what the current design costs today, with evidence:
 the commits and PRs that paid for it, the bugs it produced, the measurements, the roadmap items it blocks.
 If the cost cannot be shown, say so; the proposal may end there.
+A candidate the `audit-premises` skill tested arrives with this done: its section of that audit's report is the grounding, once you have checked it still holds on the primary branch.
 
 ## Map what exists, in parallel
 
@@ -50,6 +51,7 @@ If an assumption could sink the target design — a performance target, a librar
 with a throwaway prototype in a worktree.
 Do not open a PR or merge it; record what it showed and remove the worktree.
 If it fails, revise the design and test again, or end with the cheaper alternative or with leaving it.
+For a candidate the `audit-premises` skill tested, spike only what the audit's report marks untested, and build on a prototype the audit kept as a draft pull request instead of starting another.
 
 ## Behaviour that changes
 
