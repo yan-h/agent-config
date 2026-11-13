@@ -1,6 +1,6 @@
 ---
 name: audit-premises
-description: Audit a project for overhauls that become possible if recorded decisions may be superseded — designs a different premise would make simpler, faster or impossible to get wrong. Readers propose, red teams and experiments test, and a candidate an attack breaks is reshaped before it is cut down. Produces rework candidates for the owner, not fixes. Started only by the repository owner invoking it explicitly.
+description: Audit a project for overhauls that become possible if recorded decisions may be superseded — designs a different premise would make simpler, faster or impossible to get wrong. Readers propose, red teams and experiments test, and a candidate whose shape an attack breaks is reshaped before it is cut down. Produces tested rework candidates for the owner, not fixes. Started only by the repository owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
@@ -18,35 +18,28 @@ if it is not installed, say so and stop.
 
 ## What this audit is
 
-The other audits take the recorded design as given: `audit-maintainability` finds costly structure inside it, `audit-drift` finds reasons that moved.
-This one asks whether a group of decisions shares a premise that a different design would not need.
-Sessions follow recorded decisions by default and supersede one only when a change collides with it, so nothing else asks that question.
+It asks whether a group of decisions shares a premise that a different design would not need.
+It has no bar that a change must already have paid for the cost: a candidate may come from the goals alone, from prior art, or from what would change the cost class.
 
-**Every recorded decision is open here.**
-A candidate may supersede any record, any intent entry the owner chose, and any contract the project calls hard.
-It names each one it supersedes; the audit proposes and the owner decides.
+**Every recorded decision is open here,** and a candidate an attack breaks is reshaped before it is cut down.
+[The rules](references/rules.md) say what that means and how a candidate is judged; read them completely, and give every agent that file.
 
-Two rules judge every candidate, and every agent is told them, since an agent left to itself judges by whether a piece is worth its cost:
+The output is tested rework candidates for the `propose-rework` skill. This audit changes no code beyond scratch probes.
 
-- The verdict rests on what lasts, as the global preferences say: upfront cost is stated as a fact and is never a reason to shrink a candidate.
-- **A candidate may grow or change shape.** When an attack lands, the first question is what change of shape or scope would answer it:
-  a wider rework, a combination with another candidate, a different mechanism for the same outcome.
-  A candidate is cut down only when the smaller form gets the lasting gain, and dropped only when no shape answers the attack.
+## Before starting
 
-In the first run red teams reduced one candidate to its smallest surviving variant and defeated three other variants one at a time.
-The objections answered each other once the variants were combined, and the full form came back only when the owner said to ignore cost and allow reshaping.
+**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session.
+Invoking the skill is the owner accepting a run of that order. State the number of agents before each wave, so the owner can interrupt.
+Run both waves or neither: the first wave alone produced a confident, convergent ranking in which four of the top five candidates were later defeated or cut to a third or less.
 
-The output is rework candidates for the `propose-rework` skill. This audit changes no code beyond scratch probes.
+**Where the report lives.** The run writes to the tracker: one tracking issue, each agent's report as a comment on it, an issue for each defect reproduced on the way, and later rewrites of the tracking issue's body.
+Before the first wave, ask the owner for those writes in one question, in whatever words the host's global file says such writes need.
+Without a tracker, or without that consent, the report is a Markdown file in the repository with each agent's report as a file beside it,
+on a branch as a draft pull request, and a defect is a section of the report instead of an issue.
 
-## Cost and consent
-
-The first run used 27 agents over two waves, about 7 million subagent tokens besides the coordinating session; each agent ran for six to thirty-five minutes.
-Invoking the skill is the owner accepting that. Run both waves or neither:
-the first wave alone produced a confident, convergent ranking in which four of the top five candidates were later defeated or cut to a third or less.
-
-Before the first wave, ask the owner once for every write the run will make to the tracker:
-the tracking issue, the agents' reports as its comments, an issue for each defect reproduced on the way, and later rewrites of the tracking issue's body.
-Without that the run keeps its report in local files.
+**What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates in the intent records.
+Keep them from the readers, who would anchor on them. Use them between the waves:
+a candidate the owner declined is raised again only with evidence that was not there before, and says what changed.
 
 Size each agent by the global subagent guidance.
 The red teams and the designers among the stances are the consequential judgement; fact-finding is lighter.
@@ -54,23 +47,32 @@ The red teams and the designers among the stances are the consequential judgemen
 ## Choose the scope
 
 The text after the invocation names one area (`$ARGUMENTS` in Claude, the text after `$audit-premises` in Codex); with none, audit every area.
-Map the project as the `audit-drift` skill's "Choose the scope" section describes, and add what an area map leaves out:
-the test suite, the records and docs themselves, and vendored code are each an area here.
+Use the area map from the last area-based audit's tracking issue if there is one; otherwise map the project as the `audit-drift` skill's "Choose the scope" section describes.
+Split an area too large for one reader to read whole along its own seams.
+
+With one area named, its readers and every stance work inside it;
+a premise that crosses its boundary is reported as seen and out of scope.
+
+If the `audit-maintainability` skill is installed, run its history map as its "Map where change lands" section describes,
+once for the project and once per area, and hand each reader its slice: a reader that counts history by hand splits every renamed file's history in two.
 
 ## First wave: readers who propose
 
-Read [the reader brief](references/reader.md) and [the stances](references/stances.md) completely before delegating. Run all of them in parallel, read-only:
+Read [the reader brief](references/reader.md) and [the stances](references/stances.md) completely before delegating.
+Give each agent the paths of the rules and of its brief, not their contents, with the owner's standing preferences from the project contract and the global preferences, and a path for its report.
+Run all of them in parallel:
 
-- **One reader per area**, with the reader brief, the area's paths and docs, and the owner's standing preferences from the project contract and the global preferences.
+- **One reader per area,** with the area's paths, docs and history slice.
   Give it questions to hold, not your own guesses at its answer: an agent handed a hypothesis returns it confirmed.
-- **One agent per stance.** Area readers are anchored on what exists.
-  The stances are not: one designs from the goals before opening the code, one designs to a third of the size,
-  one asks what would change the cost class, one looks at prior art, one reads how the project is kept correct, and one mines the decision history.
+- **One agent per stance,** told which section of the stances file is its own, with the whole history map for the process and decision-history stances.
+  Area readers are anchored on what exists. The stances are not:
+  one designs from the goals before opening the code, one designs to a third of the size, one asks what would change the cost class,
+  one looks at prior art, one reads how the project is kept correct, and one mines the decision history.
 
-Readers report candidates they are unsure of, labelled strong, plausible or speculative, with no cap on their number.
+Readers report candidates they are unsure of, labelled strong, plausible or speculative.
 A brief that asked only for candidates that survived the reader's own attack, three at most, had to be amended mid-run.
 
-When the reports are in, list the files and subsystems no reader read whole, and send a reader to each that matters.
+Each report lists what its agent read whole. From those lists, find the subsystems no one read, and send a reader to each that matters.
 In the first run every reader had skipped one subsystem, whose fields were nearly a third of the central data record.
 
 ## Between the waves: do not rank yet
@@ -78,61 +80,72 @@ In the first run every reader had skipped one subsystem, whose fields were nearl
 Agreement among readers is weak evidence: they read the same records.
 Seven readers reached one candidate that a red team then cut to a third, and five reached one that was defeated.
 
-Group the candidates by the premise each questions, across areas.
+Group the candidates by the premise each questions, across areas, and set aside what earlier runs settled.
 Check each report's central claims yourself by reading the cited lines.
 A search that matches a word is not a check: two statements made to the owner from such searches were false.
-Tell the owner what came back, as candidates under test, not as a ranking.
+
+Write the groups to a file. It is the write-up the second wave is given, and what you tell the owner:
+candidates under test, not a ranking, with the number of agents the second wave will use. Then start it.
 
 ## Second wave: test, and reshape what breaks
 
 Read [the tester brief](references/tester.md) completely before delegating.
-Every candidate that could lead the report, and every one that needs the owner's decision, gets:
+Give each tester the paths of the rules and of that brief, the write-up, the reports behind its group, its task, a directory for outputs and a path for its report.
 
-- **A red team:** one agent, one candidate, with the single job of defeating it against the code.
-  It reports the shape that would answer each attack that lands, as the brief requires.
+- **One red team per premise group that holds a strong or plausible candidate:** one agent, with the single job of defeating it against the code.
+  A group with only speculative candidates is listed in the report as untested.
 - **An experiment, wherever the product can already answer:**
   - a profile before trusting an inferred split. An inferred 77/11/12 measured 65/17/16, and "about 5 times" measured 1.6;
-  - an emulation with features the product already has. One candidate could be played, timed and compared with two existing settings;
+  - an emulation with features the product already has. One candidate could be run, timed and compared using two existing settings;
   - a scratch prototype for a candidate that proposes a new check or mechanism, run against historical defects reintroduced on purpose.
     A proposed check caught neither of two until a fourth check was added;
-  - pictures of every real case where the question is taste.
+  - a rendering of every real case, for the owner to look at, where the question is taste.
 - **Fact-finding** for each "not checked" item a candidate rests on.
 
-An agent that writes scratch code works in its own worktree; long builds stay in the coordinating session.
+An agent that writes scratch code works in its own worktree. Long builds, and every timing a verdict rests on, stay in the coordinating session.
+
+Check what comes back as you checked the readers.
 Reproduce every defect an agent reports before telling the owner, and file each that reproduces as its own issue.
-A prototype worth keeping goes on a branch as a draft pull request:
+Check a defeat's central claim too: a red team is an agent handed a hypothesis, and a false defeat stays in the report as a reason not to propose something again.
+
+A prototype worth keeping goes on a branch as a draft pull request, which the report lists:
 an ignored directory in a worktree that can be reclaimed is where the first run nearly left its only copy.
 
-## Recombine, then attack the combination
+## Recombine, then attack once more
 
-Sort every defeat and reduction by its reason:
+Sort every defeat and reduction by the rules:
 
-- **The owner's own recorded reason, or behaviour the owner rejected:** it stays defeated. Say where the reason is recorded.
+- **An attack on the problem:** the candidate ends. Where the reason is the owner's, say where it is recorded.
+  A recorded reason whose need the target would still meet is not a defeat but a yes/no question for the owner.
 - **A lost capability:** a question for the owner, or a shape that keeps the capability.
-- **"This piece alone does not remove X":** conditional. Combine it with the piece that does.
-- **"A smaller version is enough", or cost:** not a reason under the two rules. Restore the full form and say what the smaller one leaves in place.
+- **Conditional on another piece:** combine it with that piece.
+- **A smaller form, without showing that it leaves nothing lasting in place:** restore the full form and say what the smaller one leaves.
 
 Build the combined forms whose pieces answer each other's objections.
-A combined form is your own synthesis: send a fresh red team at each one that would lead the report, and mark any other as untested where it appears.
+A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team at each that would lead the report.
+A form that this red team also breaks is reported as open, with both attacks, for the owner to decide whether to spend more on it.
+Every other reshaped or combined form is marked untested wherever it appears.
+
+The first run stopped before this round, so it is the least tested step here; say in the report how it went.
 
 ## Report
 
-One tracking issue (a Markdown file in the repository if the project has no tracker), written as the current state:
+Written as the current state:
 
 - **Verdict first,** in a few lines, then what to do next, in order.
 - **Decisions that are the owner's,** each answerable yes or no, with what happens on either answer.
 - **Each standing candidate:** the premise, what it costs today with evidence, the target, what it removes, what it loses,
-  the records it supersedes, what was tested and how, and what is untested.
+  each record it supersedes with the reason that no longer holds, what was tested and how, what is untested, and which reader or stance proposed it.
 - **Defeated or set aside,** one line each with the reason, so it is not proposed again unchanged.
 - **Load-bearing and right:** what no candidate touches and why.
-- **Measurements,** issues filed on the way, and what nobody checked.
-- **Record:** each agent's report as a comment, unedited, and where local outputs are.
+- **Measurements,** issues filed on the way, open prototype pull requests, and what nobody checked.
+- **Record:** the area map, each agent's report unedited, and where local outputs are.
 
 Write what stands, not how the audit got there.
 The first run's issue became a superseded body, a correcting comment and a column in a table, and had to be rewritten;
-when a later wave or a new instruction from the owner changes the verdicts, rewrite the body and keep the earlier text as a comment marked superseded.
+when a later round or a new instruction from the owner changes the verdicts, rewrite the report and keep the earlier text beside it, marked superseded.
 Open your next message to the owner with anything you told them that turned out wrong.
 
-A standing candidate goes to `propose-rework` with its outcomes named; offer the invocation.
-Record the owner's answers as the `audit-drift` skill's "Record the answers" section describes;
-a candidate the owner declines is recorded with the reason in every area it touches.
+A standing candidate goes to `propose-rework` with its section of the report and its outcomes named; offer the invocation.
+When the owner answers, record each answer as the `audit-drift` skill's "Record the answers" section describes, in the intent record of every area the candidate touches;
+a declined candidate is recorded there with the reason.

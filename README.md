@@ -143,8 +143,9 @@ this public repository.
   from the owner's intent: machinery whose reason has gone, frozen values,
   tests guarding a mechanism, stale prose. Reports a few yes/no questions per
   area in a piecemeal tracking issue and records the owner's answers in
-  per-area intent records. Owner-invoked. When the owner asks, it and the two
-  audits below also fix and merge what needs no answer.
+  per-area intent records. Owner-invoked. When the owner asks, it,
+  `audit-performance` and `audit-maintainability` also fix and merge what
+  needs no answer.
 - `audit-performance` — audit every workload of a project, or one named area
   or workload, for costs a user would notice. Measures before reading code,
   proves each finding with a measurement, fixes the local ones with numbers
@@ -155,11 +156,12 @@ this public repository.
   paid for it. Files mechanical cleanups and ranks rework candidates by lasting
   net benefit. Owner-invoked.
 - `audit-premises` — audit a project for overhauls that become possible if
-  recorded decisions may be superseded. Readers and cross-cutting stances
-  propose; red teams, experiments and fact-finding test; a candidate an attack
-  breaks is reshaped before it is cut down. Reports standing candidates for
-  `propose-rework`, with what was tested and what was not. Two waves of agents,
-  several million tokens. Owner-invoked.
+  recorded decisions may be superseded. Area readers and six cross-cutting
+  stances propose; red teams, experiments and fact-finding test; a candidate
+  whose shape an attack breaks is reshaped before it is cut down, and reshaped
+  forms are attacked again. Reports tested candidates for `propose-rework` as
+  one current-state document. Two waves of agents, several million tokens.
+  Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
   named problem, as a costed proposal: target and cheaper alternative,
   behaviour changes as owner questions, an incremental migration, and a spike
