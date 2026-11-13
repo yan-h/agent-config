@@ -156,12 +156,13 @@ this public repository.
   paid for it. Files mechanical cleanups and ranks rework candidates by lasting
   net benefit. Owner-invoked.
 - `audit-premises` — audit a project for overhauls that become possible if
-  recorded decisions may be superseded. Area readers and six cross-cutting
-  stances propose; red teams, experiments and fact-finding test; a candidate
-  whose shape an attack breaks is reshaped before it is cut down, and reshaped
-  forms are attacked again. Reports tested candidates for `propose-rework` as
-  one current-state document. Two waves of agents and a last round, several
-  million tokens.
+  recorded decisions may be superseded and behaviour guarantees given up. The
+  owner rates each guarantee an inventory finds; area readers and six
+  cross-cutting stances propose; red teams, experiments and fact-finding test;
+  a candidate whose shape an attack breaks is reshaped before it is cut down,
+  and reshaped forms are attacked again. Reports tested candidates for
+  `propose-rework` as one current-state document. An inventory, two waves of
+  agents and a last round, several million tokens.
   Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
   named problem, as a costed proposal: target and cheaper alternative,

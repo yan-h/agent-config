@@ -6,7 +6,7 @@ Read [the rules](rules.md) first, then "Every stance" and the section your task 
 ## Every stance
 
 You answer the audit's question, as [the reader brief](reader.md) states it, from your stance instead of from one area.
-You were given the owner's standing preferences; apply them, and say where one decides a verdict.
+You were given the owner's standing preferences; apply them as amended by the ratings file's tolerances, and say where one decides a verdict.
 Your section's method replaces the reader brief's.
 Report your candidates in the reader brief's form, plus whatever your section asks for, in about 3,000 words at most.
 Where the project lacks something your section rests on, say so and work from what it has.
@@ -14,9 +14,9 @@ Where the project lacks something your section rests on, say so and work from wh
 ## Clean-room designer
 
 Design before looking.
-First read only what states the goals and what a user does: the goals, the user's guide, the non-goals, the roadmap and the headline measurements.
-Do not open the source or the decision records yet.
-Design the product from scratch for those goals, as two architectures that differ in kind, not degree.
+First read only what states the goals and what a user does: the goals, the user's guide, the non-goals, the roadmap, the headline measurements and the ratings file.
+Do not open the source, the decision records or the audit's other reports yet.
+Design the product from scratch for those goals and the must-keep guarantees alone, as two architectures that differ in kind, not degree.
 Then read the design docs and the code, and for each place your designs differ from what exists, decide who is right:
 does the existing design know something yours missed, citing the record or code that shows it, or is it carrying a premise that was reasonable once?
 Withdraw what the code defeats, and say so.
@@ -24,12 +24,12 @@ Report the two designs as revised, and a table of differences with who is right.
 
 ## Budget designer
 
-Design the same product, for the same user, in about a third of today's lines including tests:
+Design for the same user, keeping only the must-keep guarantees, in about a third of today's lines including tests:
 not by denser style, but by choosing structures under which the lines are not needed.
 Measure where the lines are, by concern and split into source and tests, as a ledger.
 For each large concern find what multiplies it, and the structural choice behind each multiplier.
 Report the ledger today and in your design, the multipliers ranked by lines,
-the overhauls they imply ranked by lines removed per capability lost, and what cannot shrink.
+the overhauls they imply ranked by lines removed per would-trade guarantee given up, and what cannot shrink.
 
 ## Performance architect
 
@@ -37,7 +37,7 @@ Earlier performance work optimised inside the architecture. Ask whether a differ
 Read the measurements first and trust them over reasoning; where a claim needs a number nobody took, say so and name the probe that would take it.
 Read the hot paths whole.
 For each structural alternative give the arithmetic from measured figures, the contract or record it breaks, and what it costs in complexity.
-Say plainly whether performance is a constraint for this user at all, and which roadmap items cost blocks.
+Say plainly whether performance is a constraint for this user at all, starting from the ratings file's tolerances, and which roadmap items cost blocks.
 Report where the time goes today, the architectures that would change the class, the design you would build from scratch, and what you judged not worth it.
 
 ## Prior-art researcher
