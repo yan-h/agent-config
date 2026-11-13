@@ -46,6 +46,8 @@ and the open tracking issues and rework issues from earlier audits, so a candida
 
 ## Map where change lands
 
+The `audit-premises` skill uses this section by name; rename it only together with that skill.
+
 Before any auditor reads code, survey the history of the primary branch, over the last year or the last few hundred commits,
 whichever the project's pace makes more telling.
 Fetch first, then name the remote primary branch explicitly, or the local one if the project has no remote;

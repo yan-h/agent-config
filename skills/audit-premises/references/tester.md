@@ -27,6 +27,8 @@ Give one verdict per candidate and per variant:
 - **survives;**
 - **survives in a new shape,** with the shape, which is untested;
 - **conditional:** it works only if something else is also taken, and you name what;
+- **loses a capability,** which you name, with the shape that would keep it if you found one;
+- **breaks, with no answering shape found,** with the attack;
 - **smaller form:** a smaller form leaves nothing lasting in place, and you show that;
 - **defeated on the problem,** with the reason, and where it is recorded if it is the owner's.
 

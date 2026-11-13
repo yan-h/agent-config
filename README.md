@@ -160,7 +160,8 @@ this public repository.
   stances propose; red teams, experiments and fact-finding test; a candidate
   whose shape an attack breaks is reshaped before it is cut down, and reshaped
   forms are attacked again. Reports tested candidates for `propose-rework` as
-  one current-state document. Two waves of agents, several million tokens.
+  one current-state document. Two waves of agents and a last round, several
+  million tokens.
   Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
   named problem, as a costed proposal: target and cheaper alternative,

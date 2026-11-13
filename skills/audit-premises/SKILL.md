@@ -12,7 +12,8 @@ it does not run the procedure below by hand instead.
 Codex does not, so in Codex this paragraph is the rule itself.
 
 Read the project's local contract before starting, with its roadmap, recorded decisions and intent records.
-Worktrees, branch and PR conventions all come from there.
+Worktrees, branch and PR conventions, and where intent records live all come from there;
+where it says nothing about intent records, use `docs/intent/<area>.md`.
 This audit uses the `audit-drift` skill's "Choose the scope" and "Record the answers" sections, installed beside this one;
 if it is not installed, say so and stop.
 
@@ -28,17 +29,17 @@ The output is tested rework candidates for the `propose-rework` skill. This audi
 
 ## Before starting
 
-**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session.
+**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds a few more.
 Invoking the skill is the owner accepting a run of that order. State the number of agents before each wave, so the owner can interrupt.
 Run both waves or neither: the first wave alone produced a confident, convergent ranking in which four of the top five candidates were later defeated or cut to a third or less.
 
 **Where the report lives.** The run writes to the tracker: one tracking issue, each agent's report as a comment on it, an issue for each defect reproduced on the way, and later rewrites of the tracking issue's body.
 Before the first wave, ask the owner for those writes in one question, in whatever words the host's global file says such writes need.
 Without a tracker, or without that consent, the report is a Markdown file in the repository with each agent's report as a file beside it,
-on a branch as a draft pull request, and a defect is a section of the report instead of an issue.
+on a branch, as a draft pull request where the project has them, and a defect is a section of the report instead of an issue.
 
 **What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates in the intent records.
-Keep them from the readers, who would anchor on them. Use them between the waves:
+Do not pass them to the readers, who would anchor on them. Use them between the waves:
 a candidate the owner declined is raised again only with evidence that was not there before, and says what changed.
 
 Size each agent by the global subagent guidance.
@@ -53,7 +54,7 @@ Split an area too large for one reader to read whole along its own seams.
 With one area named, its readers and every stance work inside it;
 a premise that crosses its boundary is reported as seen and out of scope.
 
-If the `audit-maintainability` skill is installed, run its history map as its "Map where change lands" section describes,
+If the `audit-maintainability` skill is installed, run the history map in its directory as its "Map where change lands" section describes,
 once for the project and once per area, and hand each reader its slice: a reader that counts history by hand splits every renamed file's history in two.
 
 ## First wave: readers who propose
@@ -113,16 +114,16 @@ an ignored directory in a worktree that can be reclaimed is where the first run 
 
 ## Recombine, then attack once more
 
-Sort every defeat and reduction by the rules:
+Take each red team's verdict in turn:
 
-- **An attack on the problem:** the candidate ends. Where the reason is the owner's, say where it is recorded.
-  A recorded reason whose need the target would still meet is not a defeat but a yes/no question for the owner.
-- **A lost capability:** a question for the owner, or a shape that keeps the capability.
-- **Conditional on another piece:** combine it with that piece.
-- **A smaller form, without showing that it leaves nothing lasting in place:** restore the full form and say what the smaller one leaves.
+- **Defeated on the problem:** the candidate ends. Where the reason is the owner's, say where it is recorded.
+- **Loses a capability:** a yes/no question for the owner, or the shape that keeps the capability.
+- **Conditional:** combine it with the piece it names.
+- **Breaks, with no answering shape found:** look for the answer among the other candidates' pieces before setting it aside with the attack recorded.
+- **Smaller form:** it is the candidate where the red team showed it leaves nothing lasting in place; otherwise restore the full form and say what the smaller one leaves.
 
 Build the combined forms whose pieces answer each other's objections.
-A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team at each that would lead the report.
+A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team at each form the report's verdict would rest on.
 A form that this red team also breaks is reported as open, with both attacks, for the owner to decide whether to spend more on it.
 Every other reshaped or combined form is marked untested wherever it appears.
 
@@ -149,3 +150,4 @@ Open your next message to the owner with anything you told them that turned out 
 A standing candidate goes to `propose-rework` with its section of the report and its outcomes named; offer the invocation.
 When the owner answers, record each answer as the `audit-drift` skill's "Record the answers" section describes, in the intent record of every area the candidate touches;
 a declined candidate is recorded there with the reason.
+This report has no index to tick: rewrite the answered decision's line in the report instead.

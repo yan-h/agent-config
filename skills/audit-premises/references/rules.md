@@ -14,9 +14,12 @@ a record weighs what its reasons and its need still weigh, as the global prefere
 - **Upfront effort never decides.** State it as a fact.
   What decides is what lasts: what the design costs to own, what it puts at risk, and what it removes.
 - **An attack on the problem ends the candidate in every shape.**
-  The cost it cites did not happen as claimed, or has stopped; or a recorded reason still holds and the target leaves its need unmet.
-- **An attack on the shape is answered by reshaping first:** a wider rework, a combination with another candidate or variant, a different mechanism for the same outcome.
+  The cost it cites did not happen as claimed, or has stopped; or a recorded reason still holds and no form that reaches the outcome could meet its need.
+- **An attack on the shape holds against this design but not against the outcome:**
+  a hard case it gets wrong, a capability it loses, a piece that does not work alone, a recorded need this form leaves unmet.
+  It is answered by reshaping first: a wider rework, a combination with another candidate or variant, a different mechanism for the same outcome.
   The reshaped candidate is a new candidate, untested until something attacks it.
+  A candidate for which no answering shape is found is set aside with the attack recorded, not counted as defeated on the problem.
 - **A smaller form is the candidate only when it leaves nothing lasting in place.**
   "This is enough for one change" is not a reason to shrink one.
 
@@ -26,7 +29,7 @@ the objections answered each other once the variants were combined, and the full
 
 ## What you may do
 
-- Work read-only on the primary branch unless your task gives you a worktree of your own for scratch code. Leave nothing of it committed.
+- Work read-only on the primary branch unless your task gives you a worktree of your own for scratch code. Leave nothing of it committed. Your report file is your one write outside it.
 - No commits, pushes, pull requests or tracker writes. Never change the checked-out branch of a checkout you share.
 - No subagents.
 - Nothing identifying goes in a web query: no project or owner name, no repository address, no file contents.
