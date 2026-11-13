@@ -44,8 +44,9 @@ git clone https://github.com/yan-h/agent-config.git ~/projects/agent-config
 
 Back up any existing instruction files and merge their contents into the shared
 source before replacing them. Run the install script; it links
-Claude's file, which imports the shared one, into `~/.claude`, links every
-skill into `~/.claude/skills`, `~/.agents/skills` and `~/.gemini/config/skills`,
+Claude's file, which imports the shared one, into `~/.claude`, links the shared
+file itself to `~/.codex/AGENTS.md` for Codex and `~/.gemini/GEMINI.md` for
+Gemini CLI and Antigravity, links every skill into `~/.claude/skills`, `~/.agents/skills` and `~/.gemini/config/skills`,
 installs session-lifecycle's hourly sweep for each `--repo` (see
 [Session lifecycle installation](#session-lifecycle-installation)), sets up the
 status line, Remote Control at login (both below) and `ask-api` (see
@@ -57,14 +58,15 @@ projects already registered.
 ~/projects/agent-config/scripts/install.sh --repo ~/projects/harmonigraph --repo ~/projects/otonal
 ```
 
-Link the shared file into each other host you use:
+For Zed, link the shared file by hand:
 
 ```sh
-mkdir -p ~/.codex ~/.gemini ~/.config/zed
-ln -s ~/projects/agent-config/global/AGENTS.md ~/.codex/AGENTS.md
-ln -s ~/projects/agent-config/global/AGENTS.md ~/.gemini/GEMINI.md
+mkdir -p ~/.config/zed
 ln -s ~/projects/agent-config/global/AGENTS.md ~/.config/zed/AGENTS.md
 ```
+
+Antigravity also loads always-on rules from `~/.gemini/config/rules/`; do not
+link the shared file there as well, or it loads twice.
 
 `scripts/install.sh` links Claude's status line to `~/.claude/statusline.sh` and adds
 `statusLine` to `~/.claude/settings.json`, leaving a different existing `statusLine` alone.
@@ -105,9 +107,6 @@ Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.
 An older `~/.claude/CLAUDE.md` link straight to `global/AGENTS.md` still loads the shared
 defaults but misses the Claude-only sections; re-link it with `ln -sfn`.
-The Gemini path is also used by Antigravity.
-An older `~/.codex/AGENTS.md` link to `global/codex/AGENTS.md`, which is gone, dangles and
-loads nothing; re-link it to `global/AGENTS.md` the same way.
 Start a new agent session to load the instructions.
 These paths configure local coding agents, not ordinary web chats or cloud jobs.
 Claude Cowork skips user instruction symlinks outside its working directory.
