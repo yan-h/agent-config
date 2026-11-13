@@ -5,6 +5,9 @@ Every agent the audit starts is given this file and its own brief, by path.
 ## What is open
 
 Every recorded decision is open: a candidate may supersede any record, any intent entry the owner chose, and any contract the project calls hard.
+So is every guarantee the product gives its user, recorded or only kept by code and tests, unless the owner rated it must keep in the ratings file you were given.
+A must-keep rating is a constraint, met in the form it names if it names one; the owner's tolerances in that file decide what counts as a cost.
+A guarantee you find that the file does not list is open; report it, with what it costs, for the owner to rate.
 The audit proposes; the owner decides.
 For each record a candidate supersedes, it says which of the record's stated reasons no longer holds, or how the target still meets the need the record served:
 a record weighs what its reasons and its need still weigh, as the global preferences say.
@@ -14,7 +17,7 @@ a record weighs what its reasons and its need still weigh, as the global prefere
 - **Upfront effort never decides.** State it as a fact.
   What decides is what lasts: what the design costs to own, what it puts at risk, and what it removes.
 - **An attack on the problem ends the candidate in every shape.**
-  The cost it cites did not happen as claimed, or has stopped; or a recorded reason still holds and no form that reaches the outcome could meet its need.
+  The cost it cites did not happen as claimed, or has stopped; or a recorded reason still holds and no form that reaches the outcome could meet its need; or it breaks a must-keep guarantee in every form.
 - **An attack on the shape holds against this design but not against the outcome:**
   a hard case it gets wrong, a capability it loses, a piece that does not work alone, a recorded need this form leaves unmet.
   It is answered by reshaping first: a wider rework, a combination with another candidate or variant, a different mechanism for the same outcome.

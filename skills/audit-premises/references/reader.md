@@ -5,7 +5,7 @@ Read [the rules](rules.md) first: what is open, how a candidate is judged, and w
 
 ## The question
 
-For your area: if the owner allowed superseding any recorded decision and restructuring any code,
+For your area: if the owner allowed superseding any recorded decision, giving up any guarantee not rated must keep, and restructuring any code,
 is there a significantly different design that serves the project's goals with markedly less code and machinery,
 markedly better performance, or that removes a whole class of bugs?
 
@@ -17,6 +17,7 @@ You were given the owner's standing preferences. They decide what counts as a co
 ## Method
 
 1. Read the docs first: the project contract, the goals, your area's design, its live decision records and its intent record, as far as the project has them.
+   Read the ratings file: it says which guarantees are fixed and what the owner will trade.
    Read the superseded records and closed issues too, for the owner's own stated reasons:
    in the first run the reason that defeated one candidate was in a superseded record no reader had opened,
    and another candidate's nearest form had been rejected in an issue the day before.

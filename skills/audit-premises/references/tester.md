@@ -13,6 +13,7 @@ Your one job is to defeat your candidate against the code. Read the code it cite
 
 - **Find the owner's own reasons.** Search superseded records, closed issues, and intent records with the options they reject, for what the owner already said about this design.
   A reason defeats the candidate only while the reason and the need behind it still hold under the target; say which you found.
+- **Defend each would-trade guarantee the candidate gives up:** what a user loses, on which real cases, and whether the simplification is large enough to be the trade the owner offered.
 - **Check whether the cost is already over.** Read the latest fixes in its history: the same class recurring, or the tail?
 - **Walk concrete hard cases through each variant by hand,** and say exactly what happens and where it could still go wrong.
 - **Test the evidence.** Check the bugs and counts the candidate cites against their fixes, and say which hold.

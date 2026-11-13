@@ -1,6 +1,6 @@
 ---
 name: audit-premises
-description: Audit a project for overhauls that become possible if recorded decisions may be superseded — designs a different premise would make simpler, faster or impossible to get wrong. Readers propose, red teams and experiments test, and a candidate whose shape an attack breaks is reshaped before it is cut down. Produces tested rework candidates for the owner, not fixes. Started only by the repository owner invoking it explicitly.
+description: Audit a project for overhauls that become possible if recorded decisions may be superseded and behaviour guarantees given up — designs a different premise would make simpler, faster or impossible to get wrong. The owner rates the guarantees first, readers propose, red teams and experiments test, and a candidate whose shape an attack breaks is reshaped before it is cut down. Produces tested rework candidates for the owner, not fixes. Started only by the repository owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
@@ -22,7 +22,7 @@ if it is not installed, say so and stop.
 It asks whether a group of decisions shares a premise that a different design would not need.
 It has no bar that a change must already have paid for the cost: a candidate may come from the goals alone, from prior art, or from what would change the cost class.
 
-**Every recorded decision is open here,** and a candidate an attack breaks is reshaped before it is cut down.
+**Every recorded decision is open here, as is every guarantee the owner has not rated must keep;** a candidate an attack breaks is reshaped before it is cut down.
 [The rules](references/rules.md) say what that means and how a candidate is judged; read them completely, and give every agent that file.
 
 The output is tested rework candidates for the `propose-rework` skill. This audit changes no code beyond scratch probes.
@@ -30,11 +30,12 @@ The output is tested rework candidates for the `propose-rework` skill. This audi
 ## Before starting
 
 **Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds a few more.
-Invoking the skill is the owner accepting a run of that order. State the number of agents before each wave, so the owner can interrupt.
+Invoking the skill is the owner accepting a run of that order. State the number of agents before the inventory and before each wave, so the owner can interrupt.
+The owner's ratings of the guarantees shrink the waves: in the first project they removed most of the planned agents before any ran.
 Run both waves or neither: the first wave alone produced a confident, convergent ranking in which four of the top five candidates were later defeated or cut to a third or less.
 
 **Where the report lives.** The run writes to the tracker: one tracking issue, each agent's report as a comment on it, an issue for each defect reproduced on the way, and later rewrites of the tracking issue's body.
-Before the first wave, ask the owner for those writes in one question, in whatever words the host's global file says such writes need.
+Before any agent runs, ask the owner for those writes in one question, in whatever words the host's global file says such writes need.
 Without a tracker, or without that consent, the report is a Markdown file in the repository with each agent's report as a file beside it,
 on a branch, as a draft pull request where the project has them, and a defect is a section of the report instead of an issue.
 
@@ -57,10 +58,34 @@ a premise that crosses its boundary is reported as seen and out of scope.
 If the `audit-maintainability` skill is installed, run the history map in its directory as its "Map where change lands" section describes,
 once for the project and once per area, and hand each reader its slice: a reader that counts history by hand splits every renamed file's history in two.
 
+## Rate the guarantees
+
+A guarantee is what the product promises its user, recorded or not: a behaviour, a look, a capability, identity between runs or builds, a performance target, compatibility with saved data or a host.
+Readers hold an unrecorded guarantee fixed. In the first project, three designs kept every behaviour the product had;
+the larger rework came only once the owner gave up guarantees no record stated, among them seamless output across structural edits and identical output between builds.
+
+Run one inventory agent per area, bounded lookup, with the area's paths, docs and history slice. It lists each guarantee the area gives:
+where it is recorded, if anywhere; the code and tests that serve it, with their lines; and the commits that paid for it.
+Sizes are estimates and are labelled so.
+
+Then go through the list with the owner in chat, one guarantee at a time:
+
+- **Must keep:** a constraint every agent is given. A candidate that breaks it ends before anything tests it.
+- **Would trade for a large simplification:** open. A candidate may give it up; a red team defends it, and the owner decides with the size in hand.
+- **Don't care:** open. A candidate that removes it needs only a count of what goes.
+
+A rating may name a form the owner would accept instead, and the owner may change a rating later:
+"must keep, but a grid would do" opened a redesign of placement, and the owner kept an animation they had first given up.
+Ask too for the owner's tolerances for the run: what counts first, how much machinery an edge case may keep, how loose performance targets may be, and how much change in output is acceptable.
+
+Write the ratings and tolerances to a file every later agent is given by path, and record them as "Record the answers" describes.
+Both areas rated so far were rated with sizes from a full earlier run in hand; an inventory alone has not been shown to size guarantees well enough to rate.
+If the owner cannot rate without sizes, run the first wave on the decisions alone, rate between the waves, and point the second wave at the rated premises. Say in the report which way the run went.
+
 ## First wave: readers who propose
 
 Read [the reader brief](references/reader.md) and [the stances](references/stances.md) completely before delegating.
-Give each agent the paths of the rules and of its brief, not their contents, with the owner's standing preferences from the project contract and the global preferences, and a path for its report.
+Give each agent the paths of the rules, of its brief and of the ratings, not their contents, with the owner's standing preferences from the project contract and the global preferences, and a path for its report.
 Run all of them in parallel:
 
 - **One reader per area,** with the area's paths, docs and history slice.
@@ -82,6 +107,7 @@ Agreement among readers is weak evidence: they read the same records.
 Seven readers reached one candidate that a red team then cut to a third, and five reached one that was defeated.
 
 Group the candidates by the premise each questions, across areas, and set aside what earlier runs settled.
+A guarantee a reader found that the inventory missed goes to the owner to rate before any candidate resting on it is tested.
 Check each report's central claims yourself by reading the cited lines.
 A search that matches a word is not a check: two statements made to the owner from such searches were false.
 
@@ -91,7 +117,7 @@ candidates under test, not a ranking, with the number of agents the second wave 
 ## Second wave: test, and reshape what breaks
 
 Read [the tester brief](references/tester.md) completely before delegating.
-Give each tester the paths of the rules and of that brief, the write-up, the reports behind its group, its task, a directory for outputs and a path for its report.
+Give each tester the paths of the rules, of that brief and of the ratings, the write-up, the reports behind its group, its task, a directory for outputs and a path for its report.
 
 - **One red team per premise group that holds a strong or plausible candidate:** one agent, with the single job of defeating it against the code.
   A group with only speculative candidates is listed in the report as untested.
@@ -135,6 +161,7 @@ Written as the current state:
 
 - **Verdict first,** in a few lines, then what to do next, in order.
 - **Decisions that are the owner's,** each answerable yes or no, with what happens on either answer.
+- **The ratings,** with what each would-trade and don't-care guarantee was found to cost, and which candidates gave it up.
 - **Each standing candidate:** the premise, what it costs today with evidence, the target, what it removes, what it loses,
   each record it supersedes with the reason that no longer holds, what was tested and how, what is untested, and which reader or stance proposed it.
 - **Defeated or set aside,** one line each with the reason, so it is not proposed again unchanged.
