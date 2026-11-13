@@ -25,6 +25,9 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 Use another model only when the owner asks: in Claude Code a subagent runs any of them with tools, from quota rather than credits.
 Stdin is read only with `--stdin`.
 `--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 128000, the current models' most, since thinking counts against it and a lower cap can spend it all thinking and return no answer, still billed.
+Run it in the background with a one-hour limit on the shell command (in Claude Code, `run_in_background` with `timeout: 3600000`).
+Calls are long: by 2026-11-13, 13 reviews took a median of 9.7 minutes and as long as 13.2, six of them past 10, and 34 questions a median of 4.6 and as long as 10.5.
+A run the shell kills is cut off mid-answer, so the tokens streamed so far are billed while nothing reaches the log below.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
 
 ## When to call it unasked
