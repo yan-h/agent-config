@@ -154,6 +154,12 @@ this public repository.
   for structure that makes its actual changes costly, citing the commits that
   paid for it. Files mechanical cleanups and ranks rework candidates by lasting
   net benefit. Owner-invoked.
+- `audit-premises` — audit a project for overhauls that become possible if
+  recorded decisions may be superseded. Readers and cross-cutting stances
+  propose; red teams, experiments and fact-finding test; a candidate an attack
+  breaks is reshaped before it is cut down. Reports standing candidates for
+  `propose-rework`, with what was tested and what was not. Two waves of agents,
+  several million tokens. Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
   named problem, as a costed proposal: target and cheaper alternative,
   behaviour changes as owner questions, an incremental migration, and a spike

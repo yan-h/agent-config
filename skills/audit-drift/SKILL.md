@@ -15,7 +15,7 @@ Read the project's local contract before starting.
 Worktrees, branch and PR conventions, and where intent records live all come from there;
 where it says nothing about intent records, use `docs/intent/<area>.md`.
 
-The `audit-performance`, `audit-maintainability` and `propose-rework` skills use "Choose the scope", "Report so it can be taken piecemeal",
+The `audit-performance`, `audit-maintainability`, `audit-premises` and `propose-rework` skills use "Choose the scope", "Report so it can be taken piecemeal",
 "Fix what needs no answer, when the owner asks", "Record the answers" and the describer brief by name; rename them only together with those skills.
 
 ## What drift is
