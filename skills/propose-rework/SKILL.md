@@ -121,14 +121,16 @@ one on the whole design, and one on each piece the verdict rests on that could f
 Check each attack's central claim against the code yourself before acting on it.
 
 An attack lands when it would change the verdict, a must-keep, a question for the owner or the point of no return,
-or when it shows a failure that a check the plan relies on passes over or never runs; anything else is corrected and not attacked again.
+or when it shows a failure that a check the design relies on passes over or never runs; anything else is corrected and not attacked again.
 Answer a landed attack as the rules say, then decide the next round, up to three for the design, reshapes included.
-Report a piece open, with no further round, when a second reshape answers an attack on it; one design ran a third round on a piece already open and reshaped it a third time.
-Report the design open when it now removes less than it did entering the first round, and with every attack after the third round.
+Report a piece open, with no further round and with what the next attack would aim at, when a second reshape answers an attack on it; one design ran a third round on a piece already open and reshaped it a third time.
+Report the design open when its verdict rests on an open piece, when it now removes less than it did entering the first round, or when the third round's attack lands, listing every attack.
 Otherwise attack the answer where it revised the design, with one red team at what it revised and what that touches.
-An answer that only adds or rewords a question for the owner earns no round, and neither does a revised claim that a check named in a migration step runs against; the report lists each such claim with its check.
-This rule is untested beyond its first designs: in four, every second round landed, one with a failure that passed all 224 of the plugin's tests;
-a rework that cut its second round met seven defects in the build, two of which a second attack would plausibly have caught, and reworked no merged step.
+An answer that only adds or rewords a question for the owner earns no round, and neither does a revised claim that a check covers:
+one the project's gate already runs, or that the design commits a migration step to add, named with the case of the claim's failure that it would fail on.
+A check that cannot name that case does not stand in: one rework's revised claim, assigned to a randomised test that later held, still reached the build as a defect.
+This rule has not yet run. Under the earlier one, every second round in four designs landed, one with a failure that passed all 224 of the plugin's tests;
+a rework that cut its second round met seven defects in the build, two of which, besides a local one, a second attack would plausibly have caught, and reworked no merged step.
 
 ## Map the migration surface
 
@@ -165,9 +167,9 @@ Lead with a one-line verdict — do the rework, do the smaller change, or leave 
 - **Guarantees:** each with its rating, and what each must-keep ruled out.
 - **Designs:** target, smaller change and doing nothing, each with what it removes and what it costs.
 - **Spike:** what it tested and what it showed, or why none was needed.
-- **Attacks:** what each round hit and what changed; any form left open; each revised claim that went without a round, with the check that stands in.
+- **Attacks:** what each round hit and what changed; any piece or design left open; each revised claim given no round because a check stands in, with that check and its failing case.
 - **Behaviour changes:** the fixes, as facts, and the don't-cares given up.
-- **Migration:** the steps, each sized roughly as a PR, the safeguards left out, and the point of no return.
+- **Migration:** the steps, each sized roughly as a PR, with each check the attack rounds relied on placed in one; the safeguards left out; and the point of no return.
 - **Cost and risk:** total upfront cost, what is left if the work stops after any step,
   and the signs during the migration that should stop it.
 - **Open work and side findings:** what happens to each open issue and pull request on the part, and the describer's comment fixes.
