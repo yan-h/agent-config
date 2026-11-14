@@ -167,9 +167,12 @@ this public repository.
   million tokens.
   Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
-  named problem, as a costed proposal: target and cheaper alternative,
-  behaviour changes as owner questions, an incremental migration, and a spike
-  of the riskiest assumption. Changes no code beyond the spike.
+  named problem, as a costed proposal: the owner rates the guarantees an
+  inventory finds, the design starts from the outcome, a spike tests the
+  riskiest assumption, and fresh red teams attack the design, which is
+  reshaped before it is cut down. Reports a target, a smaller change and doing
+  nothing, behaviour changes as plain owner questions, and a lean incremental
+  migration. Changes no code beyond the spike.
 - `api-second-opinion` — `ask-api`, a command that sends a design question,
   second opinion or review with chosen context to Claude Fable (or another
   model) over the API, billed to API credits rather than the subscription,
