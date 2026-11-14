@@ -84,6 +84,4 @@ While working in a project that provides `./session-lifecycle.sh`, run builds an
 Keep project-specific build commands and required deliverables in that project's lifecycle configuration.
 Preserve loadable deliverables before reclaiming compilation output; keep unfinished source and paused work.
 Subagents sharing a checkout leave cleanup to their owner.
-When a subagent you ran in its own worktree returns, carry what it made that is worth keeping into your branch or an issue, then remove its worktree with `git worktree remove --force` and delete its branch:
-the host removes only unchanged ones and the reclaimer only clean ones, and one audit left two behind, one holding a 242 MB build cache.
 Release worktrees through their host's ownership mechanism, and never create a permanent manual worktree lock.

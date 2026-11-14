@@ -77,8 +77,8 @@ class LifecycleTests(unittest.TestCase):
         self.run_tool('handoff', '--keep-cache')
         path = self.cache()
         out = self.run_tool('finish').stdout
-        self.assertIn('Preserved build: ', out)
-        self.assertIn('Reclaimed', out)
+        self.assertIn('Preserved build: ' + str(lc.publications(self.store)[0][0]), out)
+        self.assertIn('Reclaimed 1 ', out)
         self.assertFalse(path.exists())
 
     def test_busy_build_and_cargo_profile_lock_keep_caches(self):
@@ -91,7 +91,7 @@ class LifecycleTests(unittest.TestCase):
         with lc.lock(self.repo / 'target/release/.cargo-lock'):
             self.assertIn('busy', self.run_tool('finish', '--source-only', ok=False).stderr)
         self.assertTrue(path.exists())
-        self.assertIn('Reclaimed', self.run_tool('finish', '--source-only').stdout)
+        self.assertIn('Reclaimed 1 ', self.run_tool('finish', '--source-only').stdout)
         self.assertFalse(path.exists())
         self.assertTrue((self.repo / 'target/release/.cargo-lock').exists())
 

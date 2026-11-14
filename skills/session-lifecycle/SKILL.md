@@ -46,13 +46,14 @@ If it cannot archive a primary, pinned or shared checkout, report owner release 
 Do not delete it with Git or modify Codex's private state.
 Archive the chat only when that is wanted; retaining chat history does not require retaining compilation caches.
 
-A Claude session's own worktree needs no command from it, except one it entered with `EnterWorktree`:
-once its tree matches the merge commit and anything worth keeping is elsewhere, leave it with `ExitWorktree` and `remove`.
-The desktop app removes its worktree when the session is archived,
-and the sweep runs the reclaimer this skill ships at `scripts/reclaim-worktrees.sh` for each registered repository, which a repository's SessionStart hook and hand-runs reach through a thin `.claude/reclaim-worktrees.sh` wrapper.
+A Claude session's own worktree needs no command from it, except one it created with `EnterWorktree`:
+once its HEAD is the merged PR's head commit (`gh pr view --json headRefOid`), its tree is clean and anything worth keeping is elsewhere,
+leave it with `ExitWorktree`, `remove` and `discard_changes`, which a squash merge needs since it leaves the branch's commits off the primary branch; the HEAD check is what makes that safe.
+The sweep runs the reclaimer this skill ships at `scripts/reclaim-worktrees.sh` for each registered repository, which a repository's SessionStart hook and hand-runs reach through a thin `.claude/reclaim-worktrees.sh` wrapper,
+and the desktop app removes the worktree of a session it started when that session is archived.
 The reclaimer passes over the worktree a live session is in, so running it by hand releases nothing of yours.
-Report which of these will release your worktree. In a repository the sweep does not cover, only archiving does, so say that rather than promise a removal:
-agent-config, which has no lifecycle configuration, still held seven worktrees on merged branches on 2026-11-14, the oldest merged on 2026-10-21.
+Report which of these will release your worktree, and where none applies, that it stays until the owner removes it, rather than promise a removal:
+agent-config, which neither the sweep nor a hook covers, still held seven Remote Control worktrees on merged branches on 2026-11-14, the oldest merged on 2026-10-21.
 Unknown/manual locks remain protected and need the owner's decision.
 On other hosts, unsupported ownership is a reported limitation, not permission to force removal.
 Do not delete another session's worktree because your work has finished.
