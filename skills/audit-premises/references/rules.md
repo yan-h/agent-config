@@ -7,6 +7,8 @@ Every agent the audit starts is given this file and its own brief, by path.
 Every recorded decision is open: a candidate may supersede any record, any intent entry the owner chose, and any contract the project calls hard.
 So is every guarantee, as the next section says by its rating.
 The audit proposes; the owner decides.
+Where you cannot tell whether something is open, treat it as open and say so:
+every error of scope in the first project ran the other way, holding fixed what the owner later gave up and shrinking candidates to what survived.
 For each record a candidate supersedes, it says which of the record's stated reasons no longer holds, or how the target still meets the need the record served:
 a record weighs what its reasons and its need still weigh, as the global preferences say.
 

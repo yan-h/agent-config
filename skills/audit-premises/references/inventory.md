@@ -3,6 +3,7 @@
 You list the guarantees one area of a project gives its user, for the owner to rate before any agent proposes a design.
 Read [the rules](rules.md)' "Guarantees and their ratings" up to the list of ratings, and "What you may do"; the rest of that file is for agents that propose or test.
 You were given the area's paths, docs and history slice, the ratings already recorded, which stand in for the ratings file the rules mention, and a path for your report.
+Where you were also given earlier audits' measurements of the area, size from them, and check against the code each figure a size rests on.
 
 ## What to list
 

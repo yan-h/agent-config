@@ -29,7 +29,7 @@ The output is tested rework candidates for the `propose-rework` skill. This audi
 
 ## Before starting
 
-**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds a few more.
+**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds a few more each time it repeats.
 Invoking the skill is the owner accepting a run of that order. State the number of agents before the inventory and before each wave, so the owner can interrupt.
 The owner's ratings shrink the second wave: readers report what a must-keep rules out as that guarantee's price, which the second wave does not test, and a don't-care needs no defending.
 In the first project the ratings removed most of the planned agents before any ran.
@@ -42,7 +42,9 @@ on a branch, as a draft pull request where the project has them, and a defect is
 
 **What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates in the intent records.
 Do not pass them to the readers, who would anchor on them. Use them between the waves:
-a candidate the owner declined is raised again only with evidence that was not there before, and says what changed.
+a candidate the owner declined after a premises audit tested it is raised again only with evidence that was not there before, and says what changed.
+One declined under a narrower frame, by an audit or review that held recorded decisions or guarantees fixed or weighed upfront effort, is not settled here:
+it stands as any reader's candidate would, and the report says which frame declined it.
 
 Size each agent by the global subagent guidance.
 The red teams and the designers among the stances are the consequential judgement; fact-finding is lighter.
@@ -63,14 +65,18 @@ once for the project and once per area, and hand each reader its slice: a reader
 
 [The rules](references/rules.md) define a guarantee and what each rating does to a candidate.
 
-Run one inventory agent per area with [the inventory brief](references/inventory.md), the area's paths, docs and history slice, the ratings already recorded in the intent records, and a path for its report.
+Run one inventory agent per area with [the inventory brief](references/inventory.md), the area's paths, docs and history slice, the ratings already recorded in the intent records,
+the measurements earlier audits made of the area (sizes and costs, not their candidates or verdicts), and a path for its report.
 Size it as judgement, not lookup: the guarantees that mattered in the first project were ones no record stated.
 Merge the lists, keeping a product-wide guarantee once.
 
-Then go through them with the owner in chat, area by area, largest first, one guarantee at a time, with the recorded ratings shown as standing unless the owner changes one.
-Ask first which must be kept and what form the owner would accept instead, since those prune most:
-"must keep, but a grid would do" opened a redesign of placement.
-The owner may leave a guarantee unrated where its size is too uncertain to judge; it is open, and readers size it.
+Then show the owner the merged list in chat, area by area, largest first, with the recorded ratings shown as standing unless the owner changes one,
+and ask one thing: which must be kept, and what form the owner would accept instead.
+"Must keep, but a grid would do" opened a redesign of placement.
+Every guarantee the owner does not name stays unrated: open as would trade, sized by the readers, and rated between the waves only where a candidate gives it up.
+The owner may rate more now, but is not walked through the list one guarantee at a time:
+that spends the owner's attention on guarantees no candidate touches, and asks for a rating before its size is known, where between the waves it comes with a reader's size.
+The default leans open for the reason the rules give under "What is open".
 Ask too for the run's tolerances where they depart from the standing preferences in the project contract:
 what counts first, how much machinery an edge case may keep, how loose performance targets may be, and how much change in output is acceptable.
 
@@ -81,8 +87,9 @@ record a don't-care as open to giving up in a rework, not as leave to remove the
 When the owner changes a rating, update the file and the record before the next agent starts, and recheck the candidates that rested on the old rating;
 the owner reversed one within the same session in the first project.
 
-Both areas rated so far were rated with sizes from a full earlier run in hand; whether an inventory sizes guarantees well enough to rate them is untested.
-Say in the report how many guarantees the owner left unrated before the first wave.
+Both areas rated so far were rated with sizes from a full earlier run in hand, which is why the inventory gets earlier audits' measurements;
+whether an inventory sizes guarantees well enough without them is untested.
+Say in the report how many guarantees the owner named must keep before the first wave, and how many were rated between the waves.
 
 ## First wave: readers who propose
 
@@ -109,7 +116,7 @@ Agreement among readers is weak evidence: they read the same records.
 Seven readers reached one candidate that a red team then cut to a third, and five reached one that was defeated.
 
 Group the candidates by the premise each questions, across areas, and set aside what earlier runs settled.
-Show the owner each unrated guarantee with the sizes readers reported, and each that a reader found and the inventory missed, and rate them before any candidate resting on one is tested.
+Show the owner each unrated guarantee a candidate gives up, with the sizes readers reported, and each that a reader found and the inventory missed, and rate them before any candidate resting on one is tested.
 Check each report's central claims yourself by reading the cited lines.
 A search that matches a word is not a check: two statements made to the owner from such searches were false.
 
@@ -140,7 +147,7 @@ Check a defeat's central claim too: a red team is an agent handed a hypothesis, 
 A prototype worth keeping goes on a branch as a draft pull request, which the report lists:
 an ignored directory in a worktree that can be reclaimed is where the first run nearly left its only copy.
 
-## Recombine, then attack once more
+## Recombine, and attack until a form holds
 
 Take each red team's verdict in turn:
 
@@ -152,10 +159,15 @@ Take each red team's verdict in turn:
 
 Build the combined forms whose pieces answer each other's objections.
 A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team, briefed as in the second wave with the current ratings file, at each form the report's verdict would rest on.
-A form that this red team also breaks is reported as open, with both attacks, for the owner to decide whether to spend more on it.
+A form that red team breaks on its shape is reshaped again, by the verdicts above, and the new form goes to another fresh red team;
+a form revised to answer an attack is a new form too, and its revised claims are the ones to attack.
+Repeat until each form the verdict rests on survives an attack, or no answering shape is found, which sets it aside with every attack recorded.
+State the number of agents before each round; a form the owner stops is reported as open, with every attack, and what the next attack would aim at.
 Every other reshaped or combined form is marked untested wherever it appears.
 
-The first run stopped before this round, so it is the least tested step here; say in the report how it went.
+The first project stopped too early here: its combined rework was never attacked whole, the design that followed was attacked once,
+and the claims revised to answer that attack, the ones most in need of one, never were.
+Say in the report how many rounds each form took.
 
 ## Report
 
