@@ -1,6 +1,6 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for an API call or a second opinion, or unasked wherever a Fable subagent would otherwise take on judgement whose context can be named and sent, a change's design pass and a design put to the owner for decision included; never from a subagent.
+description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for an API call or a second opinion, or unasked wherever a Fable subagent would otherwise take on judgement whose context can be named and sent, a change's design pass included, and before a design or plan goes to the owner for decision; never from a subagent.
 ---
 
 # A second opinion over the API
@@ -32,14 +32,14 @@ The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go
 
 ## When to call it unasked
 
-Call it without being asked wherever you would otherwise brief a Fable subagent and one answer would serve about as well: the answer is judgement rather than search, and you can name and send the context it turns on.
+Call it without being asked in two cases where the answer is judgement rather than search and you can name and send the context it turns on.
+First, before you put a design, a plan or an architectural recommendation to the owner for a decision, unless the choice is small or easily reversed:
+the owner asked "worth asking Fable?" about forty times in four weeks, while November's credits stood at $71 of $200 on the 14th.
+Second, wherever you would otherwise brief a Fable subagent and one answer would serve about as well:
 
 - the design pass on a change, with `--review` and, with `-f`, the files beyond the diff that the design turns on;
 - choosing between architectures, or judging a rework's lasting costs against its gains;
 - a design written as a proposal, before its code;
-- a design, plan or architectural recommendation you are about to put to the owner for a decision, unless the choice is small or easily reversed:
-  you would answer that yourself rather than brief a subagent, so the test above never fired there,
-  and the owner asked "worth asking Fable?" about forty times in four weeks while November's credits ran at three quarters of their pace;
 - a correctness or performance diagnosis that has stalled once the evidence is gathered.
 
 Keep the subagent when the work needs exploring, running or editing, or when the answer turns on code you cannot name in advance:
@@ -62,7 +62,7 @@ When the owner asks for a review over the API, the call stands in for the `desig
 Unasked, it stands in only for that skill's design pass; the correctness review still runs beside it.
 Every call sends that skill's `references/design-pass.md` in the system prompt, and `--review` asks for its report shape.
 
-For a design not yet written as code, put the proposal first in a file, then numbered questions, then the code excerpts it rests on, and pass it with `--stdin` or `-f`.
+For a design not yet written as code, put the problem and its constraints first in a file, then the proposal, marked as yours rather than the owner's, then numbered questions, then the code excerpts it rests on, and pass it with `--stdin` or `-f`.
 Ask the model to check the proposal's claims against the excerpts and to say what would change its answer.
 
 ## The cost guard
