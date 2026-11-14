@@ -120,14 +120,15 @@ the ratings file, the design, the spike's results, the behaviour differences and
 one on the whole design, and one on each piece the verdict rests on that could fail alone. State the number of agents before each round.
 Check each attack's central claim against the code yourself before acting on it.
 
-An attack lands when it would change the verdict, a must-keep, a question for the owner or the point of no return; anything else is corrected and not attacked again.
-Answer a landed attack as the rules say. Attack the result again only when the attack changed the verdict, a must-keep or the point of no return,
-or exposed a failure the migration's own checks would not catch, such as silent data loss, a branch no test reaches or an irreversible format:
-up to three rounds for the design, reshapes included, each later round one red team at what changed rather than one per piece.
-A new or reworded question goes to the owner and earns no round of its own, and a piece the migration covers with an executable check, such as a randomised test or byte-identical renders, needs no later round.
-In the first four designs to run them, every second round landed, two with a silent failure the plan's own tests passed,
-while a premises audit's second round landed on two of five forms; a rework that cut its second round met two such claims only during the build.
-Report it open sooner when a second reshape answers an attack on the same piece, or when the design now removes less than it did entering the first round; report it open with every attack after the third round too.
+An attack lands when it would change the verdict, a must-keep, a question for the owner or the point of no return,
+or when it shows a failure that a check the plan relies on passes over or never runs; anything else is corrected and not attacked again.
+Answer a landed attack as the rules say, then decide the next round, up to three for the design, reshapes included.
+Report a piece open, with no further round, when a second reshape answers an attack on it; one design ran a third round on a piece already open and reshaped it a third time.
+Report the design open when it now removes less than it did entering the first round, and with every attack after the third round.
+Otherwise attack the answer where it revised the design, with one red team at what it revised and what that touches.
+An answer that only adds or rewords a question for the owner earns no round, and neither does a revised claim that a check named in a migration step runs against; the report lists each such claim with its check.
+This rule is untested beyond its first designs: in four, every second round landed, one with a failure that passed all 224 of the plugin's tests;
+a rework that cut its second round met seven defects in the build, two of which a second attack would plausibly have caught, and reworked no merged step.
 
 ## Map the migration surface
 
@@ -164,7 +165,7 @@ Lead with a one-line verdict — do the rework, do the smaller change, or leave 
 - **Guarantees:** each with its rating, and what each must-keep ruled out.
 - **Designs:** target, smaller change and doing nothing, each with what it removes and what it costs.
 - **Spike:** what it tested and what it showed, or why none was needed.
-- **Attacks:** what each round hit and what changed; any form left open.
+- **Attacks:** what each round hit and what changed; any form left open; each revised claim that went without a round, with the check that stands in.
 - **Behaviour changes:** the fixes, as facts, and the don't-cares given up.
 - **Migration:** the steps, each sized roughly as a PR, the safeguards left out, and the point of no return.
 - **Cost and risk:** total upfront cost, what is left if the work stops after any step,
