@@ -110,8 +110,9 @@
 #   - no process of this user has its cwd inside it, which is how a session
 #     with no lock (the desktop app's) or with a lock naming a long-lived pid
 #     (Remote Control's `claude agent bridge-<id>`) is seen; when lsof cannot
-#     show cwds, every worktree is kept. It is asked again on a fresh listing
-#     right before the removal. See the end of usable, and still_free
+#     show cwds, every worktree is kept, and so is one whose path has a
+#     character lsof may not print verbatim. It is asked again on a fresh
+#     listing right before the removal. See the end of usable, and still_free
 #   - nothing near its top level was touched in the last MIN_IDLE_MINUTES
 #
 # A worktree's cache is PRUNED (tier 1) on the same ownership, session,
@@ -542,20 +543,21 @@ prune_cache() {
 LSOF_OUT=""
 LSOF_TRIED=0
 
-# Under a UTF-8 locale, because without one (as under launchd) lsof prints
-# each non-ASCII byte of a name as `\xHH`, so a worktree named `wé` is listed
-# as `w\xc3\xa9` and no process would ever be found inside it. C.UTF-8 is on
-# macOS and most Linux; where it is missing, lsof escapes again, and
-# cwd_inside reads such a listing as unreadable for a non-ASCII worktree.
 lsof_snapshot() {
   LSOF_TRIED=1
   LSOF_OUT=""
   command -v lsof >/dev/null 2>&1 &&
-    LSOF_OUT=$(LC_ALL=C.UTF-8 lsof -nP -w -b -a -u "$(id -u)" -d cwd -Fpn 2>/dev/null)
+    LSOF_OUT=$(lsof -nP -w -b -a -u "$(id -u)" -d cwd -Fpn 2>/dev/null)
 }
 
 # 0 when some process has its cwd at or below $1, 1 when none does, 2 when the
-# cwds could not be read — which the caller treats as held.
+# cwds could not be read, 3 when the worktree's path cannot be matched — the
+# caller treats both as held.
+#
+# lsof prints a byte outside `[A-Za-z0-9 ._+@/-]` its own way (`\xc3\xa9` for
+# `é`, `\\` for a backslash, `^A` for a control byte), so only a worktree path
+# made of those characters is printed verbatim, and its prefix match is exact
+# whatever lsof does to a name below it.
 #
 # The positive control is this script: lsof must list its pid with the cwd it
 # actually has before its silence about the worktree means anything, since an
@@ -569,29 +571,25 @@ lsof_snapshot() {
 # that hid other processes while showing the script's own would read every
 # worktree as free. The sweep and the SessionStart hook do not run in one.
 cwd_inside() {
+  real=$(cd "$1" 2>/dev/null && pwd -P) || return 2
+  [ -z "$(printf '%s' "$real" | LC_ALL=C tr -d 'A-Za-z0-9 ._+@/-')" ] || return 3
   [ "$LSOF_TRIED" = 1 ] || lsof_snapshot
   daemon=$2
   if [ -n "$daemon" ] &&
     [ "$(ps -p "$daemon" -o uid= 2>/dev/null | tr -d ' ')" != "$(id -u)" ]; then
     daemon=""
   fi
-  real=$(cd "$1" 2>/dev/null && pwd -P) || return 2
   here=$(pwd -P) || return 2
   # ENVIRON rather than -v, which would read backslashes in a path as escapes.
-  # `esc`: a `\x` escape in the listing while the worktree's own path has a
-  # byte lsof would escape means the locale above did not take, and the path
-  # cannot be matched; see lsof_snapshot.
   P=$real S=$$ H=$here D=$daemon awk 'BEGIN {
       p = ENVIRON["P"]; s = "p" ENVIRON["S"]; h = ENVIRON["H"]
-      d = ENVIRON["D"] == "" ? "" : "p" ENVIRON["D"]; dok = (d == "")
-      wide = (p ~ /[^ -~]/) }
+      d = ENVIRON["D"] == "" ? "" : "p" ENVIRON["D"]; dok = (d == "") }
     /^p/ { cur = $0 }
     /^n/ { n = substr($0, 2)
            if (cur == s && n == h) sok = 1
            if (cur == d) dok = 1
-           if (wide && index(n, "\\x")) esc = 1
            if (n == p || index(n, p "/") == 1) found = 1 }
-    END { if (!sok || !dok || esc) exit 2; exit !found }' <<<"$LSOF_OUT"
+    END { if (!sok || !dok) exit 2; exit !found }' <<<"$LSOF_OUT"
 }
 
 # The process-cwd question again, on a FRESH listing, right before a removal
@@ -606,6 +604,7 @@ still_free() {
   case $? in
     1) return 0 ;;
     0) note "skip $(basename "$1"): a process has its cwd inside, on a fresh listing" ;;
+    3) note "skip $(basename "$1"): its path has characters lsof may not print as they are" ;;
     *) note "skip $(basename "$1"): lsof cannot show process cwds, on a fresh listing" ;;
   esac
   return 1
@@ -763,6 +762,8 @@ usable() {
     0) note_held "$name" "$path" "a process has its cwd inside"
        return 1 ;;
     1) return 0 ;;
+    3) note "skip $name: its path has characters lsof may not print as they are"
+       return 1 ;;
     *) note "skip $name: lsof cannot show process cwds"
        return 1 ;;
   esac

@@ -949,6 +949,99 @@ SHIM
   fi
 }
 
+# A worktree whose path lsof may not print as it is: lsof escapes `é` as
+# `\xc3\xa9` without a locale and a backslash as `\\` always, so a process
+# inside never matched and the worktree read as free. Such a worktree is held
+# outright. The fixture is unlocked, resolved and idle, with nothing inside,
+# so only that rule stands between it and the removal.
+check_unprintable_path() {
+  name=$1; desc=$2
+  work="$TMP/unprintable$((++case_n))"
+  main="$work/main"
+  (
+    init_repo "$main" || exit 1
+    git commit -q --allow-empty -m base || exit 1
+    git worktree add -q -b w ".claude/worktrees/$name" HEAD 2>/dev/null || exit 1
+  ) || { fail "$desc: could not build the fixture"; return; }
+  backdate "$main/.claude/worktrees"
+
+  out=$(cd "$main" && CLAUDE_PROJECT_DIR="$main" RECLAIM_DRY_RUN=1 \
+    RECLAIM_FORCE=1 RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    "$SCRIPT" </dev/null 2>&1)
+
+  want="skip $name: its path has characters lsof may not print as they are"
+  if grep -Fq "$want" <<<"$out" && ! grep -q "would remove" <<<"$out"; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    echo "    expected a line: $want" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
+# The snapshot that classified a worktree as free can be minutes old when the
+# removal comes, so the liveness question is asked again on a fresh listing
+# right before each removal and prune. The shim answers "nothing inside" to
+# its first call and "a process inside" to every later one: a session that
+# entered the worktree after the run began. One site per case, one worktree
+# per fixture, because a refresh at one site also refreshes the snapshot the
+# next worktree is classified on, which would cover for a missing refresh at
+# the other:
+#   remove  `w1` is resolved, so it reaches the removal
+#   prune   `w1` has a commit of its own and an idle cache, so it reaches
+#           the prune
+# Run for real: the worktree survives whole, and only the refresh can have
+# kept it.
+check_fresh_liveness() {
+  site=$1
+  desc="a session that arrives mid-run is seen before the $site"
+  work="$TMP/fresh-$site"
+  main="$work/main"
+  wt="$main/.claude/worktrees/w1"
+  mkdir -p "$work/bin"
+  (
+    init_repo "$main" || exit 1
+    printf '/.claude/worktrees/\n/target/\n' > .gitignore
+    git add .gitignore
+    git commit -q -m base || exit 1
+    git worktree add -q -b w1 .claude/worktrees/w1 HEAD 2>/dev/null || exit 1
+    if [ "$site" = prune ]; then
+      git -C .claude/worktrees/w1 commit -q --allow-empty -m wip || exit 1
+      mkdir -p .claude/worktrees/w1/target/debug || exit 1
+      : > .claude/worktrees/w1/target/debug/sentinel
+    fi
+  ) || { fail "$desc: could not build the fixture"; return; }
+  real_wt=$(cd "$wt" && pwd -P)
+  self=$(lsof_self)
+  cat > "$work/bin/lsof" <<SHIM
+#!/usr/bin/env bash
+n=\$(cat "$work/calls" 2>/dev/null || echo 0)
+echo \$((n + 1)) > "$work/calls"
+if [ "\$n" = 0 ]; then
+  printf "$self\n"
+else
+  printf "$self\np7\nn$real_wt\n"
+fi
+SHIM
+  chmod +x "$work/bin/lsof"
+  backdate "$main/.claude/worktrees"
+
+  out=$(cd "$main" && PATH="$work/bin:$PATH" CLAUDE_PROJECT_DIR="$main" \
+    RECLAIM_FORCE=1 RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    RECLAIM_PRUNE_IDLE_MINUTES=0 "$SCRIPT" </dev/null 2>&1)
+
+  if [ -d "$wt" ] && [ "$(cat "$work/calls")" -ge 2 ] &&
+    { [ "$site" = remove ] || [ -f "$wt/target/debug/sentinel" ]; }; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    [ -d "$wt" ] || echo "    the worktree was removed" >&2
+    [ "$site" = remove ] || [ -f "$wt/target/debug/sentinel" ] ||
+      echo "    the cache was pruned" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
 # A worktree whose name is not ASCII. Without a locale, as under launchd, lsof
 # prints `wé` as `w\xc3\xa9`, so a process inside never matched and the
 # worktree read as free. Two cases on one unlocked, resolved, idle worktree:
@@ -1164,10 +1257,8 @@ check_force_retry_gate unknown \
   "a recheck that cannot answer is not read as clean"
 check_refused_removal_is_audible
 check_missing_git_link
-check_non_ascii_name real "a process inside a non-ASCII worktree is found with no locale" \
-  "skip wé: a process has its cwd inside"
-check_non_ascii_name escaped "an escaped listing keeps a non-ASCII worktree" \
-  "skip wé: lsof cannot show process cwds"
+check_unprintable_path 'wé' "a worktree with a non-ASCII name is held"
+check_unprintable_path 'w\b' "a worktree with a backslash in its name is held"
 check_fresh_liveness remove
 check_fresh_liveness prune
 check_unconfigured
