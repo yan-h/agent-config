@@ -69,14 +69,14 @@ fi
 # a year of transcript retention, which a cloud container does not outlive,
 # the PreToolUse hook that refuses subagents' waits past their five-minute prompt
 # cache, whose matcher a rerun keeps current, and in the cloud the SessionStart hook
-# that pulls this checkout, matched by its git command so a moved checkout updates it.
+# that pulls this checkout, matched by its git command and folder name so a moved checkout updates it.
 settings="$HOME/.claude/settings.json"
 $cloud || link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$repo/global/claude/subagent-wait-guard.sh" "$HOME/.claude/subagent-wait-guard.sh"
 mkdir -p "$HOME/.claude/agents"
 link "$repo/global/claude/agents/resumable.md" "$HOME/.claude/agents/resumable.md"
 if ! python3 - "$settings" "$cloud" "$repo" <<'EOF'
-import json, os, re, shutil, sys
+import json, os, shlex, shutil, sys
 # realpath: replacing a symlinked settings.json would turn the link into a copy.
 path = os.path.realpath(sys.argv[1])
 settings = {}
@@ -104,10 +104,20 @@ for g in mine:
 if not mine:
     groups.append({"matcher": matcher, "hooks": [{"type": "command", "command": guard}]})
 if sys.argv[2] == "true":
-    pull = f"git -C '{sys.argv[3]}' pull -q --ff-only || true"
+    repo = sys.argv[3]
+    pull = f"git -C {shlex.quote(repo)} pull -q --ff-only || true"
+    def pulls_this(command):
+        # A checkout moved to a new path keeps its folder name; a hook that
+        # pulls another repository the same way is someone else's.
+        try:
+            words = shlex.split(command)
+        except ValueError:
+            return False
+        return (len(words) == 8 and words[:2] == ["git", "-C"]
+                and words[3:] == ["pull", "-q", "--ff-only", "||", "true"]
+                and os.path.basename(words[2].rstrip("/")) == os.path.basename(repo))
     starts = settings["hooks"].setdefault("SessionStart", [])
-    mine = [h for g in starts for h in g.get("hooks", [])
-            if re.fullmatch(r"git -C '.*' pull -q --ff-only \|\| true", h.get("command", ""))]
+    mine = [h for g in starts for h in g.get("hooks", []) if pulls_this(h.get("command", ""))]
     for h in mine:
         h["command"] = pull
     if not mine:
