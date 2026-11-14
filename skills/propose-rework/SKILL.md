@@ -169,9 +169,8 @@ Lead with a one-line verdict — do the rework, do the smaller change, or leave 
   and the signs during the migration that should stop it.
 - **Open work and side findings:** what happens to each open issue and pull request on the part, and the describer's comment fixes.
 
-Write in the owner's terms: each question in what a user hears or sees, with one concrete case, and each project term defined where it first appears.
-In six runs the owner asked for a report to be explained more simply.
-After the report, take the owner through the questions one at a time in chat, as the owner asked for twice.
+Put the questions to the owner as the global preferences say, each in what a user hears or sees with one concrete case:
+in six runs the owner asked for a report to be explained more simply, and twice to be taken through the questions one at a time.
 A step that rests on an unanswered question does not start.
 When the owner answers, offer to record the answers as `audit-drift`'s "Record the answers" section describes.
 
