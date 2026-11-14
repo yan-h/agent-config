@@ -5,10 +5,12 @@
 ## Subagent waits
 
 A subagent's prompt cache expires after five idle minutes, while the main session's lasts an hour.
-When a subagent idles past that, its next request rewrites its whole context; in one measurement these rewrites were about a fifth of all subagent usage, mostly after five to sixty idle minutes,
-and in one `propose-rework` run two thirds of four designers' 8.4M tokens, each resumed four times after a red team's ten to thirty-five minutes.
+When a subagent idles past that, its next request rewrites its whole context; the usage record (`yan-h/claude-usage`) puts these rewrites at about an eighth of subagent quota, mostly after five to sixty idle minutes,
+and in one `propose-rework` run they were about a third of four designers' quota, each designer resumed four times after a red team's ten to thirty-five minutes.
 So start a subagent as the `resumable` type, whose cache lasts an hour, when you plan to send it back after a wait or it must wait under an hour itself, such as a builder running its own full test suite.
-Its cache writes cost 2× base input instead of 1.25×, about 0.6 of one rewrite over its life, so it pays from the first such resume; keep `general-purpose` for an agent that reports once, such as a red team, reviewer or search.
+At API prices its cache writes cost 2× base input instead of 1.25×, about 0.6 of one rewrite over its life, so it pays from the first such resume (their quota price is unmeasured);
+keep `general-purpose` for an agent that reports once, such as a red team, reviewer or search.
+Cache reads look free on the quota, so a resumed subagent's large context costs little once its cache is warm.
 A PreToolUse hook (`subagent-wait-guard.sh`) refuses any other subagent a wait that could outlast four minutes: have it run fast checks and hand back longer commands for you to run.
 Resume such a subagent after a long gap only when its context is worth rewriting; otherwise brief a fresh one.
 A subscription in overage gets five minutes for `resumable` too.
