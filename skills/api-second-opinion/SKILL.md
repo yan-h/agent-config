@@ -1,6 +1,6 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for an API call or a second opinion, or unasked wherever a Fable subagent would otherwise take on judgement whose context can be named and sent, a change's design pass included; never from a subagent.
+description: Ask Claude Fable (or another Claude model) over the Claude API for a design answer, second opinion or full design review, billed to prepaid API credits rather than the subscription. When the owner asks for an API call or a second opinion, or unasked wherever a Fable subagent would otherwise take on judgement whose context can be named and sent, a change's design pass and a design put to the owner for decision included; never from a subagent.
 ---
 
 # A second opinion over the API
@@ -37,6 +37,9 @@ Call it without being asked wherever you would otherwise brief a Fable subagent 
 - the design pass on a change, with `--review` and, with `-f`, the files beyond the diff that the design turns on;
 - choosing between architectures, or judging a rework's lasting costs against its gains;
 - a design written as a proposal, before its code;
+- a design, plan or architectural recommendation you are about to put to the owner for a decision, unless the choice is small or easily reversed:
+  you would answer that yourself rather than brief a subagent, so the test above never fired there,
+  and the owner asked "worth asking Fable?" about forty times in four weeks while November's credits ran at three quarters of their pace;
 - a correctness or performance diagnosis that has stalled once the evidence is gathered.
 
 Keep the subagent when the work needs exploring, running or editing, or when the answer turns on code you cannot name in advance:

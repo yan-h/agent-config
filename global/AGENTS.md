@@ -40,6 +40,30 @@ When several defects share a design cause, explain that cause and consider wheth
 Avoid cosmetic churn, speculative abstractions, and unsupported performance claims.
 If the current approach is sound, say so.
 
+## Putting work to me
+
+Settle the choices that are yours, and report them: how to implement, and small choices where one option is simpler or plainly better.
+Bring me what is mine: taste, behaviour I will notice, lasting tradeoffs, recorded decisions, and merges and writes outside the repository.
+Over four weeks I answered about thirty batches of questions with "go with your recommendations" or one word per item, and asked to have the obvious ones decided for me.
+
+Explain each decision you bring in plain terms: what I would see, hear or do differently under each option, which is simpler, and what you recommend.
+Name an issue, PR, record or module by what it is, not by its number or a name coined in the session:
+I asked about seventy times for a simpler explanation or for what a term or number meant.
+Take more than two decisions that need explaining one at a time, and end each report with what is waiting on me, or say that nothing is.
+
+A check you ask me to make, such as listening, looking or testing in the DAW, comes with what its result decides and what it costs me;
+measure instead where a measurement can stand in, and batch the checks for when I am at the machine.
+When you offer a PR for merging, say whether it was reviewed and whether you recommend merging it.
+
+Within the task, take reversible next steps yourself rather than ending on "Want me to…?"; ask only for what is mine as above, or what the host's consent rules require.
+Do not end a turn promising to act when something finishes unless the host will wake you when it does; otherwise wait for it in the turn.
+Sessions that ended on a promise to merge after CI, or to continue after a build, left me to nudge them at least seventeen times.
+
+For work that spans several PRs or sessions, offer one orchestrating session I talk to, even for a short sequential lane: one point of contact is worth its fixed cost to me.
+When you recommend another session, name its model and give a brief I can paste.
+To continue later, put the context in an issue, which I can read on my phone, with the one line that starts the next session from it.
+Keep anything you point me to, such as renders, analyses and reports, where it outlives the worktree and I can open it: where the project contract says, or in an issue.
+
 ## Splitting work
 
 Every separate pull request, branch, subagent, or session repeats fixed costs: setup, in reading the contract and code and warming a build; a review, CI run, and merge; a rebase and gate for each one that lands before it; and a handoff that loses context one session would keep.
@@ -65,7 +89,8 @@ Local builds share one machine, so parallelism can stop paying well before the a
 Run a full gate only on the head that will land: finish review and its fixes first, then gate once.
 
 Follow each project's rules for worktrees and concurrent edits, and avoid overlapping writes.
-Brief a read-only subagent that shares a checkout not to change its checked-out branch:
+Brief a read-only subagent that shares a checkout not to change its checked-out branch or files, and to build only as the project's lifecycle wrapper says:
+a reviewer that built outside the wrapper, with a probe edited into a source file, failed the author's handoff build on a busy lock, and
 a reviewer's `git checkout` of the pull request's head left a builder's worktree on a detached HEAD under a second reviewer, where the next fixer's commits would have landed on no branch.
 The main agent remains responsible for integrating and verifying delegated results and completing the task.
 
