@@ -137,9 +137,8 @@ For persisted data, file formats and public interfaces, say how existing data an
 ## Migration
 
 Plan the fewest steps that each land on their own with the project's gate passing, and hold behaviour and speed between them only as the owner answered.
-Name what each safeguard the plan leaves out would catch, so the owner can add one back: a side-by-side old and new implementation, a review round per step, a step per small change.
+Plan the safeguards lean, as the global preferences say.
 Pin with tests only the must-keeps that existing tests do not cover; pin nothing the rework deletes.
-In one run the owner cut a plan of about twelve PRs to seven, saying models "overfocus on correctness in ways that increase effort".
 
 Where the outcome is judged by ear or eye, or the target adds a capability, the first step is the smallest build the owner can try, and the plan stops there for the owner's verdict:
 in one run that stop is what redirected the design.
