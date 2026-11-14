@@ -83,7 +83,7 @@ class LifecycleTests(unittest.TestCase):
         with lc.lock(self.repo / 'target/release/.cargo-lock'):
             self.assertIn('busy', self.run_tool('finish', '--source-only', ok=False).stderr)
         self.assertTrue(path.exists())
-        self.run_tool('finish', '--source-only')
+        self.assertIn('Reclaimed', self.run_tool('finish', '--source-only').stdout)
         self.assertFalse(path.exists())
         self.assertTrue((self.repo / 'target/release/.cargo-lock').exists())
 

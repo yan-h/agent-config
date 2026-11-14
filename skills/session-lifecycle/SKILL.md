@@ -31,6 +31,10 @@ For a source-only task that requires no new build, use `finish --source-only` af
 For an already published handoff, `finish` verifies the publication before pruning.
 Local completion does not prove a remote push; check the push/PR separately before owner release.
 
+After a merge, the merged head needs one completed record: nothing more if a plain `handoff` already ran at that commit,
+`finish` if it was published with `--keep-cache`, `handoff` if it was never published, and `finish --source-only` if it has no deliverable.
+Every form but `--keep-cache` prunes compilation caches, so new work started in the same worktree rebuilds them; finish that work the same way when it ends.
+
 Report the preserved build, how to load it, and whether source cleanup remains pending.
 The helper publishes the build but never installs it into the application that loads it; do not report it as installed.
 
@@ -42,10 +46,19 @@ If it cannot archive a primary, pinned or shared checkout, report owner release 
 Do not delete it with Git or modify Codex's private state.
 Archive the chat only when that is wanted; retaining chat history does not require retaining compilation caches.
 
-The sweep runs the reclaimer this skill ships at `scripts/reclaim-worktrees.sh` directly for each configured repository; a repository's SessionStart hook and hand-runs reach it through a thin `.claude/reclaim-worktrees.sh` wrapper.
+A Claude session's own worktree needs no command from it, except one it entered with `EnterWorktree`:
+leave that with `ExitWorktree` and `remove` once its tree matches what merged.
+The desktop app removes its worktree when the session is archived,
+and the sweep runs the reclaimer this skill ships at `scripts/reclaim-worktrees.sh` for each registered repository, which a repository's SessionStart hook and hand-runs reach through a thin `.claude/reclaim-worktrees.sh` wrapper.
+In a repository the sweep does not cover, archiving is the only release, so say that rather than promise a removal:
+agent-config, which has no lifecycle configuration, held fifteen worktrees on 2026-11-14, seven of them on branches merged since 2026-10-21.
+Run the reclaimer by hand only when the owner asks: it acts on every worktree in the repository, not only yours.
+
+Worktrees your own subagents made with worktree isolation are yours to resolve: the host removes only the unchanged ones, and the reclaimer never removes a dirty one.
+Carry anything in them worth keeping into your branch or an issue, then remove them; one audit left two, one holding a 242 MB cache.
 Unknown/manual locks remain protected and need the owner's decision.
 On other hosts, unsupported ownership is a reported limitation, not permission to force removal.
-Do not delete another agent's worktree because your work has finished.
+Do not delete another session's worktree because your work has finished.
 
 ## Fallback and retention
 
