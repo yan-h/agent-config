@@ -16,6 +16,7 @@ Worktrees, branch and PR conventions, and where intent records live all come fro
 where it says nothing about intent records, use `docs/intent/<area>.md`.
 This audit uses the `audit-drift` skill's "Choose the scope" and "Record the answers" sections, installed beside this one;
 if it is not installed, say so and stop.
+The `propose-rework` skill uses the rules, the inventory and tester briefs and "Rate the guarantees" by name; rename them only together with that skill.
 
 ## What this audit is
 
