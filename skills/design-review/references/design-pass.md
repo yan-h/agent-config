@@ -37,4 +37,5 @@ Then:
 
 - **Correctness:** each confirmed defect, and each uncertain one marked as such, naming the alternative that would remove it if one would.
 - **Design:** the current approach in a few sentences, then the alternatives ranked by lasting net benefit, counting the defects each removes, each with its tradeoff as above.
-- **Questions:** decisions that belong to the owner, with a recommendation for each.
+- **Questions:** decisions that belong to the owner, with a recommendation for each,
+  each marked as one the merge waits on, because its answer would change this change's code, or one a later change can settle.
