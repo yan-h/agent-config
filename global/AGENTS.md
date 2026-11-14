@@ -7,8 +7,9 @@ Correctness and performance gains must justify their complexity and ongoing main
 Consider the problem's likely frequency and severity.
 Rare but severe failures can warrant substantial work; a performance edge case or a rare inconvenience does not.
 Prefer the simpler form to a cache, fast path or guard whose benefit shows only in such cases, and state what going without it costs.
-In a recommendation, a simpler, more consistent rule outweighs small changes in existing output, such as a few decibels of level or a moved golden image;
-state each change and its size where I will see it before merging, and count as larger costs a capability no setting reaches any more and a change in what saved data means.
+In a recommendation, a simpler, more consistent rule outweighs small changes in existing output, such as a few decibels of level or a moved golden image,
+and counts as larger costs a capability no setting reaches any more and a change in what saved data means.
+A change in what I see or hear stays my decision even so: put each one and its size to me before it merges.
 
 Recommend by what lasts: maintainability, performance, correctness, and costs that recur, such as runtime capacity.
 State upfront implementation effort as a fact beside the recommendation, never as a reason for a cheaper half or a deferral: what the effort is worth is mine to decide.

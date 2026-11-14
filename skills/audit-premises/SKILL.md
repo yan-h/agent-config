@@ -79,7 +79,7 @@ Every guarantee the owner does not name stays unrated, and comes back to the own
 The owner may rate more now, but is not walked through the list one guarantee at a time:
 that spends the owner's attention on guarantees no candidate touches, and asks before the size is known, where the guarantee question comes with a reader's size.
 The default leans open for the reason the rules give under "What is open".
-Ask too for the run's tolerances where they depart from the standing preferences in the project contract:
+Ask too for the run's tolerances where they depart from the standing preferences in the global file and the project contract:
 what counts first, how much machinery an edge case may keep, how loose performance targets may be, and how much change in output is acceptable.
 
 Write the ratings file: each guarantee in user terms with its rating, or marked unrated, and any accepted form, then the run's tolerances.

@@ -73,9 +73,8 @@ when a must-keep is why a design fails or needs a second spike, show the owner w
 
 Ask how you would build this part if it did not exist, given everything else in the codebase as it is.
 Aim for the most far-reaching design that reaches the outcome, not the safest: widen it beyond the named part, or take in another candidate, wherever that removes more.
-A variant you are unsure of goes in the report labelled by confidence, not dropped.
-Look first at how other systems of the kind solve it, and at what in this codebase already does part of it:
-the owner asked for the first in two runs and the second in a third.
+Label variants by confidence and look for prior art as the global preferences say, and look too at what in this codebase already does part of it:
+the owner asked for prior art in two runs and for that in a third.
 Then set out:
 
 - **The target design:** what it removes — concepts, duplicated mechanisms, invariants callers must remember, classes of bug, measured cost — and what it adds.
