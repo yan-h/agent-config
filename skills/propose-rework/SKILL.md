@@ -20,7 +20,7 @@ Read the project's local contract before starting, with its roadmap, recorded de
 A recorded decision is weighed as the global preferences say; a rework that collides with one says so and makes it a question.
 
 Upfront cost is treated as the global preferences say: the report states it, and the verdict rests on what lasts.
-That holds inside the design too: a piece of the target is not cut, deferred or shrunk for scope, and a piece that fails a spike or an attack is reshaped before it is cut down, as the rules say.
+That holds inside the design too: a piece of the target is not cut, deferred or shrunk for scope, and a piece that fails a spike or an attack is reshaped before it is cut down — widened, combined with another candidate or given a different mechanism, as the rules say.
 In one run the owner had to ask whether the revised design had reshaped rather than cut; it had made three cuts, one "for scope".
 
 If this run is itself a subagent that cannot start agents, do the describer's and the guarantee inventory's work yourself, describer first,
@@ -72,6 +72,9 @@ when a must-keep is why a design fails or needs a second spike, show the owner w
 ## Design
 
 Ask how you would build this part if it did not exist, given everything else in the codebase as it is.
+Aim for the most far-reaching design that reaches the outcome, not the safest: widen it beyond the named part, or take in another candidate, wherever that removes more.
+A variant you are unsure of goes in the report labelled by confidence, not dropped.
+The owner would rather see a rework that goes too far than miss a good one, and noticed that models rarely treat overhauling existing structure as an option.
 Look first at how other systems of the kind solve it, and at what in this codebase already does part of it:
 the owner asked for the first in two runs and the second in a third.
 Then set out:
@@ -82,6 +85,9 @@ Then set out:
   with how much of the gain it gets and what it costs to own.
   Twice the run's cheaper alternative added a mechanism, a tuned heuristic or a push, and the owner took doing nothing or a removal instead.
 - **Doing nothing:** what the current design will keep costing, given the roadmap.
+
+The smaller change is the verdict only when it leaves nothing lasting in place that the target would remove, or the target's risks and lasting costs outweigh what more it removes;
+never because it is cheaper to build or easier to defend.
 
 If a design is open between two real options, compare them rather than picking silently.
 
