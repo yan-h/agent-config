@@ -50,6 +50,8 @@ fail() {
 }
 
 # Initialise a throwaway repo in $1 and cd into it; call inside a subshell.
+# It is a CONFIGURED repository, untracked `.agent-lifecycle.json` and all, so
+# tier 1 runs; only its presence is read. check_unconfigured removes it.
 #
 # The guard is belt and braces over the unset above, and the one that matters:
 # prove git resolves INSIDE this throwaway repo before committing to it or
@@ -68,6 +70,7 @@ init_repo() {
   git checkout -q -b main 2>/dev/null || true
   git config user.email t@t
   git config user.name t
+  printf '{}\n' > .agent-lifecycle.json
 }
 
 # Make everything under $1 older than any idle gate, so a case is decided by
@@ -869,6 +872,44 @@ check_missing_git_link() {
   fi
 }
 
+# A repository registered with the sweep but carrying no lifecycle
+# configuration gets tier 2 alone: its build has never been described, so
+# `target/debug` is not this script's to prune there. Run for real: the
+# resolved worktree goes, and the unresolved one keeps its idle cache.
+check_unconfigured() {
+  desc="without lifecycle configuration, worktrees go but caches stay"
+  work="$TMP/unconfigured"
+  main="$work/main"
+  (
+    init_repo "$main" || exit 1
+    rm .agent-lifecycle.json
+    printf '/.claude/worktrees/\n' > .gitignore
+    git add .gitignore
+    git commit -q -m base || exit 1
+    git worktree add -q -b done .claude/worktrees/done HEAD 2>/dev/null || exit 1
+    git worktree add -q -b open .claude/worktrees/open HEAD 2>/dev/null || exit 1
+    git -C .claude/worktrees/open commit -q --allow-empty -m wip || exit 1
+    mkdir -p .claude/worktrees/open/target/debug || exit 1
+    : > .claude/worktrees/open/target/debug/sentinel
+  ) || { fail "$desc: could not build the fixture"; return; }
+  backdate "$main/.claude/worktrees"
+
+  out=$(cd "$main" && CLAUDE_PROJECT_DIR="$main" RECLAIM_FORCE=1 \
+    RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    RECLAIM_PRUNE_IDLE_MINUTES=0 "$SCRIPT" </dev/null 2>&1)
+
+  if [ ! -d "$main/.claude/worktrees/done" ] &&
+    [ -f "$main/.claude/worktrees/open/target/debug/sentinel" ]; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    [ -d "$main/.claude/worktrees/done" ] && echo "    the resolved worktree survived" >&2
+    [ -f "$main/.claude/worktrees/open/target/debug/sentinel" ] ||
+      echo "    the unresolved worktree's cache was pruned" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
 # ROOT, the main checkout and the session's cwd must resolve the same in all
 # three ways this script is run:
 #   hook   SessionStart, through a repository's thin `.claude/reclaim-worktrees.sh`
@@ -992,6 +1033,7 @@ check_force_retry_gate unknown \
   "a recheck that cannot answer is not read as clean"
 check_refused_removal_is_audible
 check_missing_git_link
+check_unconfigured
 check_wrapper
 
 echo

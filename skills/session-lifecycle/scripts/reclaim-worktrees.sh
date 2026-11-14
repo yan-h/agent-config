@@ -74,6 +74,12 @@
 # weight, often gigabytes of `debug`. Tier 1 also needs no network, so it keeps
 # working when gh is unavailable.
 #
+# TIER 1 RUNS ONLY WHERE THE MAIN CHECKOUT HAS `.agent-lifecycle.json`. Its
+# paths are Cargo's, and a repository with no lifecycle configuration has said
+# nothing about its build, so a `target/debug` there is not this script's to
+# guess at. Tier 2 needs no build knowledge — a clean, resolved worktree is
+# safe to remove whatever it builds — so it runs everywhere.
+#
 # COST. A `df` check gates everything and takes a few ms, so a session with
 # room to spare pays that and exits. Only under FREE_LOW_WATER_GB does the scan
 # run (~0.2s per worktree). Cache deletion goes through session-lifecycle's
@@ -108,7 +114,8 @@
 #   - nothing near its top level was touched in the last MIN_IDLE_MINUTES
 #
 # A worktree's cache is PRUNED (tier 1) on the same ownership, session,
-# live-lock and process-cwd checks, plus: `target/debug` itself has not been written in
+# live-lock and process-cwd checks, plus: the repository is configured (see
+# TIER 1 RUNS ONLY above), and the cache itself has not been written in
 # PRUNE_IDLE_MINUTES. Merge state is deliberately not consulted.
 #
 # `git status --porcelain` does not list IGNORED files, so a removed worktree
@@ -156,9 +163,9 @@
 # `.claude/worktrees`: its `<id>/<repo>` worktrees are not Claude's to release.
 #
 # WIRING. session-lifecycle's `sweep` runs this file directly for every
-# repository with `.agent-lifecycle.json` (RECLAIM_FORCE=1, empty stdin, cwd
-# the main checkout). A repository's SessionStart hook and hand-runs go through
-# a thin `.claude/reclaim-worktrees.sh` wrapper that does
+# repository registered with it (RECLAIM_FORCE=1, empty stdin, cwd the main
+# checkout), configured or not. A repository's SessionStart hook and hand-runs
+# go through a thin `.claude/reclaim-worktrees.sh` wrapper that does
 # `exec bash <this file> "$@"`, passing stdin (the hook's JSON payload) and the
 # environment (CLAUDE_PROJECT_DIR) through. It is safe to run by hand from the
 # main checkout OR any worktree — it locates the main checkout through
@@ -199,8 +206,8 @@ remove_owned_worktree() {
 
 MIN_IDLE_MINUTES=${RECLAIM_MIN_IDLE_MINUTES:-120}
 # The prune gate is depth behind the liveness checks (see prune_caches), so
-# it only has to outlast one build step, and a running build keeps writing under
-# target/debug. An hour clears that easily. An eight-hour gate once let a disk
+# it only has to outlast one build step, and a running build keeps writing
+# under target/debug. An hour clears that easily. An eight-hour gate once let a disk
 # sit near-full while idle debug caches waited it out. Pruning a paused
 # worktree costs it a debug rebuild (mostly compiler-cache hits) and leaves
 # nothing for a sibling-cache seeder to clone; target/release is never pruned,
@@ -324,6 +331,14 @@ if [ "$FORCE" != 1 ] && [ "$free_gb" -ge "$FREE_LOW_WATER_GB" ]; then
   exit 0
 fi
 note "df gate: ${free_gb}G free, low water ${FREE_LOW_WATER_GB}G$([ "$FORCE" = 1 ] && printf ' (forced)')"
+
+# See TIER 1 RUNS ONLY in the header.
+PRUNE=0
+if [ -f "$MAIN_WT/.agent-lifecycle.json" ]; then
+  PRUNE=1
+else
+  note "no .agent-lifecycle.json in $MAIN_WT, so no build cache is pruned"
+fi
 
 # Resolve main once. Without it "merged" is unanswerable, so tier 2 is skipped
 # while tier 1 — which never asks — still runs.
@@ -888,7 +903,8 @@ consider() {
   # Tier 2 first: a full removal makes tier 1 moot for this worktree, and
   # sizing the whole tree once beats sizing it and then its caches.
   remove_worktree "$path" "$head" "$locked" "$branch" && return 0
-  prune_caches "$path"
+  [ "$PRUNE" = 1 ] && prune_caches "$path"
+  return 0
 }
 
 # --porcelain emits one blank-line-separated record per worktree:

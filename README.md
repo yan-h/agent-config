@@ -57,7 +57,7 @@ a skill; it replaces only links, skips any real file in the way, and keeps the
 projects already registered.
 
 ```sh
-~/projects/agent-config/scripts/install.sh --repo ~/projects/harmonigraph --repo ~/projects/otonal
+~/projects/agent-config/scripts/install.sh --repo ~/projects/harmonigraph --repo ~/projects/otonal --repo ~/projects/agent-config
 ```
 
 For Zed, link the shared file by hand:
@@ -253,7 +253,7 @@ The job runs `python3` from the `PATH` the installer saw, as the projects' hooks
 A rerun without `--repo` keeps the registered projects, and every rerun restarts the job, which sweeps once at load.
 A project's own SessionStart wrapper reports a missing skill, since the shared reclaimer is then not there to run.
 This installs `com.yan.agent-lifecycle` and a local project list; it does not modify unrelated agent hooks.
-The job waits until each main checkout contains the lifecycle integration, so installing before project PRs merge is safe.
+A project without `.agent-lifecycle.json` on its main checkout gets only the reclaimer's removal of resolved, clean worktrees, with no build, handoff or cache pruning, so any repository can be registered, and registering one before its lifecycle PR merges is safe.
 Its runtime and the catalogs' links remain linked to this source checkout: after installing from a PR worktree, reinstall from main before removing that worktree.
 The log is `~/Library/Logs/agent-lifecycle.log`.
 To stop it, use `launchctl bootout gui/$(id -u)/com.yan.agent-lifecycle`.
