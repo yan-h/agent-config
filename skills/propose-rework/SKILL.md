@@ -129,7 +129,7 @@ Otherwise attack the answer where it revised the design, with one red team at wh
 An answer that only adds or rewords a question for the owner earns no round.
 This rule has not yet run. Under the earlier one, every second round in four designs landed, one with a failure that passed all 224 of the plugin's tests;
 a rework that cut its second round met seven defects in the build, two of which, besides a local one, a second attack would plausibly have caught,
-one of them a claim assigned to a randomised test that held.
+one of them a claim assigned to a randomised test that held, and reworked no merged step.
 
 ## Map the migration surface
 
