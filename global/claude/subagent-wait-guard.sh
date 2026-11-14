@@ -5,9 +5,10 @@
 # A foreground command ends at its timeout (two minutes by default), so capping
 # the timeout covers sleeps and poll loops; background commands and the
 # scheduling tools are what let a subagent idle past it.
+# The resumable agent type's cache lasts an hour, so its waits are let through.
 input=$(cat)
 reason=$(jq -r '
-  if .agent_id == null then empty
+  if .agent_id == null or .agent_type == "resumable" then empty
   elif (.tool_name | IN("Monitor", "ScheduleWakeup", "CronCreate")) then .tool_name + " waits on later events"
   elif .tool_input.run_in_background == true then "a background command is waited on later"
   elif (.tool_input.timeout // 0) > 240000 then "a timeout over four minutes"
