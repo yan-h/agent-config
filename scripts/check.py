@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Validate the portable core of every skill in this repository, then run
-each skill's own tests (skills/*/scripts/test_*.py and test_*.sh)."""
+"""Validate the portable core of every skill in this repository and the
+section names skills quote from each other, then run each skill's own tests
+(skills/*/scripts/test_*.py and test_*.sh)."""
 
 from __future__ import annotations
 
@@ -19,6 +20,14 @@ VALID_NAME = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
 # next new Mac, so its scripts are also compiled and tested under that floor.
 FLOOR_PYTHON = Path("/usr/bin/python3")
 FLOOR_SCRIPTS = SKILLS / "session-lifecycle" / "scripts"
+# Skills follow each other's sections by quoted heading, so a renamed heading
+# would send a session to a section that is not there.
+HEADING = re.compile(r"^#+\s+(.+?)\s*$", re.M)
+FENCE = re.compile(r"^```.*?^```", re.M | re.S)
+PARAGRAPH = re.compile(r"(?:^[^\n#].*\n?)+", re.M)
+SENTENCE = re.compile(r"(?:[^.;]|[.;](?=\S))+")
+ABOUT_SECTIONS = re.compile(r"\bsections?\b|\bby name\b")
+REFERENCE = re.compile(r"`([a-z0-9-]+)`|\b(this skill)\b|\"([^\"\n]+)\"")
 
 
 def frontmatter_value(lines: list[str], key: str) -> str | None:
@@ -80,6 +89,34 @@ def validate_skill(directory: Path) -> tuple[str | None, list[str]]:
     return name, problems
 
 
+def check_section_references(names: dict[str, Path]) -> list[str]:
+    """Each quoted name in a sentence about sections or names must be a
+    heading of the skill named last before it in its paragraph: a backticked
+    skill name, or this file's own skill for "this skill" or when none is."""
+    texts = {
+        name: FENCE.sub(lambda match: "\n" * match.group().count("\n"), (path / "SKILL.md").read_text(encoding="utf-8"))
+        for name, path in names.items()
+    }
+    headings = {name: set(HEADING.findall(text)) for name, text in texts.items()}
+    problems: list[str] = []
+    for name, text in texts.items():
+        for paragraph in PARAGRAPH.finditer(text):
+            skill = name
+            for sentence in SENTENCE.finditer(paragraph.group()):
+                checked = ABOUT_SECTIONS.search(sentence.group())
+                for match in REFERENCE.finditer(sentence.group()):
+                    named, this, quoted = match.groups()
+                    if named in headings or this:
+                        skill = named or name
+                    elif quoted and checked and quoted not in headings[skill]:
+                        line = text.count("\n", 0, paragraph.start() + sentence.start() + match.start()) + 1
+                        problems.append(
+                            f"{names[name].relative_to(ROOT)}/SKILL.md:{line}: "
+                            f"{skill} has no section {quoted!r}"
+                        )
+    return problems
+
+
 def main() -> int:
     if not SKILLS.is_dir():
         print("skills/: directory is missing", file=sys.stderr)
@@ -110,6 +147,8 @@ def main() -> int:
             else:
                 names[name] = entry
 
+    if not problems:
+        problems = check_section_references(names)
     if problems:
         for problem in problems:
             print(f"error: {problem}", file=sys.stderr)
