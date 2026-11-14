@@ -73,10 +73,8 @@ when a must-keep is why a design fails or needs a second spike, show the owner w
 
 Ask how you would build this part if it did not exist, given everything else in the codebase as it is.
 Aim for the most far-reaching design that reaches the outcome, not the safest: widen it beyond the named part, or take in another candidate, wherever that removes more.
-A variant you are unsure of goes in the report labelled by confidence, not dropped.
-The owner would rather see a rework that goes too far than miss a good one, and noticed that models rarely treat overhauling existing structure as an option.
-Look first at how other systems of the kind solve it, and at what in this codebase already does part of it:
-the owner asked for the first in two runs and the second in a third.
+Label variants by confidence and look for prior art as the global preferences say, and look too at what in this codebase already does part of it:
+the owner asked for prior art in two runs and for that in a third.
 Then set out:
 
 - **The target design:** what it removes — concepts, duplicated mechanisms, invariants callers must remember, classes of bug, measured cost — and what it adds.
@@ -138,9 +136,8 @@ For persisted data, file formats and public interfaces, say how existing data an
 ## Migration
 
 Plan the fewest steps that each land on their own with the project's gate passing, and hold behaviour and speed between them only as the owner answered.
-Name what each safeguard the plan leaves out would catch, so the owner can add one back: a side-by-side old and new implementation, a review round per step, a step per small change.
+Plan the safeguards lean, as the global preferences say.
 Pin with tests only the must-keeps that existing tests do not cover; pin nothing the rework deletes.
-In one run the owner cut a plan of about twelve PRs to seven, saying models "overfocus on correctness in ways that increase effort".
 
 Where the outcome is judged by ear or eye, or the target adds a capability, the first step is the smallest build the owner can try, and the plan stops there for the owner's verdict:
 in one run that stop is what redirected the design.
