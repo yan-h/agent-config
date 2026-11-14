@@ -12,6 +12,8 @@ and skills stay in the project that owns them.
   agents, context, and the 5h/7d quota meters.
   It displays the meters but does not record them: the private repo `yan-h/claude-usage` does,
   and its README lists what a new machine must install.
+- `global/claude/agents/resumable.md` — a general-purpose subagent type whose prompt cache lasts an
+  hour, linked into `~/.claude/agents`; `global/claude/CLAUDE.md` says when to start it.
 - `global/claude/remote-control-at-login.sh` and `com.yan.claude-remote-control.plist` — macOS
   LaunchAgent that starts `claude remote-control` in listed projects at login, inside tmux.
 - `skills/` — reusable skills shared by agent hosts.

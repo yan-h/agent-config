@@ -90,6 +90,8 @@ fi
 # cache, whose matcher a rerun keeps current.
 $cloud || link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$repo/global/claude/subagent-wait-guard.sh" "$HOME/.claude/subagent-wait-guard.sh"
+mkdir -p "$HOME/.claude/agents"
+link "$repo/global/claude/agents/resumable.md" "$HOME/.claude/agents/resumable.md"
 if ! python3 - "$settings" "$cloud" <<'EOF'
 import json, os, shutil, sys
 # realpath: replacing a symlinked settings.json would turn the link into a copy.
