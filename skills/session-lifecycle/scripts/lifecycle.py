@@ -299,10 +299,13 @@ def finish(repo, store, source_only=False):
         if not matching and not source_only:
             raise Refused('no handoff for this commit; run handoff, or use --source-only for work needing no build')
         path = max(matching, key=lambda x: x[1]['created'])[0] if matching else None
-        if (repo / '.agent-lifecycle.json').exists():
-            trim(repo, config(repo))
+        count = trim(repo, config(repo)) if (repo / '.agent-lifecycle.json').exists() else None
         complete(repo, store, path, state)
-    print('Local completion recorded. Source retained for review; release through the worktree owner once resolved.')
+    if path:
+        print('Preserved build: ' + str(path))
+    if count is not None:
+        print(f'Reclaimed {count} compilation directories; source and loadable binaries retained.')
+    print('Local completion recorded for ' + state['commit'][:8] + '; the source checkout is kept.')
 
 
 @contextlib.contextmanager

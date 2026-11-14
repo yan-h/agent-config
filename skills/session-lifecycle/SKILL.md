@@ -31,6 +31,10 @@ For a source-only task that requires no new build, use `finish --source-only` af
 For an already published handoff, `finish` verifies the publication before pruning.
 Local completion does not prove a remote push; check the push/PR separately before owner release.
 
+After a merge in a configured repository, run `finish` at the branch head that merged, since any `run --` after the handoff cleared its completion record.
+If it refuses for want of a handoff, run `handoff` when the change reaches the deliverable, and `finish --source-only` when it does not.
+Work continued in the same worktree afterwards ends the same way, on its own head.
+
 Report the preserved build, how to load it, and whether source cleanup remains pending.
 The helper publishes the build but never installs it into the application that loads it; do not report it as installed.
 
@@ -42,10 +46,17 @@ If it cannot archive a primary, pinned or shared checkout, report owner release 
 Do not delete it with Git or modify Codex's private state.
 Archive the chat only when that is wanted; retaining chat history does not require retaining compilation caches.
 
-The sweep runs the reclaimer this skill ships at `scripts/reclaim-worktrees.sh` directly for each configured repository; a repository's SessionStart hook and hand-runs reach it through a thin `.claude/reclaim-worktrees.sh` wrapper.
+A Claude session's own worktree needs no command from it, except one it created with `EnterWorktree`:
+once its HEAD is the merged PR's head commit (`gh pr view --json headRefOid`), its tree is clean and anything worth keeping is elsewhere,
+leave it with `ExitWorktree`, `remove` and `discard_changes`, which a squash merge needs since it leaves the branch's commits off the primary branch; the HEAD check is what makes that safe.
+The sweep runs the reclaimer this skill ships at `scripts/reclaim-worktrees.sh` for each registered repository, which a repository's SessionStart hook and hand-runs reach through a thin `.claude/reclaim-worktrees.sh` wrapper,
+and the desktop app removes the worktree of a session it started when that session is archived.
+The reclaimer passes over the worktree a live session is in, so running it by hand releases nothing of yours.
+Report which of these will release your worktree, and where none applies, that it stays until the owner removes it, rather than promise a removal:
+agent-config, which neither the sweep nor a hook covers, still held seven Remote Control worktrees on merged branches on 2026-11-14, the oldest merged on 2026-10-21.
 Unknown/manual locks remain protected and need the owner's decision.
 On other hosts, unsupported ownership is a reported limitation, not permission to force removal.
-Do not delete another agent's worktree because your work has finished.
+Do not delete another session's worktree because your work has finished.
 
 ## Fallback and retention
 

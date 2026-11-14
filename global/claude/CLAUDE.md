@@ -10,6 +10,13 @@ Keep long waits — full test runs, CI watching, sleep or poll loops — in the 
 A PreToolUse hook (`subagent-wait-guard.sh`) refuses a subagent any wait that could outlast four minutes, so brief subagents to hand back longer commands for you to run.
 Resume a subagent after a long gap only when its context is worth rewriting; otherwise brief a fresh one.
 
+## Subagent worktrees
+
+A worktree the Agent tool made for a subagent with worktree isolation is yours to release, since the host removes only unchanged ones and the reclaimer only clean ones:
+one audit left two behind, one holding a 242 MB build cache.
+Once its work is merged or carried into your branch or an issue, and you will not resume that subagent, remove it with `git worktree remove -f -f`,
+since its lock names your own session, and delete its branch with `git branch -D`.
+
 ## Code review effort
 
 When a skill runs `/code-review`, choose the effort level to fit the diff's risk; with no level it reuses the last one typed.
