@@ -25,7 +25,7 @@ An alternative is worth raising only when it removes something: a concept, a dup
 If the current approach is sound, say so and stop looking.
 
 For each alternative worth raising, give:
-what changes and where; the upfront cost, including migration and risk; what it removes or prevents over time; and whether it belongs in this change, in a follow-up, or nowhere.
+what changes and where; whether it changes anything a user sees; the upfront cost, including migration and risk; what it removes or prevents over time; and whether it belongs in this change, in a follow-up, or nowhere.
 Place it by its scope and its risk to this change; its upfront cost is stated, as the global preferences say, and does not send it to a follow-up.
 Prefer one focused restructuring that dissolves several findings over a list of local fixes.
 
@@ -38,4 +38,4 @@ Then:
 - **Correctness:** each confirmed defect, and each uncertain one marked as such, naming the alternative that would remove it if one would.
 - **Design:** the current approach in a few sentences, then the alternatives ranked by lasting net benefit, counting the defects each removes, each with its tradeoff as above.
 - **Questions:** decisions that belong to the owner, with a recommendation for each,
-  each marked as one the merge waits on, because its answer would change this change's code, or one a later change can settle.
+  each saying what its answer would alter, and whether a later change could apply that without undoing this one.
