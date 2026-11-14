@@ -220,9 +220,11 @@ check_handmade_lock() {
 
 # The lsof shim's lines for the script itself, the control every
 # process-cwd check needs: its pid at the cwd it really has. Expanded when the
-# shim runs, not when it is written.
+# shim runs, not when it is written. $1, when given, is a cwd to list it at
+# instead.
 lsof_self() {
-  printf '%s' "p\$PPID\nn\$(pwd -P)\np\$($(command -v ps) -o ppid= -p \$PPID | tr -d ' ')\nn\$(pwd -P)"
+  at=${1:-\$(pwd -P)}
+  printf '%s' "p\$PPID\nn$at\np\$($(command -v ps) -o ppid= -p \$PPID | tr -d ' ')\nn$at"
 }
 
 # Remote Control's `--spawn worktree` locks with `claude agent bridge-<id> (pid
@@ -294,7 +296,7 @@ check_liveness() {
     gone)   listing="$self\np7\nn${wt}x" ;;
     self-inside) listing="$self\np7\nn$wt" ;;
     empty)  listing="p7\nn/elsewhere" ;;
-    wrong-cwd) listing="p\$PPID\nn/\np7\nn${wt}x" ;;
+    wrong-cwd) listing="$(lsof_self /)\np7\nn${wt}x" ;;
   esac
   printf '#!/usr/bin/env bash\nprintf "%s\\n"\n' "$listing" > "$work/bin/lsof"
   chmod +x "$work/bin/lsof"
@@ -888,27 +890,35 @@ check_missing_git_link() {
 # removal comes, so the liveness question is asked again on a fresh listing
 # right before each removal and prune. The shim answers "nothing inside" to
 # its first call and "a process inside" to every later one: a session that
-# entered the worktree after the run began. Two worktrees, one for each
-# tier: `done` is resolved and would be removed, `open` has a commit of its
-# own and an idle cache that would be pruned. Run for real: both survive
-# whole, and only the refresh can have kept them.
+# entered the worktree after the run began. One site per case, one worktree
+# per fixture, because a refresh at one site also refreshes the snapshot the
+# next worktree is classified on, which would cover for a missing refresh at
+# the other:
+#   remove  `w1` is resolved, so it reaches the removal
+#   prune   `w1` has a commit of its own and an idle cache, so it reaches
+#           the prune
+# Run for real: the worktree survives whole, and only the refresh can have
+# kept it.
 check_fresh_liveness() {
-  desc="a session that arrives mid-run keeps its worktree and cache"
-  work="$TMP/fresh"
+  site=$1
+  desc="a session that arrives mid-run is seen before the $site"
+  work="$TMP/fresh-$site"
   main="$work/main"
+  wt="$main/.claude/worktrees/w1"
   mkdir -p "$work/bin"
   (
     init_repo "$main" || exit 1
     printf '/.claude/worktrees/\n/target/\n' > .gitignore
     git add .gitignore
     git commit -q -m base || exit 1
-    git worktree add -q -b done .claude/worktrees/done HEAD 2>/dev/null || exit 1
-    git worktree add -q -b open .claude/worktrees/open HEAD 2>/dev/null || exit 1
-    git -C .claude/worktrees/open commit -q --allow-empty -m wip || exit 1
-    mkdir -p .claude/worktrees/open/target/debug || exit 1
-    : > .claude/worktrees/open/target/debug/sentinel
+    git worktree add -q -b w1 .claude/worktrees/w1 HEAD 2>/dev/null || exit 1
+    if [ "$site" = prune ]; then
+      git -C .claude/worktrees/w1 commit -q --allow-empty -m wip || exit 1
+      mkdir -p .claude/worktrees/w1/target/debug || exit 1
+      : > .claude/worktrees/w1/target/debug/sentinel
+    fi
   ) || { fail "$desc: could not build the fixture"; return; }
-  wts=$(cd "$main/.claude/worktrees" && pwd -P)
+  real_wt=$(cd "$wt" && pwd -P)
   self=$(lsof_self)
   cat > "$work/bin/lsof" <<SHIM
 #!/usr/bin/env bash
@@ -917,7 +927,7 @@ echo \$((n + 1)) > "$work/calls"
 if [ "\$n" = 0 ]; then
   printf "$self\n"
 else
-  printf "$self\np7\nn$wts/done\np8\nn$wts/open/target\n"
+  printf "$self\np7\nn$real_wt\n"
 fi
 SHIM
   chmod +x "$work/bin/lsof"
@@ -927,15 +937,66 @@ SHIM
     RECLAIM_FORCE=1 RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
     RECLAIM_PRUNE_IDLE_MINUTES=0 "$SCRIPT" </dev/null 2>&1)
 
-  if [ -d "$main/.claude/worktrees/done" ] &&
-    [ -f "$main/.claude/worktrees/open/target/debug/sentinel" ] &&
-    [ "$(cat "$work/calls")" -ge 2 ]; then
+  if [ -d "$wt" ] && [ "$(cat "$work/calls")" -ge 2 ] &&
+    { [ "$site" = remove ] || [ -f "$wt/target/debug/sentinel" ]; }; then
     echo "✓ $desc"
   else
     fail "$desc"
-    [ -d "$main/.claude/worktrees/done" ] || echo "    the resolved worktree was removed" >&2
-    [ -f "$main/.claude/worktrees/open/target/debug/sentinel" ] ||
+    [ -d "$wt" ] || echo "    the worktree was removed" >&2
+    [ "$site" = remove ] || [ -f "$wt/target/debug/sentinel" ] ||
       echo "    the cache was pruned" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
+# A worktree whose name is not ASCII. Without a locale, as under launchd, lsof
+# prints `wé` as `w\xc3\xa9`, so a process inside never matched and the
+# worktree read as free. Two cases on one unlocked, resolved, idle worktree:
+#   real     the real lsof, a real process inside, the script run under
+#            `env -i` with no locale at all: the process must be found
+#   escaped  a shim that lists the process escaped, as lsof does where the
+#            UTF-8 locale is missing: unreadable, so held
+check_non_ascii_name() {
+  mode=$1; desc=$2; want=$3
+  work="$TMP/non-ascii-$mode"
+  main="$work/main"
+  wt="$main/.claude/worktrees/wé"
+  mkdir -p "$work/bin"
+  (
+    init_repo "$main" || exit 1
+    git commit -q --allow-empty -m base || exit 1
+    git worktree add -q -b we "$wt" HEAD 2>/dev/null || exit 1
+  ) || { fail "$desc: could not build the fixture"; return; }
+  backdate "$main/.claude/worktrees"
+  real_wt=$(cd "$wt" && pwd -P)
+
+  holder=""
+  if [ "$mode" = real ]; then
+    if ! command -v lsof >/dev/null 2>&1; then
+      echo "- skipped: $desc (lsof is not on PATH)"
+      return
+    fi
+    (cd "$wt" && exec sleep 60) &
+    holder=$!
+    sleep 0.3
+  else
+    printf 'p7\n%s\n' "n${real_wt%wé}w\xc3\xa9" > "$work/listing"
+    printf '#!/usr/bin/env bash\nprintf "%s\\n"\ncat "%s"\n' "$(lsof_self)" \
+      "$work/listing" > "$work/bin/lsof"
+    chmod +x "$work/bin/lsof"
+  fi
+
+  out=$(cd "$main" && env -i PATH="$work/bin:$PATH" HOME="$HOME" \
+    CLAUDE_PROJECT_DIR="$main" RECLAIM_DRY_RUN=1 RECLAIM_FORCE=1 \
+    RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    /bin/bash "$SCRIPT" </dev/null 2>&1)
+  [ -n "$holder" ] && kill "$holder" 2>/dev/null
+
+  if grep -q "$want" <<<"$out" && ! grep -q "would remove" <<<"$out"; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    echo "    expected a line matching: $want" >&2
     printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
   fi
 }
@@ -1103,7 +1164,12 @@ check_force_retry_gate unknown \
   "a recheck that cannot answer is not read as clean"
 check_refused_removal_is_audible
 check_missing_git_link
-check_fresh_liveness
+check_non_ascii_name real "a process inside a non-ASCII worktree is found with no locale" \
+  "skip wé: a process has its cwd inside"
+check_non_ascii_name escaped "an escaped listing keeps a non-ASCII worktree" \
+  "skip wé: lsof cannot show process cwds"
+check_fresh_liveness remove
+check_fresh_liveness prune
 check_unconfigured
 check_wrapper
 

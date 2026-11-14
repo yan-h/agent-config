@@ -542,11 +542,16 @@ prune_cache() {
 LSOF_OUT=""
 LSOF_TRIED=0
 
+# Under a UTF-8 locale, because without one (as under launchd) lsof prints
+# each non-ASCII byte of a name as `\xHH`, so a worktree named `wé` is listed
+# as `w\xc3\xa9` and no process would ever be found inside it. C.UTF-8 is on
+# macOS and most Linux; where it is missing, lsof escapes again, and
+# cwd_inside reads such a listing as unreadable for a non-ASCII worktree.
 lsof_snapshot() {
   LSOF_TRIED=1
   LSOF_OUT=""
   command -v lsof >/dev/null 2>&1 &&
-    LSOF_OUT=$(lsof -nP -w -b -a -u "$(id -u)" -d cwd -Fpn 2>/dev/null)
+    LSOF_OUT=$(LC_ALL=C.UTF-8 lsof -nP -w -b -a -u "$(id -u)" -d cwd -Fpn 2>/dev/null)
 }
 
 # 0 when some process has its cwd at or below $1, 1 when none does, 2 when the
@@ -573,15 +578,20 @@ cwd_inside() {
   real=$(cd "$1" 2>/dev/null && pwd -P) || return 2
   here=$(pwd -P) || return 2
   # ENVIRON rather than -v, which would read backslashes in a path as escapes.
+  # `esc`: a `\x` escape in the listing while the worktree's own path has a
+  # byte lsof would escape means the locale above did not take, and the path
+  # cannot be matched; see lsof_snapshot.
   P=$real S=$$ H=$here D=$daemon awk 'BEGIN {
       p = ENVIRON["P"]; s = "p" ENVIRON["S"]; h = ENVIRON["H"]
-      d = ENVIRON["D"] == "" ? "" : "p" ENVIRON["D"]; dok = (d == "") }
+      d = ENVIRON["D"] == "" ? "" : "p" ENVIRON["D"]; dok = (d == "")
+      wide = (p ~ /[^ -~]/) }
     /^p/ { cur = $0 }
     /^n/ { n = substr($0, 2)
            if (cur == s && n == h) sok = 1
            if (cur == d) dok = 1
+           if (wide && index(n, "\\x")) esc = 1
            if (n == p || index(n, p "/") == 1) found = 1 }
-    END { if (!sok || !dok) exit 2; exit !found }' <<<"$LSOF_OUT"
+    END { if (!sok || !dok || esc) exit 2; exit !found }' <<<"$LSOF_OUT"
 }
 
 # The process-cwd question again, on a FRESH listing, right before a removal
