@@ -73,6 +73,14 @@ class LifecycleTests(unittest.TestCase):
         self.assertIn(str(first), self.run_tool('catalog').stdout)
         self.assertEqual(lc.valid_handoff(first)['branch'], 'feature')
 
+    def test_finish_after_kept_cache_names_the_build_and_what_it_pruned(self):
+        self.run_tool('handoff', '--keep-cache')
+        path = self.cache()
+        out = self.run_tool('finish').stdout
+        self.assertIn('Preserved build: ', out)
+        self.assertIn('Reclaimed', out)
+        self.assertFalse(path.exists())
+
     def test_busy_build_and_cargo_profile_lock_keep_caches(self):
         path = self.cache()
         with lc.lock(self.store / 'locks' / (lc.key(self.repo) + '.lock')):
