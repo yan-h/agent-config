@@ -110,7 +110,8 @@
 #   - no process of this user has its cwd inside it, which is how a session
 #     with no lock (the desktop app's) or with a lock naming a long-lived pid
 #     (Remote Control's `claude agent bridge-<id>`) is seen; when lsof cannot
-#     show cwds, every worktree is kept. See the end of usable
+#     show cwds, every worktree is kept. It is asked again on a fresh listing
+#     right before the removal. See the end of usable, and still_free
 #   - nothing near its top level was touched in the last MIN_IDLE_MINUTES
 #
 # A worktree's cache is PRUNED (tier 1) on the same ownership, session,
@@ -531,44 +532,73 @@ prune_cache() {
   python3 "$LIFECYCLE_TOOL" --repo "$cache_root" prune-cache "$cache_path"
 }
 
-# The cwd of every process this user owns, read once per run, when the first
-# worktree reaches the check at the end of usable: `p<pid>` and `n<path>`
-# lines, the paths physical. Another user's processes are left out because a non-root
+# The cwd of every process this user owns, read when the first worktree
+# reaches the check at the end of usable, and read again by still_free right
+# before each removal or prune: `p<pid>` and `n<path>` lines, the paths
+# physical. Another user's processes are left out because a non-root
 # lsof cannot read their cwds anyway, and sessions, builds and terminals are
 # all this user's. -n -P -w skip DNS, port names and warnings; -b keeps lsof
 # from blocking on a stale network mount at session start.
 LSOF_OUT=""
 LSOF_TRIED=0
 
+lsof_snapshot() {
+  LSOF_TRIED=1
+  LSOF_OUT=""
+  command -v lsof >/dev/null 2>&1 &&
+    LSOF_OUT=$(lsof -nP -w -b -a -u "$(id -u)" -d cwd -Fpn 2>/dev/null)
+}
+
 # 0 when some process has its cwd at or below $1, 1 when none does, 2 when the
 # cwds could not be read — which the caller treats as held.
 #
-# $2 is the positive control: a pid whose cwd lsof must list before its
-# silence about the worktree means anything, since an empty or failed listing
-# would otherwise read every worktree as free. It is a Remote Control lock's
-# daemon while ps shows it alive and this user's, which also proves lsof sees
-# past this script's own process tree; otherwise this script itself, which
-# proves only that lsof works. A recycled pid owned by someone else is the reason for the
-# owner test — its cwd is unreadable, and the control would never pass. An
-# environment that hides other processes from ps and lsof alike is not
-# detected; the SessionStart hook does not run in one.
+# The positive control is this script: lsof must list its pid with the cwd it
+# actually has before its silence about the worktree means anything, since an
+# empty, failed or garbled listing would otherwise read every worktree as
+# free. $2, when set, is a Remote Control lock's daemon; while ps shows it
+# alive and this user's, lsof must list it too, which proves lsof sees past
+# this script's own process tree. A recycled pid owned by someone else is the
+# reason for the owner test — its cwd is unreadable, and that control would
+# never pass. Otherwise the control proves that lsof lists this user's
+# processes only where the reclaimer is not sandboxed from them: a sandbox
+# that hid other processes while showing the script's own would read every
+# worktree as free. The sweep and the SessionStart hook do not run in one.
 cwd_inside() {
-  if [ "$LSOF_TRIED" = 0 ]; then
-    LSOF_TRIED=1
-    command -v lsof >/dev/null 2>&1 &&
-      LSOF_OUT=$(lsof -nP -w -b -a -u "$(id -u)" -d cwd -Fpn 2>/dev/null)
+  [ "$LSOF_TRIED" = 1 ] || lsof_snapshot
+  daemon=$2
+  if [ -n "$daemon" ] &&
+    [ "$(ps -p "$daemon" -o uid= 2>/dev/null | tr -d ' ')" != "$(id -u)" ]; then
+    daemon=""
   fi
-  ctl=$2
-  [ "$(ps -p "$ctl" -o uid= 2>/dev/null | tr -d ' ')" = "$(id -u)" ] || ctl=$$
   real=$(cd "$1" 2>/dev/null && pwd -P) || return 2
-  # The control needs a PATH under its pid, not just the pid: a listing whose
-  # `n` lines went missing would otherwise pass it and find nothing inside.
-  # ENVIRON rather than -v, which would read backslashes in the path as escapes.
-  P=$real C=$ctl awk 'BEGIN { p = ENVIRON["P"]; c = "p" ENVIRON["C"] }
+  here=$(pwd -P) || return 2
+  # ENVIRON rather than -v, which would read backslashes in a path as escapes.
+  P=$real S=$$ H=$here D=$daemon awk 'BEGIN {
+      p = ENVIRON["P"]; s = "p" ENVIRON["S"]; h = ENVIRON["H"]
+      d = ENVIRON["D"] == "" ? "" : "p" ENVIRON["D"]; dok = (d == "") }
     /^p/ { cur = $0 }
-    /^n/ { n = substr($0, 2); if (cur == c) ctl = 1
+    /^n/ { n = substr($0, 2)
+           if (cur == s && n == h) sok = 1
+           if (cur == d) dok = 1
            if (n == p || index(n, p "/") == 1) found = 1 }
-    END { if (!ctl) exit 2; exit !found }' <<<"$LSOF_OUT"
+    END { if (!sok || !dok) exit 2; exit !found }' <<<"$LSOF_OUT"
+}
+
+# The process-cwd question again, on a FRESH listing, right before a removal
+# or a prune. The run's snapshot can be minutes old by then — a gh call, a
+# `du` of a large tree and earlier removals sit between — and a session that
+# started in the worktree meanwhile is exactly what a stale "free" would miss.
+# The snapshot stays one per run for classifying worktrees; this costs one
+# lsof per worktree that is about to lose something. 0 means still free.
+still_free() {
+  lsof_snapshot
+  cwd_inside "$1" "$DAEMON"
+  case $? in
+    1) return 0 ;;
+    0) note "skip $(basename "$1"): a process has its cwd inside, on a fresh listing" ;;
+    *) note "skip $(basename "$1"): lsof cannot show process cwds, on a fresh listing" ;;
+  esac
+  return 1
 }
 
 # The cache a skipped worktree goes on holding, for the dry run's closing tally.
@@ -617,8 +647,9 @@ usable() {
       return 1 ;;
   esac
 
-  # The positive control for the process-cwd check at the end; see cwd_inside.
-  ctl=$$
+  # A Remote Control daemon for the process-cwd check at the end to see too;
+  # see cwd_inside. Global, so still_free asks the same of this worktree.
+  DAEMON=""
 
   # A lock naming a live pid means a session still owns this worktree, unless
   # that pid is one whose liveness says nothing about the session (below). A
@@ -655,7 +686,7 @@ usable() {
     # its worktree holds no cwd between commands. For that lock the pid is the
     # signal, and it takes the session path below.
     if [ -n "$(printf '%s' "$reason" | sed -n '/^ *claude agent bridge-/p')" ]; then
-      ctl=$pid
+      DAEMON=$pid
     elif ps -p "$pid" >/dev/null 2>&1; then
       # The pid being alive does NOT make the lock live. Every local session
       # runs as a `claude bg-spare` process taken from a warm pool, and a spare
@@ -710,10 +741,14 @@ usable() {
   # process cwd is elsewhere.
   #
   # What it cannot see is a session with no process: one the app has closed
-  # and may later resume. A listing that cannot show its control keeps every
-  # worktree from both tiers, as a lock this script cannot read does, so a
-  # machine without a working lsof reclaims nothing.
-  cwd_inside "$path" "$ctl"
+  # and may later resume. Nor an Agent tool worktree (`agent-a<hex>`) whose
+  # lock is gone: its subagent runs inside the parent session's process, so
+  # nothing has its cwd there between commands, and a paused subagent's clean
+  # worktree with no commits, idle MIN_IDLE_MINUTES, reads as free. A listing
+  # that cannot show its control keeps every worktree from both tiers, as a
+  # lock this script cannot read does, so a machine without a working lsof
+  # reclaims nothing.
+  cwd_inside "$path" "$DAEMON"
   case $? in
     0) note_held "$name" "$path" "a process has its cwd inside"
        return 1 ;;
@@ -727,6 +762,7 @@ usable() {
 prune_caches() {
   path=$1
   found=0
+  fresh=0
   for sub in debug doc; do
     victim="$path/target/$sub"
     [ -d "$victim" ] || continue
@@ -749,6 +785,12 @@ prune_caches() {
 
     size_kb=$(du -sk "$victim" 2>/dev/null | awk '{print $1}')
     [ -n "$size_kb" ] || size_kb=0
+
+    # Once per worktree, before its first prune; see still_free.
+    if [ "$fresh" = 0 ]; then
+      still_free "$path" || return 0
+      fresh=1
+    fi
 
     if [ "$DRY_RUN" = 1 ]; then
       act "would prune $victim ($(human "$size_kb"))"
@@ -825,6 +867,8 @@ remove_worktree() {
 
   size_kb=$(du -sk "$path" 2>/dev/null | awk '{print $1}')
   [ -n "$size_kb" ] || size_kb=0
+
+  still_free "$path" || return 1
 
   if [ "$DRY_RUN" = 1 ]; then
     act "would remove $path ($(human "$size_kb")) — $how"

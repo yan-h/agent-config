@@ -65,7 +65,7 @@ Do not delete another session's worktree because your work has finished.
 
 `sweep` is a preview; `sweep --apply` reclaims completed caches and runs the shipped reclaimer.
 The installed macOS job runs this hourly without an AI session and only for explicitly registered projects.
-A registered project without `.agent-lifecycle.json` on its main checkout gets the reclaimer alone, which there removes resolved, clean worktrees and prunes no build cache.
+A registered project without `.agent-lifecycle.json` on its main checkout gets the reclaimer alone, which there removes resolved, clean worktrees and prunes no build cache; it resolves against `main` or `origin/main`, so a repository whose primary branch has another name has nothing reclaimed.
 It leaves source release for Codex pending; there is no supported shell replacement for the app archive tool.
 
 The default artifact budget is 5 GiB per repository, with resolved handoffs eligible after 14 days.

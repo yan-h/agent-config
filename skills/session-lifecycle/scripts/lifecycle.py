@@ -361,7 +361,9 @@ def main_ref(repo):
 
 def retention(repo, store, budget, age_days, apply):
     # Nothing was ever published, as in a repository with no lifecycle
-    # configuration: taking the lock would only create the store.
+    # configuration, so retention has nothing to do and creates no store.
+    # (The reclaimer's removals still take the workspace lock through
+    # `run`, which creates `locks/` there.)
     if not (store / 'builds').exists():
         return
     with lock(store / 'catalog.lock'):

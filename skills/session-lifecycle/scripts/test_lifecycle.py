@@ -218,7 +218,8 @@ class LifecycleTests(unittest.TestCase):
             self.assertNotIn('CLAUDE_PROJECT_DIR', env)
             self.assertEqual(Path(calls[0]['cwd']), self.repo)
             # A repository registered for worktree reclaim alone: the reclaimer
-            # runs, and nothing builds, publishes or creates the store.
+            # runs, and nothing builds or publishes. The reclaimer is stubbed
+            # here, so the store's absence shows retention created none.
             (self.repo / '.agent-lifecycle.json').unlink()
             lc.sweep(self.repo, self.store, True, 5 << 30, 14)
             self.assertEqual(len(calls), 2)
