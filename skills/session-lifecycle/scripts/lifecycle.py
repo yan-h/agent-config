@@ -457,6 +457,8 @@ def main():
         cmd = args.command[1:] if args.command[:1] == ['--'] else args.command
         if not cmd:
             raise Refused('load requires a command')
+        # The loader and every child inherit the lock; SKILL.md says why a
+        # loader must build before entering load, not under it.
         with lock(store / 'catalog.lock') as stream:
             env = dict(os.environ, AGENT_LIFECYCLE_CATALOG_FD=str(stream.fileno()))
             return subprocess.call(cmd, cwd=repo, env=env, pass_fds=(stream.fileno(),))
