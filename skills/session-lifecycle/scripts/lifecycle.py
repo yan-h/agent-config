@@ -360,6 +360,12 @@ def main_ref(repo):
 
 
 def retention(repo, store, budget, age_days, apply):
+    # Nothing was ever published, as in a repository with no lifecycle
+    # configuration, so retention has nothing to do and creates no store.
+    # (The reclaimer's removals still take the workspace lock through
+    # `run`, which creates `locks/` there.)
+    if not (store / 'builds').exists():
+        return
     with lock(store / 'catalog.lock'):
         items = publications(store)
         loaded = registered(repo)[0] / 'target/bundled/.loaded'
@@ -418,11 +424,12 @@ def sweep(repo, store, apply, budget, age_days):
             except (Refused, OSError, ValueError) as err:
                 print('keep ' + str(path) + ': ' + str(err))
     # The reclaimer ships beside this file, so the sweep and the rules it
-    # applies always move together, and a configured repository needs no file
+    # applies always move together, and a registered repository needs no file
     # of its own for the sweep to reach it. It may remove resolved Claude
-    # worktrees, but never Codex-managed worktrees.
+    # worktrees, but never Codex-managed worktrees. It runs without lifecycle
+    # configuration too, and then prunes no build cache; see its header.
     reclaimer = Path(__file__).with_name('reclaim-worktrees.sh')
-    if (repo / '.agent-lifecycle.json').is_file() and reclaimer.is_file():
+    if reclaimer.is_file():
         env = dict(os.environ, RECLAIM_FORCE='1', RECLAIM_GH_TIMEOUT_S='30')
         env.pop('CLAUDE_PROJECT_DIR', None)
         env.pop('RECLAIM_DRY_RUN', None)

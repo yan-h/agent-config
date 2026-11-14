@@ -50,6 +50,8 @@ fail() {
 }
 
 # Initialise a throwaway repo in $1 and cd into it; call inside a subshell.
+# It is a CONFIGURED repository, untracked `.agent-lifecycle.json` and all, so
+# tier 1 runs; only its presence is read. check_unconfigured removes it.
 #
 # The guard is belt and braces over the unset above, and the one that matters:
 # prove git resolves INSIDE this throwaway repo before committing to it or
@@ -68,6 +70,7 @@ init_repo() {
   git checkout -q -b main 2>/dev/null || true
   git config user.email t@t
   git config user.name t
+  printf '{}\n' > .agent-lifecycle.json
 }
 
 # Make everything under $1 older than any idle gate, so a case is decided by
@@ -215,6 +218,15 @@ check_handmade_lock() {
   fi
 }
 
+# The lsof shim's lines for the script itself, the control every
+# process-cwd check needs: its pid at the cwd it really has. Expanded when the
+# shim runs, not when it is written. $1, when given, is a cwd to list it at
+# instead.
+lsof_self() {
+  at=${1:-\$(pwd -P)}
+  printf '%s' "p\$PPID\nn$at\np\$($(command -v ps) -o ppid= -p \$PPID | tr -d ' ')\nn$at"
+}
+
 # Remote Control's `--spawn worktree` locks with `claude agent bridge-<id> (pid
 # <n> start <date>)`, and the pid is the daemon's: alive for as long as the
 # phone bridge is up, whether or not anything still runs in the worktree. So
@@ -224,17 +236,28 @@ check_handmade_lock() {
 #   inside  a process sits at the worktree's root              -> held
 #   none    only a sibling sharing its name as a prefix does   -> stale
 #           (the boundary a bare prefix match gets wrong)
-#   blind   lsof lists other processes but not the daemon      -> held
+#   blind   lsof lists the script but not the daemon           -> held
 #           (a sandbox that sees only part of the process table)
-#   gone    the daemon is dead, nothing is inside, and lsof     -> stale
-#           lists the script itself, the fallback control
+#   gone    the daemon is dead and nothing is inside            -> stale
+#   self-inside  as gone, but a process sits in the worktree    -> held
+#   empty   lsof lists neither the script nor the daemon       -> held
+#   wrong-cwd  the script is listed, at a cwd it does not have -> held
+#
+# Every listing but `empty` shows the script itself at its real cwd, which
+# is the control every run needs.
+#
+# An empty reason leaves the worktree UNLOCKED, which is how the desktop app
+# leaves a session's worktree; there the control is the script itself. The
+# worktree sits on main's commit, so "resolved" says nothing about whether a
+# session is still in it, and only the cwd check stands between a live
+# session and the removal (#87).
 #
 # The stale cases assert "would remove", not just "stale lock": the idle and
 # resolved gates come after, and only reaching the removal line proves a live
-# daemon pid did not stop it first. The last case is the same `claude agent`
-# shape from the Agent tool, whose pid is its parent session's and IS the
-# signal: no cwd inside, and still held.
-check_agent_lock() {
+# daemon pid did not stop it first. The Agent tool case is the same `claude
+# agent` shape, whose pid is its parent session's and IS the signal: no cwd
+# inside, and still held.
+check_liveness() {
   mode=$1; desc=$2; reason=$3; want=$4
   work="$TMP/agent$((++case_n))"
   main="$work/main"
@@ -253,21 +276,27 @@ check_agent_lock() {
     init_repo "$main" || exit 1
     git commit -q --allow-empty -m base || exit 1
     git worktree add -q -b w1 .claude/worktrees/w1 HEAD 2>/dev/null || exit 1
-    git worktree lock --reason "$reason" .claude/worktrees/w1 2>/dev/null || exit 1
+    if [ -n "$reason" ]; then
+      git worktree lock --reason "$reason" .claude/worktrees/w1 2>/dev/null || exit 1
+    fi
   ) || { fail "$desc: could not build the fixture"; return; }
 
   # `-Fpn` output: a `p<pid>` line, then that process's `n<cwd>`. Pid 4242 is
-  # the lock's daemon, which the script needs to see before believing the rest.
-  # In `gone` the control is the script, which is lsof's parent or, through a
-  # `$( )` subshell, its grandparent — so the shim lists both, found with the
-  # real ps since the shimmed one is dead to every pid in this mode.
+  # the lock's daemon, which the script needs to see before believing the rest
+  # of a Remote Control case. The script is lsof's parent or, through a `$( )`
+  # subshell, its grandparent, so the shim lists both, found with the real ps
+  # since the shimmed one is dead to every pid in `gone`, at the shim's own cwd,
+  # which it inherited from the script.
   wt=$(cd "$main/.claude/worktrees/w1" && pwd -P)
-  real_ps=$(command -v ps)
+  self=$(lsof_self)
   case "$mode" in
-    inside) listing="p4242\nn/\np7\nn$wt" ;;
-    none)   listing="p4242\nn/\np7\nn${wt}x" ;;
-    blind)  listing="p7\nn/elsewhere" ;;
-    gone)   listing="p\$PPID\nn/\np\$($real_ps -o ppid= -p \$PPID | tr -d ' ')\nn/\np7\nn${wt}x" ;;
+    inside) listing="$self\np4242\nn/\np7\nn$wt" ;;
+    none)   listing="$self\np4242\nn/\np7\nn${wt}x" ;;
+    blind)  listing="$self\np7\nn/elsewhere" ;;
+    gone)   listing="$self\np7\nn${wt}x" ;;
+    self-inside) listing="$self\np7\nn$wt" ;;
+    empty)  listing="p7\nn/elsewhere" ;;
+    wrong-cwd) listing="$(lsof_self /)\np7\nn${wt}x" ;;
   esac
   printf '#!/usr/bin/env bash\nprintf "%s\\n"\n' "$listing" > "$work/bin/lsof"
   chmod +x "$work/bin/lsof"
@@ -857,6 +886,252 @@ check_missing_git_link() {
   fi
 }
 
+# The snapshot that classified a worktree as free can be minutes old when the
+# removal comes, so the liveness question is asked again on a fresh listing
+# right before each removal and prune. The shim answers "nothing inside" to
+# its first call and "a process inside" to every later one: a session that
+# entered the worktree after the run began. One site per case, one worktree
+# per fixture, because a refresh at one site also refreshes the snapshot the
+# next worktree is classified on, which would cover for a missing refresh at
+# the other:
+#   remove  `w1` is resolved, so it reaches the removal
+#   prune   `w1` has a commit of its own and an idle cache, so it reaches
+#           the prune
+# Run for real: the worktree survives whole, and only the refresh can have
+# kept it.
+check_fresh_liveness() {
+  site=$1
+  desc="a session that arrives mid-run is seen before the $site"
+  work="$TMP/fresh-$site"
+  main="$work/main"
+  wt="$main/.claude/worktrees/w1"
+  mkdir -p "$work/bin"
+  (
+    init_repo "$main" || exit 1
+    printf '/.claude/worktrees/\n/target/\n' > .gitignore
+    git add .gitignore
+    git commit -q -m base || exit 1
+    git worktree add -q -b w1 .claude/worktrees/w1 HEAD 2>/dev/null || exit 1
+    if [ "$site" = prune ]; then
+      git -C .claude/worktrees/w1 commit -q --allow-empty -m wip || exit 1
+      mkdir -p .claude/worktrees/w1/target/debug || exit 1
+      : > .claude/worktrees/w1/target/debug/sentinel
+    fi
+  ) || { fail "$desc: could not build the fixture"; return; }
+  real_wt=$(cd "$wt" && pwd -P)
+  self=$(lsof_self)
+  cat > "$work/bin/lsof" <<SHIM
+#!/usr/bin/env bash
+n=\$(cat "$work/calls" 2>/dev/null || echo 0)
+echo \$((n + 1)) > "$work/calls"
+if [ "\$n" = 0 ]; then
+  printf "$self\n"
+else
+  printf "$self\np7\nn$real_wt\n"
+fi
+SHIM
+  chmod +x "$work/bin/lsof"
+  backdate "$main/.claude/worktrees"
+
+  out=$(cd "$main" && PATH="$work/bin:$PATH" CLAUDE_PROJECT_DIR="$main" \
+    RECLAIM_FORCE=1 RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    RECLAIM_PRUNE_IDLE_MINUTES=0 "$SCRIPT" </dev/null 2>&1)
+
+  if [ -d "$wt" ] && [ "$(cat "$work/calls")" -ge 2 ] &&
+    { [ "$site" = remove ] || [ -f "$wt/target/debug/sentinel" ]; }; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    [ -d "$wt" ] || echo "    the worktree was removed" >&2
+    [ "$site" = remove ] || [ -f "$wt/target/debug/sentinel" ] ||
+      echo "    the cache was pruned" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
+# A worktree whose path lsof may not print as it is: lsof escapes `é` as
+# `\xc3\xa9` without a locale and a backslash as `\\` always, so a process
+# inside never matched and the worktree read as free. Such a worktree is held
+# outright. The fixture is unlocked, resolved and idle, with nothing inside,
+# so only that rule stands between it and the removal.
+check_unprintable_path() {
+  name=$1; desc=$2
+  work="$TMP/unprintable$((++case_n))"
+  main="$work/main"
+  (
+    init_repo "$main" || exit 1
+    git commit -q --allow-empty -m base || exit 1
+    git worktree add -q -b w ".claude/worktrees/$name" HEAD 2>/dev/null || exit 1
+  ) || { fail "$desc: could not build the fixture"; return; }
+  backdate "$main/.claude/worktrees"
+
+  out=$(cd "$main" && CLAUDE_PROJECT_DIR="$main" RECLAIM_DRY_RUN=1 \
+    RECLAIM_FORCE=1 RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    "$SCRIPT" </dev/null 2>&1)
+
+  want="skip $name: its path has characters lsof may not print as they are"
+  if grep -Fq "$want" <<<"$out" && ! grep -q "would remove" <<<"$out"; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    echo "    expected a line: $want" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
+# The snapshot that classified a worktree as free can be minutes old when the
+# removal comes, so the liveness question is asked again on a fresh listing
+# right before each removal and prune. The shim answers "nothing inside" to
+# its first call and "a process inside" to every later one: a session that
+# entered the worktree after the run began. One site per case, one worktree
+# per fixture, because a refresh at one site also refreshes the snapshot the
+# next worktree is classified on, which would cover for a missing refresh at
+# the other:
+#   remove  `w1` is resolved, so it reaches the removal
+#   prune   `w1` has a commit of its own and an idle cache, so it reaches
+#           the prune
+# Run for real: the worktree survives whole, and only the refresh can have
+# kept it.
+check_fresh_liveness() {
+  site=$1
+  desc="a session that arrives mid-run is seen before the $site"
+  work="$TMP/fresh-$site"
+  main="$work/main"
+  wt="$main/.claude/worktrees/w1"
+  mkdir -p "$work/bin"
+  (
+    init_repo "$main" || exit 1
+    printf '/.claude/worktrees/\n/target/\n' > .gitignore
+    git add .gitignore
+    git commit -q -m base || exit 1
+    git worktree add -q -b w1 .claude/worktrees/w1 HEAD 2>/dev/null || exit 1
+    if [ "$site" = prune ]; then
+      git -C .claude/worktrees/w1 commit -q --allow-empty -m wip || exit 1
+      mkdir -p .claude/worktrees/w1/target/debug || exit 1
+      : > .claude/worktrees/w1/target/debug/sentinel
+    fi
+  ) || { fail "$desc: could not build the fixture"; return; }
+  real_wt=$(cd "$wt" && pwd -P)
+  self=$(lsof_self)
+  cat > "$work/bin/lsof" <<SHIM
+#!/usr/bin/env bash
+n=\$(cat "$work/calls" 2>/dev/null || echo 0)
+echo \$((n + 1)) > "$work/calls"
+if [ "\$n" = 0 ]; then
+  printf "$self\n"
+else
+  printf "$self\np7\nn$real_wt\n"
+fi
+SHIM
+  chmod +x "$work/bin/lsof"
+  backdate "$main/.claude/worktrees"
+
+  out=$(cd "$main" && PATH="$work/bin:$PATH" CLAUDE_PROJECT_DIR="$main" \
+    RECLAIM_FORCE=1 RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    RECLAIM_PRUNE_IDLE_MINUTES=0 "$SCRIPT" </dev/null 2>&1)
+
+  if [ -d "$wt" ] && [ "$(cat "$work/calls")" -ge 2 ] &&
+    { [ "$site" = remove ] || [ -f "$wt/target/debug/sentinel" ]; }; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    [ -d "$wt" ] || echo "    the worktree was removed" >&2
+    [ "$site" = remove ] || [ -f "$wt/target/debug/sentinel" ] ||
+      echo "    the cache was pruned" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
+# A worktree whose name is not ASCII. Without a locale, as under launchd, lsof
+# prints `wé` as `w\xc3\xa9`, so a process inside never matched and the
+# worktree read as free. Two cases on one unlocked, resolved, idle worktree:
+#   real     the real lsof, a real process inside, the script run under
+#            `env -i` with no locale at all: the process must be found
+#   escaped  a shim that lists the process escaped, as lsof does where the
+#            UTF-8 locale is missing: unreadable, so held
+check_non_ascii_name() {
+  mode=$1; desc=$2; want=$3
+  work="$TMP/non-ascii-$mode"
+  main="$work/main"
+  wt="$main/.claude/worktrees/wé"
+  mkdir -p "$work/bin"
+  (
+    init_repo "$main" || exit 1
+    git commit -q --allow-empty -m base || exit 1
+    git worktree add -q -b we "$wt" HEAD 2>/dev/null || exit 1
+  ) || { fail "$desc: could not build the fixture"; return; }
+  backdate "$main/.claude/worktrees"
+  real_wt=$(cd "$wt" && pwd -P)
+
+  holder=""
+  if [ "$mode" = real ]; then
+    if ! command -v lsof >/dev/null 2>&1; then
+      echo "- skipped: $desc (lsof is not on PATH)"
+      return
+    fi
+    (cd "$wt" && exec sleep 60) &
+    holder=$!
+    sleep 0.3
+  else
+    printf 'p7\n%s\n' "n${real_wt%wé}w\xc3\xa9" > "$work/listing"
+    printf '#!/usr/bin/env bash\nprintf "%s\\n"\ncat "%s"\n' "$(lsof_self)" \
+      "$work/listing" > "$work/bin/lsof"
+    chmod +x "$work/bin/lsof"
+  fi
+
+  out=$(cd "$main" && env -i PATH="$work/bin:$PATH" HOME="$HOME" \
+    CLAUDE_PROJECT_DIR="$main" RECLAIM_DRY_RUN=1 RECLAIM_FORCE=1 \
+    RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    /bin/bash "$SCRIPT" </dev/null 2>&1)
+  [ -n "$holder" ] && kill "$holder" 2>/dev/null
+
+  if grep -q "$want" <<<"$out" && ! grep -q "would remove" <<<"$out"; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    echo "    expected a line matching: $want" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
+# A repository registered with the sweep but carrying no lifecycle
+# configuration gets tier 2 alone: its build has never been described, so
+# `target/debug` is not this script's to prune there. Run for real: the
+# resolved worktree goes, and the unresolved one keeps its idle cache.
+check_unconfigured() {
+  desc="without lifecycle configuration, worktrees go but caches stay"
+  work="$TMP/unconfigured"
+  main="$work/main"
+  (
+    init_repo "$main" || exit 1
+    rm .agent-lifecycle.json
+    printf '/.claude/worktrees/\n' > .gitignore
+    git add .gitignore
+    git commit -q -m base || exit 1
+    git worktree add -q -b done .claude/worktrees/done HEAD 2>/dev/null || exit 1
+    git worktree add -q -b open .claude/worktrees/open HEAD 2>/dev/null || exit 1
+    git -C .claude/worktrees/open commit -q --allow-empty -m wip || exit 1
+    mkdir -p .claude/worktrees/open/target/debug || exit 1
+    : > .claude/worktrees/open/target/debug/sentinel
+  ) || { fail "$desc: could not build the fixture"; return; }
+  backdate "$main/.claude/worktrees"
+
+  out=$(cd "$main" && CLAUDE_PROJECT_DIR="$main" RECLAIM_FORCE=1 \
+    RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=0 \
+    RECLAIM_PRUNE_IDLE_MINUTES=0 "$SCRIPT" </dev/null 2>&1)
+
+  if [ ! -d "$main/.claude/worktrees/done" ] &&
+    [ -f "$main/.claude/worktrees/open/target/debug/sentinel" ]; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    [ -d "$main/.claude/worktrees/done" ] && echo "    the resolved worktree survived" >&2
+    [ -f "$main/.claude/worktrees/open/target/debug/sentinel" ] ||
+      echo "    the unresolved worktree's cache was pruned" >&2
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
 # ROOT, the main checkout and the session's cwd must resolve the same in all
 # three ways this script is run:
 #   hook   SessionStart, through a repository's thin `.claude/reclaim-worktrees.sh`
@@ -942,24 +1217,32 @@ check_spare "an unrecognised holder's lock is live" \
 
 check_codex_ownership
 check_handmade_lock
-check_agent_lock inside "a Remote Control lock with a process inside is live" \
+check_liveness inside "a Remote Control lock with a process inside is live" \
   "claude agent bridge-cse_01Test (pid 4242 start Thu Oct  1 09:00:00 2026)" \
-  "skip w1: Remote Control lock, and a process is running in it"
-check_agent_lock none "a Remote Control lock with nothing inside is stale" \
+  "skip w1: a process has its cwd inside"
+check_liveness none "a Remote Control lock with nothing inside is stale" \
   "claude agent bridge-cse_01Test (pid 4242 start Thu Oct  1 09:00:00 2026)" \
   "would remove .*w1"
-check_agent_lock none "a harness lock without a start time is still read" \
+check_liveness none "a harness lock without a start time is still read" \
   "claude agent bridge-cse_01Test (pid 4242)" \
   "would remove .*w1"
-check_agent_lock blind "a Remote Control lock is live when lsof cannot see its daemon" \
+check_liveness blind "a Remote Control lock is live when lsof cannot see its daemon" \
   "claude agent bridge-cse_01Test (pid 4242 start Thu Oct  1 09:00:00 2026)" \
-  "skip w1: Remote Control lock, and lsof cannot show process cwds"
-check_agent_lock gone "a Remote Control lock whose daemon is gone falls back to the script" \
+  "skip w1: lsof cannot show process cwds"
+check_liveness gone "a Remote Control lock whose daemon is gone falls back to the script" \
   "claude agent bridge-cse_01Test (pid 4242 start Thu Oct  1 09:00:00 2026)" \
   "would remove .*w1"
-check_agent_lock none "an Agent tool lock is read by its parent session's pid" \
+check_liveness none "an Agent tool lock is read by its parent session's pid" \
   "claude agent agent-a0123456789abcdef (pid 4242 start Thu Oct  1 09:00:00 2026)" \
   "skip w1: locked by live pid 4242"
+check_liveness self-inside "an unlocked worktree with a process inside is kept" "" \
+  "skip w1: a process has its cwd inside"
+check_liveness gone "an unlocked worktree with nothing inside is removable" "" \
+  "would remove .*w1"
+check_liveness empty "an unlocked worktree is kept when lsof cannot see the script" "" \
+  "skip w1: lsof cannot show process cwds"
+check_liveness wrong-cwd "an unlocked worktree is kept when lsof shows the script elsewhere" "" \
+  "skip w1: lsof cannot show process cwds"
 check_containment
 check_orphan_report
 check_dry_run_preserves_worktree_metadata
@@ -974,6 +1257,11 @@ check_force_retry_gate unknown \
   "a recheck that cannot answer is not read as clean"
 check_refused_removal_is_audible
 check_missing_git_link
+check_unprintable_path 'wé' "a worktree with a non-ASCII name is held"
+check_unprintable_path 'w\b' "a worktree with a backslash in its name is held"
+check_fresh_liveness remove
+check_fresh_liveness prune
+check_unconfigured
 check_wrapper
 
 echo

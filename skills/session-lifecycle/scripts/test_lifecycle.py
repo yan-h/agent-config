@@ -199,7 +199,7 @@ class LifecycleTests(unittest.TestCase):
         self.assertFalse(first.exists())
         self.assertTrue(second.exists())
 
-    def test_sweep_runs_the_shipped_reclaimer_only_for_configured_repos(self):
+    def test_sweep_runs_the_shipped_reclaimer_with_or_without_configuration(self):
         # Intercept only the reclaimer call; git and everything else run for real.
         reclaimer = str(TOOL.with_name('reclaim-worktrees.sh'))
         real_run, calls = subprocess.run, []
@@ -217,9 +217,14 @@ class LifecycleTests(unittest.TestCase):
             self.assertEqual((env['RECLAIM_FORCE'], env['RECLAIM_DRY_RUN']), ('1', '1'))
             self.assertNotIn('CLAUDE_PROJECT_DIR', env)
             self.assertEqual(Path(calls[0]['cwd']), self.repo)
+            # A repository registered for worktree reclaim alone: the reclaimer
+            # runs, and nothing builds or publishes. The reclaimer is stubbed
+            # here, so the store's absence shows retention created none.
             (self.repo / '.agent-lifecycle.json').unlink()
             lc.sweep(self.repo, self.store, True, 5 << 30, 14)
-            self.assertEqual(len(calls), 1)
+            self.assertEqual(len(calls), 2)
+            self.assertNotIn('RECLAIM_DRY_RUN', calls[1]['env'])
+            self.assertFalse(self.store.exists())
 
     def test_loader_holds_catalog_lock_through_child_and_checksums(self):
         self.run_tool('handoff')

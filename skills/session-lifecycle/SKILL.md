@@ -56,8 +56,7 @@ leave it with `ExitWorktree`, `remove` and `discard_changes`, which a squash mer
 The sweep runs the reclaimer this skill ships at `scripts/reclaim-worktrees.sh` for each registered repository, which a repository's SessionStart hook and hand-runs reach through a thin `.claude/reclaim-worktrees.sh` wrapper,
 and the desktop app removes the worktree of a session it started when that session is archived.
 The reclaimer passes over the worktree a live session is in, so running it by hand releases nothing of yours.
-Report which of these will release your worktree, and where none applies, that it stays until the owner removes it, rather than promise a removal:
-agent-config, which neither the sweep nor a hook covers, still held seven Remote Control worktrees on merged branches on 2026-11-14, the oldest merged on 2026-10-21.
+Report which of these will release your worktree, and where none applies, as in a repository registered with neither the sweep nor a hook, that it stays until the owner removes it, rather than promise a removal.
 Unknown/manual locks remain protected and need the owner's decision.
 On other hosts, unsupported ownership is a reported limitation, not permission to force removal.
 Do not delete another session's worktree because your work has finished.
@@ -65,7 +64,8 @@ Do not delete another session's worktree because your work has finished.
 ## Fallback and retention
 
 `sweep` is a preview; `sweep --apply` reclaims completed caches and runs the shipped reclaimer.
-The installed macOS job runs this hourly without an AI session and only for explicitly registered projects with lifecycle support on their main checkout.
+The installed macOS job runs this hourly without an AI session and only for explicitly registered projects.
+A registered project without `.agent-lifecycle.json` on its main checkout gets the reclaimer alone, which there removes resolved, clean worktrees and prunes no build cache; it resolves against `main` or `origin/main`, so a repository whose primary branch has another name has nothing reclaimed.
 It leaves source release for Codex pending; there is no supported shell replacement for the app archive tool.
 
 The default artifact budget is 5 GiB per repository, with resolved handoffs eligible after 14 days.
