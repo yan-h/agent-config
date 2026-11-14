@@ -17,9 +17,6 @@ Its review and merge steps follow sections of the `review-and-merge` skill, inst
 following them does not invoke that skill, so they need no further permission.
 If it is not installed, say so and stop.
 
-The `audit-drift` skill's "Fix what needs no answer, when the owner asks" section follows this skill from "Triage" by section name;
-rename these sections only together with it.
-
 Scope is every open issue, unless the invocation names issues or a label.
 In Claude that text is `$ARGUMENTS`; in Codex it is the text following `$sweep-issues`.
 

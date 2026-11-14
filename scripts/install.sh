@@ -64,36 +64,19 @@ if ! $cloud && ! python3 "$repo/skills/session-lifecycle/scripts/install.py" ${r
   status=1
 fi
 
-# A cloud environment's settings.json gets the hook that pulls this checkout, but
-# only when this script creates the file.
-settings="$HOME/.claude/settings.json"
-if $cloud; then
-  if [ -e "$settings" ]; then
-    echo "install: $settings exists; not adding the pull hook" >&2
-  else
-    cat >"$settings" <<EOF
-{
-  "hooks": {
-    "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "git -C '$repo' pull -q --ff-only || true" }] }
-    ]
-  }
-}
-EOF
-  fi
-fi
-
-# settings.json also gets the status line, which a cloud session has no terminal to
+# settings.json gets the status line, which a cloud session has no terminal to
 # show (an existing different statusLine is the owner's choice and is left alone),
 # a year of transcript retention, which a cloud container does not outlive,
-# and the PreToolUse hook that refuses subagents' waits past their five-minute prompt
-# cache, whose matcher a rerun keeps current.
+# the PreToolUse hook that refuses subagents' waits past their five-minute prompt
+# cache, whose matcher a rerun keeps current, and in the cloud the SessionStart hook
+# that pulls this checkout, matched by its git command and folder name so a moved checkout updates it.
+settings="$HOME/.claude/settings.json"
 $cloud || link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$repo/global/claude/subagent-wait-guard.sh" "$HOME/.claude/subagent-wait-guard.sh"
 mkdir -p "$HOME/.claude/agents"
 link "$repo/global/claude/agents/resumable.md" "$HOME/.claude/agents/resumable.md"
-if ! python3 - "$settings" "$cloud" <<'EOF'
-import json, os, shutil, sys
+if ! python3 - "$settings" "$cloud" "$repo" <<'EOF'
+import json, os, shlex, shutil, sys
 # realpath: replacing a symlinked settings.json would turn the link into a copy.
 path = os.path.realpath(sys.argv[1])
 settings = {}
@@ -120,6 +103,25 @@ for g in mine:
     g["matcher"] = matcher
 if not mine:
     groups.append({"matcher": matcher, "hooks": [{"type": "command", "command": guard}]})
+if sys.argv[2] == "true":
+    repo = sys.argv[3]
+    pull = f"git -C {shlex.quote(repo)} pull -q --ff-only || true"
+    def pulls_this(command):
+        # A checkout moved to a new path keeps its folder name; a hook that
+        # pulls another repository the same way is someone else's.
+        try:
+            words = shlex.split(command)
+        except ValueError:
+            return False
+        return (len(words) == 8 and words[:2] == ["git", "-C"]
+                and words[3:] == ["pull", "-q", "--ff-only", "||", "true"]
+                and os.path.basename(words[2].rstrip("/")) == os.path.basename(repo))
+    starts = settings["hooks"].setdefault("SessionStart", [])
+    mine = [h for g in starts for h in g.get("hooks", []) if pulls_this(h.get("command", ""))]
+    for h in mine:
+        h["command"] = pull
+    if not mine:
+        starts.append({"hooks": [{"type": "command", "command": pull}]})
 if json.dumps(settings, sort_keys=True) != before:
     with open(path + ".tmp", "w") as f:
         json.dump(settings, f, indent=2)
@@ -129,7 +131,7 @@ if json.dumps(settings, sort_keys=True) != before:
     os.replace(path + ".tmp", path)
 EOF
 then
-  echo "install: the status line, transcript retention and subagent wait guard are not set up: updating settings.json failed (above)" >&2
+  echo "install: the status line, transcript retention, subagent wait guard and cloud pull hook are not set up: updating settings.json failed (above)" >&2
   status=1
 fi
 # Without jq the status line is blank and the wait guard allows every call.

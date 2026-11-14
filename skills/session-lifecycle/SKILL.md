@@ -17,6 +17,10 @@ No configuration means no guessed artifact or cache paths.
 Custom Cargo target/build directories are unsupported; keep their caches rather than guessing.
 Cleanup also takes Cargo 1.92's native debug/release locks without replacing those lock files; revisit that when the configured projects change Cargo version, output layout or locking behavior.
 
+A project's loader runs under `lifecycle.py load`, which hands it the catalog lock so a retention sweep cannot retire the publication it is copying.
+Write a loader to build before it enters `load` and only select and copy under it:
+every child inherits the lock, and a daemon a build starts, such as sccache's server, keeps it and refuses every `handoff`, `finish`, `catalog`, `load` and hourly sweep in the repository until it exits, which it never does while sessions keep compiling.
+
 ## Hand over
 
 Commit, push and open the required draft PR before building.

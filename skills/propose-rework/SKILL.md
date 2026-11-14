@@ -12,7 +12,7 @@ If it names a design, the outcome that design serves is the target and the named
 a target written as "replace today's seven collision answers… with a column model" never considered the free placement with snapping that the owner proposed after its verdict and chose.
 
 This skill borrows from two skills installed beside it; if either is not installed, say so and stop.
-From `audit-drift`: the describer brief and "Record the answers".
+From `audit-drift`: the describer brief and "Record the answers" section.
 From `audit-premises`: [its rules](../audit-premises/references/rules.md), for what a guarantee is, how each rating judges a design and how a broken design is reshaped;
 its inventory brief and "Rate the guarantees" section; and its tester brief.
 
