@@ -99,15 +99,16 @@
 #     what says, is stale and does not protect anything. Every other reading
 #     of a live pid counts as live; `test_reclaim_worktrees.sh` beside this
 #     script is the gate on that, because getting it wrong deletes a directory
-#   - it is not locked by a live REMOTE CONTROL session — its `claude agent
-#     bridge-<id>` lock names the long-lived daemon's pid, so liveness there
-#     is read from process cwds instead; see the lock check
 #   - it is not locked by anything this script did not write; a hand-written
 #     lock stands until a human clears it
+#   - no process of this user has its cwd inside it, which is how a session
+#     with no lock (the desktop app's) or with a lock naming a long-lived pid
+#     (Remote Control's `claude agent bridge-<id>`) is seen; when lsof cannot
+#     show cwds, every worktree is kept. See the end of usable
 #   - nothing near its top level was touched in the last MIN_IDLE_MINUTES
 #
-# A worktree's cache is PRUNED (tier 1) on the same ownership, session and
-# live-lock checks, plus: `target/debug` itself has not been written in
+# A worktree's cache is PRUNED (tier 1) on the same ownership, session,
+# live-lock and process-cwd checks, plus: `target/debug` itself has not been written in
 # PRUNE_IDLE_MINUTES. Merge state is deliberately not consulted.
 #
 # `git status --porcelain` does not list IGNORED files, so a removed worktree
@@ -197,8 +198,8 @@ remove_owned_worktree() {
 }
 
 MIN_IDLE_MINUTES=${RECLAIM_MIN_IDLE_MINUTES:-120}
-# The prune gate is depth behind the live-lock check (see prune_caches), so it
-# only has to outlast one build step, and a running build keeps writing under
+# The prune gate is depth behind the liveness checks (see prune_caches), so
+# it only has to outlast one build step, and a running build keeps writing under
 # target/debug. An hour clears that easily. An eight-hour gate once let a disk
 # sit near-full while idle debug caches waited it out. Pruning a paused
 # worktree costs it a debug rebuild (mostly compiler-cache hits) and leaves
@@ -515,9 +516,9 @@ prune_cache() {
   python3 "$LIFECYCLE_TOOL" --repo "$cache_root" prune-cache "$cache_path"
 }
 
-# The cwd of every process this user owns, read once per run and only when a
-# Remote Control lock asks (see usable): `p<pid>` and `n<path>` lines, the
-# paths physical. Another user's processes are left out because a non-root
+# The cwd of every process this user owns, read once per run, when the first
+# worktree reaches the check at the end of usable: `p<pid>` and `n<path>`
+# lines, the paths physical. Another user's processes are left out because a non-root
 # lsof cannot read their cwds anyway, and sessions, builds and terminals are
 # all this user's. -n -P -w skip DNS, port names and warnings; -b keeps lsof
 # from blocking on a stale network mount at session start.
@@ -529,10 +530,10 @@ LSOF_TRIED=0
 #
 # $2 is the positive control: a pid whose cwd lsof must list before its
 # silence about the worktree means anything, since an empty or failed listing
-# would otherwise read every lock as stale. It is the lock's daemon while ps
-# shows it alive and this user's, which also proves lsof sees past this
-# script's own process tree; otherwise this script itself, which proves only
-# that lsof works. A recycled pid owned by someone else is the reason for the
+# would otherwise read every worktree as free. It is a Remote Control lock's
+# daemon while ps shows it alive and this user's, which also proves lsof sees
+# past this script's own process tree; otherwise this script itself, which
+# proves only that lsof works. A recycled pid owned by someone else is the reason for the
 # owner test — its cwd is unreadable, and the control would never pass. An
 # environment that hides other processes from ps and lsof alike is not
 # detected; the SessionStart hook does not run in one.
@@ -601,6 +602,9 @@ usable() {
       return 1 ;;
   esac
 
+  # The positive control for the process-cwd check at the end; see cwd_inside.
+  ctl=$$
+
   # A lock naming a live pid means a session still owns this worktree, unless
   # that pid is one whose liveness says nothing about the session (below). A
   # lock we cannot attribute to a pid is left alone rather than guessed at.
@@ -627,38 +631,17 @@ usable() {
     # so that pid is alive for as long as the phone bridge is up — read like
     # any other pid it made each of these locks permanent, and one such lock
     # once held gigabytes of cache on a nearly full disk, its HEAD already
-    # merged, with nothing running in it.
-    #
-    # So the question is asked of the worktree itself: does any process have
-    # its cwd there? The daemon runs each session as a child process in the
-    # worktree and keeps it for the session's life, and the cargo build it
-    # starts and a terminal left open in it count too, which is why this asks
-    # every process and not only `claude`.
+    # merged, with nothing running in it. So this lock says nothing either way,
+    # and the process-cwd check below decides, with the daemon as its control.
     #
     # Only the `bridge-` name means this. The Agent tool's `isolation:
     # "worktree"` writes the same `claude agent` shape, as `agent-a<hex>`, with
     # the PARENT session's pid — and the subagent runs inside that process, so
     # its worktree holds no cwd between commands. For that lock the pid is the
     # signal, and it takes the session path below.
-    #
-    # A wrong "stale" here still passes the idle, resolved and clean gates, but
-    # resolved includes a worktree still sitting on main's own commit, so a
-    # session that had made no commit could lose its worktree. That needs its
-    # child process gone while the session lives on, which the daemon does not
-    # do: it keeps each child unless told to exit on idle (`idleExitAfterMs`,
-    # zero for these). A listing that cannot show the control reads live.
     if [ -n "$(printf '%s' "$reason" | sed -n '/^ *claude agent bridge-/p')" ]; then
-      cwd_inside "$path" "$pid"
-      case $? in
-        0) note_held "$name" "$path" "Remote Control lock, and a process is running in it"
-           return 1 ;;
-        1) note "stale lock $name: Remote Control lock, and no process has its cwd inside"
-           return 0 ;;
-        *) note "skip $name: Remote Control lock, and lsof cannot show process cwds"
-           return 1 ;;
-      esac
-    fi
-    if ps -p "$pid" >/dev/null 2>&1; then
+      ctl=$pid
+    elif ps -p "$pid" >/dev/null 2>&1; then
       # The pid being alive does NOT make the lock live. Every local session
       # runs as a `claude bg-spare` process taken from a warm pool, and a spare
       # that goes back to the pool keeps its pid, so a dead session's lock is
@@ -681,20 +664,48 @@ usable() {
       # advertising. Holding disk costs a `rm -rf` later; releasing a live
       # session's lock costs the branch it was about to hand over.
       cmd=$(ps -p "$pid" -o command= 2>/dev/null)
+      sock=""
       case "$cmd" in
         *--bg-spare*)
           sock=${cmd##*--bg-spare }
-          sock=${sock%% *}
-          if [ -n "$sock" ] && [ -e "$sock" ]; then
-            note "stale lock $name: pid $pid is an unclaimed bg-spare, not a session"
-            return 0
-          fi ;;
+          sock=${sock%% *} ;;
       esac
-      note_held "$name" "$path" "locked by live pid $pid"
-      return 1
+      if [ -z "$sock" ] || [ ! -e "$sock" ]; then
+        note_held "$name" "$path" "locked by live pid $pid"
+        return 1
+      fi
+      note "stale lock $name: pid $pid is an unclaimed bg-spare, not a session"
     fi
   fi
-  return 0
+
+  # Does any process of this user have its cwd in the worktree? That is a
+  # session's own process wherever the harness writes no lock or one whose pid
+  # says nothing: the desktop app starts each session's process in its
+  # worktree and writes no lock at all, and Remote Control's daemon runs each
+  # session as a child there and keeps it unless told to exit on idle
+  # (`idleExitAfterMs`, zero for these). A build or a terminal left open in it
+  # counts too, which is why this asks every process and not only `claude`.
+  #
+  # Every worktree that gets this far is asked, not only a locked one,
+  # because the other gates do not see a live session. "Resolved" includes a
+  # branch still on main's own commit, and an orchestrator that writes
+  # elsewhere leaves its own tree clean and idle: one such desktop session had
+  # its worktree removed by the hourly sweep mid-run (#87). The SESSION_CWD
+  # test above stays because it needs no lsof and covers a session whose
+  # process cwd is elsewhere.
+  #
+  # What it cannot see is a session with no process: one the app has closed
+  # and may later resume. A listing that cannot show its control keeps every
+  # worktree from both tiers, as a lock this script cannot read does, so a
+  # machine without a working lsof reclaims nothing.
+  cwd_inside "$path" "$ctl"
+  case $? in
+    0) note_held "$name" "$path" "a process has its cwd inside"
+       return 1 ;;
+    1) return 0 ;;
+    *) note "skip $name: lsof cannot show process cwds"
+       return 1 ;;
+  esac
 }
 
 # Tier 1: regenerable caches out of an idle worktree. Never touches release.
@@ -710,8 +721,8 @@ prune_caches() {
     # this" signal than the worktree's top level. maxdepth 2 rather than 0
     # because an incremental build can touch only `deps/` or `.fingerprint/`
     # without ever updating `debug/`'s own mtime, and pruning mid-build would
-    # break that build. The live-lock check above is the primary guard; this is
-    # depth behind it, and `-quit` keeps it to a few hundred stats.
+    # break that build. The liveness checks in usable are the primary guard;
+    # this is depth behind them, and `-quit` keeps it to a few hundred stats.
     if [ -n "$(find "$victim" -maxdepth 2 -newermt "-${PRUNE_IDLE_MINUTES} minutes" -print -quit 2>/dev/null)" ]; then
       if [ "$DRY_RUN" = 1 ]; then
         kb=$(du -sk "$victim" 2>/dev/null | awk '{print $1}')
