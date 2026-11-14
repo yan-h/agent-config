@@ -121,7 +121,12 @@ one on the whole design, and one on each piece the verdict rests on that could f
 Check each attack's central claim against the code yourself before acting on it.
 
 An attack lands when it would change the verdict, a must-keep, a question for the owner or the point of no return; anything else is corrected and not attacked again.
-Answer a landed attack as the rules say, and attack the result: up to three rounds for the design, reshapes included.
+Answer a landed attack as the rules say. Attack the result again only when the attack changed the verdict, a must-keep or the point of no return,
+or exposed a failure the migration's own checks would not catch, such as silent data loss, a branch no test reaches or an irreversible format:
+up to three rounds for the design, reshapes included, each later round one red team at what changed rather than one per piece.
+A new or reworded question goes to the owner and earns no round of its own, and a piece the migration covers with an executable check, such as a randomised test or byte-identical renders, needs no later round.
+In the first four designs to run them, every second round landed, two with a silent failure the plan's own tests passed,
+while a premises audit's second round landed on two of five forms; a rework that cut its second round met two such claims only during the build.
 Report it open sooner when a second reshape answers an attack on the same piece, or when the design now removes less than it did entering the first round; report it open with every attack after the third round too.
 
 ## Map the migration surface

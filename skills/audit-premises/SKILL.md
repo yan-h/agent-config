@@ -175,7 +175,8 @@ Keep a ledger per form: for each round, what the attack hit, and what the form r
 
 A form holds when an attack changes nothing the owner would decide: what it finds is work `propose-rework` would do in designing the form,
 not an attack on the problem, a lost must-keep, or a guarantee given up that is unrated or unclear.
-A would-trade guarantee it gives up is a question in the report and does not stop it holding. "Survives in a new shape" is a reshape, not a hold.
+A would-trade guarantee it gives up is a question in the report and does not stop it holding, and neither does a new or reworded question for the owner that leaves the form as it was.
+"Survives in a new shape" is a reshape, not a hold.
 A form that does not hold is reshaped by the verdicts above and attacked again: up to three attacks in all for each form that entered the first round, its reshapes included.
 Stop sooner, and report the form open, when a second reshape answers an attack on the same piece, the sign of a premise left unresolved,
 or when the form now removes less than the one that entered the first round, which is reported beside it: reshaping toward what survives is the shrinking the rules warn of.
