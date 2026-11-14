@@ -51,7 +51,7 @@ Take the rest to the owner: twelve audited PRs had such a question settled or de
 Ask as the global preferences say, as soon as the questions arise, with the options and a recommendation; asked that way, the owner answered within a minute.
 The merge waits for the answers, unless the owner said to go on without them ("autonomously", "where no decision is needed", or that they will be away):
 then a question whose answer a later change can apply without undoing this one, and that changes nothing the owner sees or hears before then, becomes a linked issue and the merge goes ahead,
-and one whose answer would rewrite this change leaves the PR open.
+and any other leaves the PR open.
 
 **Alternatives and fixes.** Match each confirmed defect against the design alternatives.
 Make every alternative the verdict places in this change, and one it placed in a follow-up when several defects trace to it;
