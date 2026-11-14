@@ -44,7 +44,7 @@ on a branch, as a draft pull request where the project has them, and a defect is
 Do not pass them to the readers, who would anchor on them. Use them between the waves:
 an earlier decline, defeat or set-aside settles a candidate only while its recorded reason holds here.
 A decision or guarantee this audit holds open does not settle it, and neither does an audit's or review's weighing of upfront effort;
-the owner's own reason does, whichever process showed the owner the candidate.
+the owner's own reason does, whichever process showed the owner the candidate, unless that reason is a guarantee the owner has not named must keep in this run.
 A settled candidate is raised again only with evidence that was not there before, and says what changed.
 
 Size each agent by the global subagent guidance.
@@ -130,7 +130,7 @@ Ask the guarantee question for the groups that will be tested, then start the wa
 No form goes to a red team while a guarantee it gives up is unrated or flagged unclear.
 For those forms only, show the owner what each gives up, with the sizes readers reported, and what each must-keep has ruled out so far, so the owner can release one;
 then ask the question asked before the first wave: which must be kept, and in what form.
-What is shown and not named becomes would trade in the ratings file, not in the intent records, since the owner rated nothing.
+What is shown and not named becomes "would trade (not named)" in the ratings file, not in the intent records, since the owner rated nothing.
 Ask it before the second wave and before every round of the last one. A rating changed here is handled as "Rate the guarantees" says.
 
 ## Second wave: test, and reshape what breaks
@@ -173,10 +173,12 @@ aimed at what the form adds or revises and what that touches.
 Keep a ledger per form: for each round, what the attack hit, and what the form removes compared with the form that entered the first round.
 
 A form holds when an attack changes nothing the owner would decide: what it finds is work `propose-rework` would do in designing the form,
-not an attack on the problem, a lost must-keep, or a change to a question for the owner. "Survives in a new shape" is a reshape, not a hold.
-A form that does not hold is reshaped by the verdicts above and attacked again, up to three attacks per form in all.
+not an attack on the problem, a lost must-keep, or a guarantee given up that is unrated or unclear.
+A would-trade guarantee it gives up is a question in the report and does not stop it holding. "Survives in a new shape" is a reshape, not a hold.
+A form that does not hold is reshaped by the verdicts above and attacked again: up to three attacks in all for each form that entered the first round, its reshapes included.
 Stop sooner, and report the form open, when a second reshape answers an attack on the same piece, the sign of a premise left unresolved,
 or when the form now removes less than the one that entered the first round, which is reported beside it: reshaping toward what survives is the shrinking the rules warn of.
+A smaller form accepted by the verdict above is exempt, having shown it leaves nothing lasting in place.
 State the round and the running total of agents before each round.
 A form stopped by the cap, by either stop or by the owner is reported as open, with every attack and what the next would aim at; no answering shape sets it aside with every attack recorded.
 Every other reshaped or combined form is marked untested wherever it appears.
@@ -207,5 +209,5 @@ Open your next message to the owner with anything you told them that turned out 
 
 A standing candidate goes to `propose-rework` with its section of the report and its outcomes named; offer the invocation.
 When the owner answers, record each answer as the `audit-drift` skill's "Record the answers" section describes, in the intent record of every area the candidate touches;
-a declined candidate is recorded there with the reason.
+a declined candidate is recorded there with the owner's reason, in the owner's words.
 This report has no index to tick: rewrite the answered decision's line in the report instead.

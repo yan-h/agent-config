@@ -7,7 +7,7 @@ Every agent the audit starts is given this file and its own brief, by path.
 Every recorded decision is open: a candidate may supersede any record, any intent entry the owner chose, and any contract the project calls hard.
 So is every guarantee, as the next section says by its rating.
 The audit proposes; the owner decides.
-Where you cannot tell whether something is open, treat it as open, and name it among the guarantees your report lists, marked unclear, so the owner settles it before an attack rests on it:
+Where you cannot tell whether something is open, treat it as open, and name it among the guarantees your report lists, marked unclear:
 every error of scope in the first project ran the other way, holding fixed what the owner later gave up and shrinking candidates to what survived.
 For each record a candidate supersedes, it says which of the record's stated reasons no longer holds, or how the target still meets the need the record served:
 a record weighs what its reasons and its need still weigh, as the global preferences say.
@@ -24,7 +24,7 @@ Read the ratings file you were given before your own method; it overrides any ra
   Where no form keeps it, the candidate ends, and is reported as what that guarantee costs.
 - **Would trade for a large simplification:** open. The candidate names what a user loses, on which real cases, and what goes with it; the owner decides with that size in hand.
 - **Don't care:** open, and no attack. The candidate counts what goes.
-- **Unrated,** whether listed or found by you: open, as would trade, and reported with its size; the owner is asked about it before a form that gives it up is attacked.
+- **Unrated,** whether listed or found by you: open, as would trade, and reported with its size.
 
 The file's tolerances decide what counts as a cost for this run, over the standing preferences where the two differ.
 

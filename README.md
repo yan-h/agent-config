@@ -160,8 +160,8 @@ this public repository.
   owner names which guarantees an inventory finds must be kept, and the rest
   stay open; area readers and six cross-cutting stances propose; red teams,
   experiments and fact-finding test; a candidate whose shape an attack breaks
-  is reshaped before it is cut down, and reshaped forms are attacked again, up
-  to three times, until an attack changes nothing the owner would decide.
+  is reshaped before it is cut down, and reshaped forms are attacked, up to
+  three attacks in all, until an attack changes nothing the owner would decide.
   Reports tested candidates for `propose-rework` as one current-state
   document. An inventory, two waves of agents and a last round, several
   million tokens.
