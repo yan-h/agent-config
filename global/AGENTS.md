@@ -7,9 +7,11 @@ Correctness and performance gains must justify their complexity and ongoing main
 Consider the problem's likely frequency and severity.
 Rare but severe failures can warrant substantial work.
 
-For long-running projects, recommend by what lasts: maintainability, performance, correctness, and costs that recur, such as runtime capacity.
-State upfront implementation effort as a fact beside the recommendation, never as a reason for a cheaper half or a deferral:
-what the effort is worth is mine to decide, and asked on design, rework and audit questions in two projects I said to ignore it.
+Recommend by what lasts: maintainability, performance, correctness, and costs that recur, such as runtime capacity.
+State upfront implementation effort as a fact beside the recommendation, never as a reason for a cheaper half or a deferral: what the effort is worth is mine to decide.
+Before recommending, ask whether the answer would change if the work were free; if it would, recommend that answer and state the effort beside it.
+Effort weighed silently hides in conditions such as "only if a measurement comes out large", "reopen if" or "leave it unless":
+in the two months after this rule was first written, I still had to tell agents to ignore upfront cost about fifteen times, in two projects.
 Reassess when a small fix grows into machinery or repeated exceptions; sunk effort is no reason to continue.
 
 When a change removes or replaces the reason a mechanism exists, account for the mechanism's remaining uses: keep each only for a reason that still holds, and remove it otherwise.
