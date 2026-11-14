@@ -29,7 +29,7 @@ not by denser style, but by choosing structures under which the lines are not ne
 Measure where the lines are, by concern and split into source and tests, as a ledger.
 For each large concern find what multiplies it, and the structural choice behind each multiplier.
 Report the ledger today and in your design, the multipliers ranked by lines,
-the overhauls they imply ranked by lines removed per would-trade guarantee given up, and what cannot shrink.
+the overhauls they imply ranked by lines removed per would-trade or unrated guarantee given up, and what cannot shrink.
 
 ## Performance architect
 

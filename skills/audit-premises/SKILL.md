@@ -1,6 +1,6 @@
 ---
 name: audit-premises
-description: Audit a project for overhauls that become possible if recorded decisions may be superseded and behaviour guarantees given up — designs a different premise would make simpler, faster or impossible to get wrong. The owner rates the guarantees first, readers propose, red teams and experiments test, and a candidate whose shape an attack breaks is reshaped before it is cut down. Produces tested rework candidates for the owner, not fixes. Started only by the repository owner invoking it explicitly.
+description: Audit a project for overhauls that become possible if recorded decisions may be superseded and behaviour guarantees given up — designs a different premise would make simpler, faster or impossible to get wrong. The owner names the guarantees that must be kept, readers propose, red teams and experiments test, and a candidate whose shape an attack breaks is reshaped before it is cut down. Produces tested rework candidates for the owner, not fixes. Started only by the repository owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
@@ -29,10 +29,10 @@ The output is tested rework candidates for the `propose-rework` skill. This audi
 
 ## Before starting
 
-**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds a few more each time it repeats.
+**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds up to three red teams for each form the verdict rests on.
 Invoking the skill is the owner accepting a run of that order. State the number of agents before the inventory and before each wave, so the owner can interrupt.
-The owner's ratings shrink the second wave: readers report what a must-keep rules out as that guarantee's price, which the second wave does not test, and a don't-care needs no defending.
-In the first project the ratings removed most of the planned agents before any ran.
+The owner's must-keeps shrink the second wave: readers report what a must-keep rules out as that guarantee's price, which the second wave does not test.
+In the first project, rating every guarantee with sizes in hand removed most of the planned agents before any ran; naming only must-keeps prunes less, so expect a larger second wave.
 Run both waves or neither: the first wave alone produced a confident, convergent ranking in which four of the top five candidates were later defeated or cut to a third or less.
 
 **Where the report lives.** The run writes to the tracker: one tracking issue, each agent's report as a comment on it, an issue for each defect reproduced on the way, and later rewrites of the tracking issue's body.
@@ -42,9 +42,10 @@ on a branch, as a draft pull request where the project has them, and a defect is
 
 **What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates in the intent records.
 Do not pass them to the readers, who would anchor on them. Use them between the waves:
-a candidate the owner declined after a premises audit tested it is raised again only with evidence that was not there before, and says what changed.
-One declined under a narrower frame, by an audit or review that held recorded decisions or guarantees fixed or weighed upfront effort, is not settled here:
-it stands as any reader's candidate would, and the report says which frame declined it.
+an earlier decline, defeat or set-aside settles a candidate only while its recorded reason holds here.
+A decision or guarantee this audit holds open does not settle it, and neither does an audit's or review's weighing of upfront effort;
+the owner's own reason does, whichever process showed the owner the candidate.
+A settled candidate is raised again only with evidence that was not there before, and says what changed.
 
 Size each agent by the global subagent guidance.
 The red teams and the designers among the stances are the consequential judgement; fact-finding is lighter.
@@ -71,16 +72,16 @@ Size it as judgement, not lookup: the guarantees that mattered in the first proj
 Merge the lists, keeping a product-wide guarantee once.
 
 Then show the owner the merged list in chat, area by area, largest first, with the recorded ratings shown as standing unless the owner changes one,
-and ask one thing: which must be kept, and what form the owner would accept instead.
-"Must keep, but a grid would do" opened a redesign of placement.
-Every guarantee the owner does not name stays unrated: open as would trade, sized by the readers, and rated between the waves only where a candidate gives it up.
+and ask one thing: which must be kept, and what form the owner would accept instead. Must-keeps prune most:
+"must keep, but a grid would do" opened a redesign of placement.
+Every guarantee the owner does not name stays unrated, and comes back to the owner only through the guarantee question below.
 The owner may rate more now, but is not walked through the list one guarantee at a time:
-that spends the owner's attention on guarantees no candidate touches, and asks for a rating before its size is known, where between the waves it comes with a reader's size.
+that spends the owner's attention on guarantees no candidate touches, and asks before the size is known, where the guarantee question comes with a reader's size.
 The default leans open for the reason the rules give under "What is open".
 Ask too for the run's tolerances where they depart from the standing preferences in the project contract:
 what counts first, how much machinery an edge case may keep, how loose performance targets may be, and how much change in output is acceptable.
 
-Write the ratings file: each guarantee in user terms with its rating and any accepted form, then the run's tolerances.
+Write the ratings file: each guarantee in user terms with its rating, or marked unrated, and any accepted form, then the run's tolerances.
 Leave out the inventory's code pointers, which would anchor the clean-room designer. Every later agent gets the file's path.
 Record each rating the owner gave in the intent record of every area the guarantee touches, as the `audit-drift` skill's "Record the answers" section describes but with no index to tick;
 record a don't-care as open to giving up in a rework, not as leave to remove the guarantee outside one. The run's tolerances are not recorded there.
@@ -89,7 +90,8 @@ the owner reversed one within the same session in the first project.
 
 Both areas rated so far were rated with sizes from a full earlier run in hand, which is why the inventory gets earlier audits' measurements;
 whether an inventory sizes guarantees well enough without them is untested.
-Say in the report how many guarantees the owner named must keep before the first wave, and how many were rated between the waves.
+Say in the report how many must-keeps the owner named before the first wave, whether the inventory had earlier measurements, and where readers' sizes disagreed with the inventory's;
+naming only must-keeps up front is untried too.
 
 ## First wave: readers who propose
 
@@ -116,12 +118,20 @@ Agreement among readers is weak evidence: they read the same records.
 Seven readers reached one candidate that a red team then cut to a third, and five reached one that was defeated.
 
 Group the candidates by the premise each questions, across areas, and set aside what earlier runs settled.
-Show the owner each unrated guarantee a candidate gives up, with the sizes readers reported, and each that a reader found and the inventory missed, and rate them before any candidate resting on one is tested.
 Check each report's central claims yourself by reading the cited lines.
 A search that matches a word is not a check: two statements made to the owner from such searches were false.
 
 Write the groups to a file. It is the write-up the second wave is given, and what you tell the owner:
-candidates under test, not a ranking, with the number of agents the second wave will use. Then start it.
+candidates under test, not a ranking, with the number of agents the second wave will use.
+Ask the guarantee question for the groups that will be tested, then start the wave.
+
+## The guarantee question, before any attack
+
+No form goes to a red team while a guarantee it gives up is unrated or flagged unclear.
+For those forms only, show the owner what each gives up, with the sizes readers reported, and what each must-keep has ruled out so far, so the owner can release one;
+then ask the question asked before the first wave: which must be kept, and in what form.
+What is shown and not named becomes would trade in the ratings file, not in the intent records, since the owner rated nothing.
+Ask it before the second wave and before every round of the last one. A rating changed here is handled as "Rate the guarantees" says.
 
 ## Second wave: test, and reshape what breaks
 
@@ -152,17 +162,23 @@ an ignored directory in a worktree that can be reclaimed is where the first run 
 Take each red team's verdict in turn:
 
 - **Defeated on the problem:** the candidate ends. Where the reason is the owner's, say where it is recorded.
-- **Gives up a guarantee:** judged by its rating as the rules say; a would-trade or unrated one is a yes/no question for the owner, with what goes with it.
+- **Gives up a guarantee:** judged by its rating as the rules say; a would-trade one is a yes/no question for the owner in the report, with what goes with it, and an unrated or unclear one goes to the guarantee question before the form's next attack.
 - **Conditional:** combine it with the piece it names.
 - **Breaks, with no answering shape found:** look for the answer among the other candidates' pieces before setting it aside with the attack recorded.
 - **Smaller form:** it is the candidate where the red team showed it leaves nothing lasting in place; otherwise restore the full form and say what the smaller one leaves.
 
 Build the combined forms whose pieces answer each other's objections.
-A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team, briefed as in the second wave with the current ratings file, at each form the report's verdict would rest on.
-A form that red team breaks on its shape is reshaped again, by the verdicts above, and the new form goes to another fresh red team;
-a form revised to answer an attack is a new form too, and its revised claims are the ones to attack.
-Repeat until each form the verdict rests on survives an attack, or no answering shape is found, which sets it aside with every attack recorded.
-State the number of agents before each round; a form the owner stops is reported as open, with every attack, and what the next attack would aim at.
+A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team, briefed as in the second wave with the current ratings file, at each form the report's verdict would rest on,
+aimed at what the form adds or revises and what that touches.
+Keep a ledger per form: for each round, what the attack hit, and what the form removes compared with the form that entered the first round.
+
+A form holds when an attack changes nothing the owner would decide: what it finds is work `propose-rework` would do in designing the form,
+not an attack on the problem, a lost must-keep, or a change to a question for the owner. "Survives in a new shape" is a reshape, not a hold.
+A form that does not hold is reshaped by the verdicts above and attacked again, up to three attacks per form in all.
+Stop sooner, and report the form open, when a second reshape answers an attack on the same piece, the sign of a premise left unresolved,
+or when the form now removes less than the one that entered the first round, which is reported beside it: reshaping toward what survives is the shrinking the rules warn of.
+State the round and the running total of agents before each round.
+A form stopped by the cap, by either stop or by the owner is reported as open, with every attack and what the next would aim at; no answering shape sets it aside with every attack recorded.
 Every other reshaped or combined form is marked untested wherever it appears.
 
 The first project stopped too early here: its combined rework was never attacked whole, the design that followed was attacked once,
