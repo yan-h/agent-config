@@ -16,10 +16,10 @@ When a skill runs `/code-review`, choose the effort level to fit the diff's risk
 
 ## Consent to merge and to write to issues
 
-Auto mode counts only my own words in the chat as consent to merge a pull request or to edit or close an issue.
+Auto mode counts only my own words in the chat as consent to merge a pull request or to file, edit or close an issue.
 It has passed a `/review-and-merge` I typed, and refused a `/sweep-issues` run's first merge and another's issue edits, merges authorized only in an umbrella issue, and a handover session's merge after my bare "go ahead" to its brief.
-So as soon as you know that work will merge or write to issues on anything less, an ordinary session that will open several PRs or file follow-ups included, and before its first gate,
-ask me to say so in chat, naming the merges and issue writes, filing included, in one question, and take one answer as covering what it names:
+So as soon as you know that work will merge or write to issues on anything less, an ordinary session that will file follow-up or handover issues included, and before its first gate,
+ask me to say so in chat, naming the merges and issue writes in one question, and take one answer as covering what it names:
 a run refused at its first merge waits there with its gates already run, and asking per item cost about thirty-five one-line approvals in one week, one six minutes after I had said "do all four issue writes".
 Do not retry or route around a refusal.
 
@@ -30,8 +30,9 @@ open the file there with `open` (Preview for images, the browser for HTML) and s
 
 ## Auto-fix and waiting
 
-The Auto-fix app's CI events report failing checks and conflicts, never success, so its "don't keep polling" does not wake you when a PR goes green:
-hold a wait for a merge with a watch that ends when the checks do, such as `gh pr checks --watch` in the background.
+The Auto-fix app's CI events report what needs attention, such as a failing check or a conflict, not a PR going green, so its "don't keep polling" does not wake you for a merge:
+hold that wait yourself in the background, first until `gh pr checks` lists the checks (it exits 8 while they are pending), then with `gh pr checks --watch`,
+which exits at once, as if failed, while no checks are registered.
 
 ## Model costs
 

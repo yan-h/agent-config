@@ -81,7 +81,7 @@ This is a standing request across all projects: do not ask permission, and do no
 Delegate through your host's own subagents; do not launch another agent product or CLI unless I ask.
 The `api-second-opinion` skill is not one: it makes one API call, returning one answer over only the context you send, without tools, where a subagent can explore, run commands and edit.
 
-Choose each subagent's model and effort explicitly, and each model you recommend for a session, weighing what they cost against the quality the task needs and what a weaker result would cost to catch and redo.
+Choose each subagent's model and effort explicitly, weighing what they cost against the quality the task needs and what a weaker result would cost to catch and redo.
 Faster models suit bounded lookup, inventory, and mechanical work; stronger ones earn their cost on complex, ambiguous, cross-cutting, or consequential work.
 Higher effort spends more tokens and pays off mainly on hard problems.
 Where your host's global file lists relative model costs, use them.
@@ -93,8 +93,8 @@ Local builds share one machine, so parallelism can stop paying well before the a
 Run a full gate only on the head that will land: finish review and its fixes first, then gate once.
 
 Follow each project's rules for worktrees and concurrent edits, and avoid overlapping writes.
-Brief a read-only subagent that shares a checkout not to change its checked-out branch or files, to put a probe in a scratch copy, and to build only as the project's lifecycle wrapper says:
-a reviewer that built outside the wrapper, with a probe edited into a source file, failed the author's handoff build on a busy lock, and
+Brief a read-only subagent that shares a checkout not to change its checked-out branch or files, and to probe and build only in a scratch copy:
+a reviewer that built in the shared checkout, with a probe edited into a source file, failed the author's handoff build on a busy lock, and
 a reviewer's `git checkout` of the pull request's head left a builder's worktree on a detached HEAD under a second reviewer, where the next fixer's commits would have landed on no branch.
 The main agent remains responsible for integrating and verifying delegated results and completing the task.
 
