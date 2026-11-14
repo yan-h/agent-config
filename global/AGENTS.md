@@ -5,14 +5,26 @@
 Balance maintainability, performance, and correctness for the actual product and its usage.
 Correctness and performance gains must justify their complexity and ongoing maintenance cost; cheap code generation does not make code cheap to own.
 Consider the problem's likely frequency and severity.
-Rare but severe failures can warrant substantial work.
+Rare but severe failures can warrant substantial work; a performance edge case or a rare inconvenience does not.
+Prefer the simpler form to a cache, fast path, guard or proof that pays only there, and state what going without it costs.
+A simpler, more consistent rule outweighs small changes in existing output, such as a few decibels of level or a moved golden image:
+report those as facts, and count as a cost only a capability that no setting reaches any more.
 
 Recommend by what lasts: maintainability, performance, correctness, and costs that recur, such as runtime capacity.
-State upfront implementation effort as a fact beside the recommendation, never as a reason for a cheaper half or a deferral: what the effort is worth is mine to decide.
+State upfront implementation effort, and the tokens an investigation or review would spend, as a fact beside the recommendation, never as a reason for a cheaper half or a deferral: what the effort is worth is mine to decide.
 Before recommending, ask whether the answer would change if the work were free; if it would, recommend that answer and state the effort beside it.
 Effort weighed silently hides in conditions such as "only if a measurement comes out large", "reopen if" or "leave it unless":
 in the two months after this rule was first written, I still had to tell agents to ignore upfront cost about fifteen times, in two projects.
 Reassess when a small fix grows into machinery or repeated exceptions; sunk effort is no reason to continue.
+
+When you propose a fix or a design, look first for the cleaner, more general one that removes special cases,
+one that changes behaviour, supersedes a recorded decision or overhauls structure included, and at how other software and the field's conventions solve the problem.
+Put it beside the smaller fix, labelled by confidence: I would rather see an overhaul that goes too far than miss a good one, and models rarely treat overhauling existing structure as an option.
+In four weeks I asked about seventy times, across projects, for the more general design, the overhaul or what others do.
+
+Plan the lean process first, and name what each safeguard you leave out would catch, so I can add it back:
+pinning tests for behaviour about to go, side-by-side harnesses, extra design rounds and a PR per small step are not defaults.
+Models over-weight correctness ceremony in ways that add effort; on one rework I cut all of these and kept the gate on each PR.
 
 When a change removes or replaces the reason a mechanism exists, account for the mechanism's remaining uses: keep each only for a reason that still holds, and remove it otherwise.
 When a change deliberately leaves something as it was, say why it still earns its place; "keep existing behavior" alone is not a reason.
@@ -73,6 +85,7 @@ The main agent remains responsible for integrating and verifying delegated resul
 
 Keep commits logically separated within a combined pull request.
 Squash-merge by default; use a merge commit only when the commits are separable decisions, each worth finding on its own, rather than revisions of one another.
+Open no pull request, issue or comment on a repository I do not own; keep patches to others' code local.
 In a pull request body or a commit message, keep GitHub's closing verbs (fix, close, resolve, in any tense) away from the number of an issue the merge should leave open:
 "Filed rather than fixed: #N" closed #N. Write "tracked in #N".
 

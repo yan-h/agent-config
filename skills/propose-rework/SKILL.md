@@ -74,7 +74,6 @@ when a must-keep is why a design fails or needs a second spike, show the owner w
 Ask how you would build this part if it did not exist, given everything else in the codebase as it is.
 Aim for the most far-reaching design that reaches the outcome, not the safest: widen it beyond the named part, or take in another candidate, wherever that removes more.
 A variant you are unsure of goes in the report labelled by confidence, not dropped.
-The owner would rather see a rework that goes too far than miss a good one, and noticed that models rarely treat overhauling existing structure as an option.
 Look first at how other systems of the kind solve it, and at what in this codebase already does part of it:
 the owner asked for the first in two runs and the second in a third.
 Then set out:
