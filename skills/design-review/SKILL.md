@@ -13,9 +13,10 @@ In Claude that text is `$ARGUMENTS`; in Codex it is the text following `$design-
 
 Read the project's local contract, and the issue or PR description behind the change, before starting.
 What counts as maintainable depends on where the project is going: its roadmap, its recorded decisions, and the scale it must support.
-A recorded decision the change collides with is weighed as the global preferences say and becomes a question for the owner; none is reopened here otherwise.
+A recorded decision the change collides with is weighed as the global preferences say and becomes a question for the owner; none is reopened here otherwise, except as follows.
 A decision this change is the first to build is part of the design under review, not settled ground:
-defects that trace to its rule are evidence against it: one pass patched a just-accepted selection rule, and after the merge the owner had to ask why the module had so many edge cases.
+defects that trace to its rule are evidence against it, and an alternative that departs from it is a question for the owner.
+One pass patched a just-accepted selection rule instead, and after the merge the owner had to ask why the module had so many edge cases.
 
 ## Correctness
 
@@ -35,7 +36,7 @@ Do not edit the checked-out tree while it reads: one pass reviewed a worktree th
 It is consequential judgement; size it by the global subagent guidance.
 Where that guidance picks Fable and the `api-second-opinion` skill's test for an unasked call holds, one `ask-api --review` call is the pass instead:
 add with `-f` the files beyond the diff that the design turns on, chosen as that skill's "Choosing the context" section says, because the model cannot open them.
-Its question leaves your view out as a brief does; two such calls were told what to weigh, one with the author's choices given as the owner's.
+Its question carries the owner's words and leaves your view out as a brief does; two such calls were told what to weigh, one with the author's choices given as the owner's.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).
 
