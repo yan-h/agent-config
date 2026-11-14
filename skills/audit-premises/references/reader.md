@@ -53,7 +53,7 @@ Then:
   what it would be made of, what the current design has that it would not, and what it would do better.
   Go further than seems prudent.
 - **Contracts you would break,** and what breaking each buys.
-- **Guarantees the ratings file does not list,** each with what keeping it costs.
+- **Guarantees the ratings file does not list, or that you could not tell were open** (marked unclear), each with what keeping it costs.
 - **Considered and rejected,** each with the code or measurement that defeats it.
 - **Load-bearing and right:** what a rework must not disturb, and why.
 

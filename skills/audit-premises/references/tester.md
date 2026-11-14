@@ -55,4 +55,5 @@ About 2,000 words at most:
 1. **A verdict per claim you were given,** then the evidence.
 2. **Numbers,** each with how it was taken and where its raw output is.
 3. **What changes in the write-up:** the sentences that are now wrong, and what replaces each.
+4. **Guarantees given up that are unrated, unlisted or unclear,** each with its size.
 4. **New findings** you did not go looking for.
