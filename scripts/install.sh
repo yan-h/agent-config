@@ -1,9 +1,10 @@
 #!/bin/bash
-# Link this checkout's Claude instructions into ~/.claude and its skills into
-# ~/.claude/skills and ~/.agents/skills, install session-lifecycle's hourly
-# sweep, set up the status line, the subagent wait guard and ask-api, and
-# install Remote Control at login
-# where ~/.claude/remote-control-projects exists. Safe to rerun: it replaces only
+# Link this checkout's global instructions into Claude (~/.claude/CLAUDE.md),
+# Codex (~/.codex/AGENTS.md), and Gemini CLI and Antigravity (~/.gemini/GEMINI.md),
+# and its skills into ~/.claude/skills, ~/.agents/skills and
+# ~/.gemini/config/skills, install session-lifecycle's hourly sweep, set up the
+# status line, the subagent wait guard and ask-api, and install Remote Control at
+# login where ~/.claude/remote-control-projects exists. Safe to rerun: it replaces only
 # links, never a real file. Every rerun also restarts the sweep, which runs once at load.
 # --repo PATH (repeatable): a project for the sweep to cover. A rerun keeps the
 # projects already registered, so only a new machine or project needs it.
@@ -34,11 +35,17 @@ link() {  # link TARGET LINK
   ln -sfn "$1" "$2"
 }
 
-mkdir -p "$HOME/.claude/skills" "$HOME/.agents/skills" "$bin"
+mkdir -p "$HOME/.claude/skills" "$HOME/.agents/skills" "$HOME/.gemini/config/skills" \
+  "$HOME/.codex" "$bin"
 link "$repo/global/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-# Both catalogs: Codex reads ~/.agents/skills, and so do the projects' own
-# wrappers that run a shared script (session-lifecycle.sh, reclaim-worktrees.sh).
-for catalog in "$HOME/.claude/skills" "$HOME/.agents/skills"; do
+link "$repo/global/AGENTS.md" "$HOME/.codex/AGENTS.md"
+# Antigravity loads ~/.gemini/GEMINI.md as a global rule, as Gemini CLI does; a
+# second copy under ~/.gemini/config/rules would load the file twice.
+link "$repo/global/AGENTS.md" "$HOME/.gemini/GEMINI.md"
+# Codex and the projects' own wrappers that run a shared script
+# (session-lifecycle.sh, reclaim-worktrees.sh) read ~/.agents/skills;
+# Antigravity reads ~/.gemini/config/skills.
+for catalog in "$HOME/.claude/skills" "$HOME/.agents/skills" "$HOME/.gemini/config/skills"; do
   for skill in "$repo"/skills/*/; do
     skill=${skill%/}
     link "$skill" "$catalog/${skill##*/}"
