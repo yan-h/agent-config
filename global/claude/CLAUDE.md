@@ -17,7 +17,7 @@ When a skill runs `/code-review`, choose the effort level to fit the diff's risk
 ## Consent to merge and to write to issues
 
 Auto mode counts only my own words in the chat as consent to merge a pull request or to file, edit or close an issue.
-It has passed a `/review-and-merge` I typed, and refused a `/sweep-issues` run's first merge and another's issue edits, merges authorized only in an umbrella issue, and a handover session's merge after my bare "go ahead" to its brief.
+It has passed a `/review-and-merge` I typed, and refused a `/sweep-issues` run's first merge and another's issue edits, merges authorized only in an umbrella issue, a handover session's merge after my bare "go ahead" to its brief, and a session's filing of an issue.
 So as soon as you know that work will merge or write to issues on anything less, an ordinary session that will file follow-up or handover issues included, and before its first gate,
 ask me to say so in chat, naming the merges and issue writes in one question, and take one answer as covering what it names:
 a run refused at its first merge waits there with its gates already run, and asking per item cost about thirty-five one-line approvals in one week, one six minutes after I had said "do all four issue writes".
