@@ -76,8 +76,7 @@ A mergeable status reported before the checks have started is not a pass.
 A conflict with the primary branch may stop checks from running at all:
 bring the primary branch in by the project's method, rerun the gates, push, and wait again.
 A failing check is fixed, not merged past; one failing for a reason outside the PR leaves the PR open and is reported.
-The Auto-fix app reports failing checks, never passing ones, so its "don't keep polling" does not replace this wait:
-hold it with a watch that ends when the checks do, such as `gh pr checks --watch` run in the background, since sessions that ended their turn on the app left the owner to nudge at least nine merges.
+Hold the wait with a watch that ends when the checks do; a CI app that reports only failures does not end it, as the host's global file says.
 Where the repository has no hosted checks, the gate the project contract names, passed on the exact head that merges, is the check.
 
 ## Merge
