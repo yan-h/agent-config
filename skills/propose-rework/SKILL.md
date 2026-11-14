@@ -120,9 +120,16 @@ the ratings file, the design, the spike's results, the behaviour differences and
 one on the whole design, and one on each piece the verdict rests on that could fail alone. State the number of agents before each round.
 Check each attack's central claim against the code yourself before acting on it.
 
-An attack lands when it would change the verdict, a must-keep, a question for the owner or the point of no return; anything else is corrected and not attacked again.
-Answer a landed attack as the rules say, and attack the result: up to three rounds for the design, reshapes included.
-Report it open sooner when a second reshape answers an attack on the same piece, or when the design now removes less than it did entering the first round; report it open with every attack after the third round too.
+An attack lands when it would change the verdict, a must-keep, a question for the owner or the point of no return,
+or when it shows a failure that a check the design relies on passes over or never runs; anything else is corrected and not attacked again.
+Before any further round, report the design open, with what the next attack would aim at, when a second reshape answers an attack on the same piece,
+when it now removes less than it did entering the first round, or when the third round's attack lands, listing every attack:
+one design ran a third round on a piece already reshaped twice, and reshaped it a third time.
+Otherwise attack the answer where it revised the design, with one red team at what it revised and what that touches: up to three rounds for the design, reshapes included.
+An answer that only adds or rewords a question for the owner earns no round.
+This rule has not yet run. Under the earlier one, every second round in four designs landed, one with a failure that passed all 224 of the plugin's tests;
+a rework that cut its second round met seven defects in the build, two of which, besides a local one, a second attack would plausibly have caught,
+one of them a claim assigned to a randomised test that held, and reworked no merged step.
 
 ## Map the migration surface
 
@@ -159,7 +166,7 @@ Lead with a one-line verdict — do the rework, do the smaller change, or leave 
 - **Guarantees:** each with its rating, and what each must-keep ruled out.
 - **Designs:** target, smaller change and doing nothing, each with what it removes and what it costs.
 - **Spike:** what it tested and what it showed, or why none was needed.
-- **Attacks:** what each round hit and what changed; any form left open.
+- **Attacks:** what each round hit and what changed, and whether the design was left open.
 - **Behaviour changes:** the fixes, as facts, and the don't-cares given up.
 - **Migration:** the steps, each sized roughly as a PR, the safeguards left out, and the point of no return.
 - **Cost and risk:** total upfront cost, what is left if the work stops after any step,
