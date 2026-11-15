@@ -134,8 +134,8 @@ this public repository.
   invoking it grants merge permission for the run.
 - `review-and-merge` — review a PR, or each of a set the owner names, for
   correctness and design if its diff warrants it, fix what the review
-  confirms where the case is common or costly enough to pay for the fix, wait
-  for its checks, then merge. Makes design adjustments itself;
+  confirms and the project's stakes record pays for, wait for its checks,
+  then merge. Makes design adjustments itself;
   the owner's questions, and a verdict to rethink the approach, hold the merge.
   Owner-requested: the owner's own message naming it, alone or chained after
   other work, grants merge permission for the PRs it covers.
@@ -143,8 +143,8 @@ this public repository.
   design would leave less long-term debt. Read-only; the owner picks which
   alternatives to take.
 - `audit-drift` — audit every area of a project, or one named area, for drift
-  from the owner's intent: machinery whose reason has gone or whose case is
-  too rare to pay for it, frozen values, tests guarding a mechanism, stale
+  from the owner's intent: machinery whose reason has gone or that the
+  project's stakes record does not pay for, frozen values, tests guarding a mechanism, stale
   prose. Reports a few yes/no questions per area, and a table of mechanisms
   to cut, in a piecemeal tracking issue and records the owner's answers in
   per-area intent records. Owner-invoked. When the owner asks, it,

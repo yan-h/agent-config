@@ -69,7 +69,7 @@ Check what a review claims before acting on it or writing it into the PR: a desi
 Keep fixes inside the PR's scope; anything else found along the way goes where the project contract sends it,
 and where it says nothing is reported, not fixed here.
 
-**Re-read.** After each round that changed code, have the correctness review read the new diff, until a round changes nothing:
+**Re-read.** After each round that changed the diff, have the correctness review read the new diff, until a round changes nothing:
 in three audited runs re-reads found two, three and five new defects in fixes.
 Its findings are settled like any other, so a round whose findings earn no fix ends the loop.
 When the changes or the owner's answers alter the design, by superseding a decision or adding a mechanism, rerun the design pass on the whole change.
@@ -97,5 +97,5 @@ Confirm the merge landed on the remote primary branch before reporting, and clea
 
 ## Report
 
-The merge commit, whether the PR was reviewed and why, who ran each pass (a fresh subagent or an API call) on which model, what the review changed, the lines it added to the diff first reviewed and the rounds it ran, the findings left unprotected with their case and cost, the design verdict, the adjustments made for it, the questions taken to the owner and how each was settled, and any follow-up issues filed.
+The merge commit, whether the PR was reviewed and why, who ran each pass (a fresh subagent or an API call) on which model, what the review changed, the lines it added to the diff first reviewed and the rounds it ran, the findings left unprotected with their case and cost, any fixed that you would have left, the design verdict, the adjustments made for it, the questions taken to the owner and how each was settled, and any follow-up issues filed.
 If the PR is left open, say so and name what blocks it.

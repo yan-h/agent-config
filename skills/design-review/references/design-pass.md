@@ -7,9 +7,10 @@ Then ask how you would solve that problem in this codebase if the change did not
 The best alternative often changes existing code the diff only works around.
 
 Do not take what the issue requires of the change as given.
-Judge each requirement, and each must-keep it took from existing behaviour, as the global preferences say of what a project guarantees,
-and raise as an alternative the design that goes without those nothing there protects:
-design passes on two reworks took their issues' requirements as given.
+Judge each requirement it took from existing behaviour as the global preferences say of what a project guarantees,
+and raise as an alternative the design that goes without those nothing there protects;
+a requirement in the owner's own words goes under Questions, not into an alternative.
+Design passes on two reworks took their issues' requirements as given.
 
 Compare the change against that design. Look in particular for:
 

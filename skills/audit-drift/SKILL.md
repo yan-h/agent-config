@@ -1,6 +1,6 @@
 ---
 name: audit-drift
-description: Audit a project for drift from the owner's intent — machinery whose reason has gone or whose case is too rare to pay for it, frozen values that stopped fitting, tests guarding a mechanism instead of a behaviour, prose describing code that no longer exists. Every area by default, or one named area. Started only by the repository owner invoking it explicitly.
+description: Audit a project for drift from the owner's intent — machinery whose reason has gone or that the project's stakes do not pay for, frozen values that stopped fitting, tests guarding a mechanism instead of a behaviour, prose describing code that no longer exists. Every area by default, or one named area. Started only by the repository owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
@@ -33,7 +33,7 @@ Tests asserted the mechanism rather than the behaviour, so two kept passing afte
 The kinds seen so far:
 
 - **Orphaned mechanism:** its motivating case was removed or replaced, and it stays for the others.
-- **Mechanism that does not pay for itself:** its reason holds, but the case occurs too seldom in the owner's use, or costs too little when it does, for the lines and state it takes.
+- **Mechanism the stakes record does not pay for:** its reason holds, but its case lies outside the use the record states, or the worst it prevents is one the record calls cheap.
   Asked this, about half of two reworks' mechanisms protected a case never observed, a platform the owner does not run, or a flood of over 2,048 events at the moment of stopping,
   and much of that had been added to answer review findings.
 - **Frozen or captured value that stopped fitting** once something beside it moved.

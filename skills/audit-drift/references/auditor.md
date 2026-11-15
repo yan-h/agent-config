@@ -25,8 +25,8 @@ and every test of one feature turned out to run on a configuration the product d
    whether the use and load the stakes record states can reach the case, the worst going without the mechanism does, and the production and test lines that exist only for it.
    Beyond the record, take frequency from evidence, not from what could happen: the fresh defaults, the intent record,
    and whether the origin PR or any issue records the case happening, or only a review finding that supposed it.
-   A mechanism that works leaves no reports, so an absence of them shows nothing:
-   where the origin only supposed the case, decide from whether the stated use and load can reach it.
+   A mechanism that works leaves no reports, so an absence of them does not show its case never occurs:
+   where the origin only supposed the case and the stated use can reach it, give it a row as the owner's to decide, and say so in the row.
    Judge a requirement an issue took from current behaviour the same way.
 2. **Producer reachability.**
    For each field a consumer reads, list the values its callers can actually produce today.
@@ -52,7 +52,7 @@ Defaults at a range end found nothing in the first trial; skip it unless the are
 - **Findings, ranked by how much the owner would notice:**
   observable behaviour, `file:line`, the PRs and the step where it drifted, your confidence,
   and whether the fix is mechanical or needs the owner's call — phrased as a yes/no question when it does.
-- **Necessity table**, from step 1: mechanism · reason · how often in the owner's use, with the evidence · the worst without it · production and test lines · keep, simplify or cut.
+- **Necessity table**, from step 1: mechanism · reason · whether the stated use reaches it, with the evidence · the worst without it · production and test lines · keep, simplify or cut.
   One row for every simplify and cut, and for each keep that was close.
 - **Sweep hits you dismissed**, one line each with why.
 - **Tests flagged**, with the reason.

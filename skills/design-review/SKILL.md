@@ -30,14 +30,14 @@ and five audited runs that ran it there had the author review its own change, tw
 ## Design
 
 Do this pass yourself, unless you wrote or shaped the change: its author is anchored to the design it chose.
-Then brief a fresh agent with the change at a named commit, the owner's words from the issue or conversation, the project contract, this section and `references/design-pass.md`, and use its result as the design pass.
+Then brief a fresh agent with the change at a named commit, the owner's words from the issue or conversation, the project contract, the intent records of the areas the change touches, this section and `references/design-pass.md`, and use its result as the design pass.
 Leave your own view of the change out: no alternatives you suspect, no list of things to weigh, no cost prior, no fix direction for a defect you know of (state the defect alone), and no choice of yours described as the owner's; send design-pass.md itself, not a summary.
 Passes given the author's view patched what they were pointed at, returned the author's suspected alternative as their top finding when it did not work, and repeated an unverified premise;
 the pass told "I will not tell you what its author thinks of it" found the restructuring that removed three copies of a rule.
 Do not edit the checked-out tree while it reads: one pass reviewed a worktree that moved under it.
 It is consequential judgement; size it by the global subagent guidance.
 Where that guidance picks Fable and the `api-second-opinion` skill's test for an unasked call holds, one `ask-api --review` call is the pass instead:
-add with `-f` the files beyond the diff that the design turns on, chosen as that skill's "Choosing the context" section says, because the model cannot open them.
+add with `-f` those intent records and the files beyond the diff that the design turns on, chosen as that skill's "Choosing the context" section says, because the model cannot open them.
 Its question carries the owner's words and leaves your view out as a brief does; two such calls were told what to weigh, one with the author's choices given as the owner's.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).

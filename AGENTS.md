@@ -37,9 +37,11 @@ projects and host tools.
 
 ## Stakes record
 
-- **Use:** Yan alone, on one Mac and in Claude Code cloud sessions, under
-  Claude Code and Codex. The global file is also linked for Gemini CLI,
-  Antigravity and Zed, where nothing here is tested.
+- **Use:** Yan alone, on one Mac and in Claude Code cloud sessions. The
+  skills are written for Claude Code and Codex; the global file is also
+  linked for Gemini CLI, Antigravity and Zed.
+- **Load:** several sessions and subagents at once on the one Mac, each in
+  its own worktree, across a few projects.
 - **Severe:** the session-lifecycle scripts or the worktree reclaimer
   deleting unmerged work or a build not yet loaded; a hook or installed
   setting that breaks every session; a skill that merges, or writes to an
