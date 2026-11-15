@@ -44,13 +44,15 @@ When both have returned, take these steps in order.
 
 **Questions.** A question is anything the global preferences make the owner's, any item the design pass lists under Questions, and any change to a public interface,
 whoever finds it; calling one a defect does not settle it.
-Settle one that the issue, the PR description, the project contract or the global preferences already answer, and report how;
-a collision with a recorded decision is not answered that way, and goes to the owner as the global preferences say.
+Settle one that the owner's own words already answer, and report how: the owner's messages in chat, an issue or comment the owner wrote, a recorded decision, an intent record, or the global preferences.
+An issue or PR description an agent wrote answers none.
+A collision with a recorded decision is settled or goes to the owner as the global preferences say.
 Take the rest to the owner: twelve audited PRs had such a question settled or deferred without the owner; one choice was reversed the next day, and one shipped a brighter picture the owner never saw.
 Ask as the global preferences say, as soon as the questions arise, with the options and a recommendation.
 The merge waits for the answers, unless the owner said to go on without them ("autonomously", "where no decision is needed", or that they will be away):
-then a question whose answer a later change can apply without undoing this one, and that changes nothing the owner sees or hears before then, becomes a linked issue and the merge goes ahead,
-and any other leaves the PR open.
+then a question whose answer a later change can apply without undoing this one, and that changes nothing the owner sees or hears before then, becomes a linked issue and the merge goes ahead;
+a fix the stakes record pays for is made, or the PR stays open, rather than becoming such an issue;
+and any other question leaves the PR open.
 
 **Alternatives and fixes.** Match each confirmed defect against the design alternatives.
 Make every alternative the verdict places in this change, and one it placed in a follow-up when several defects trace to it;

@@ -29,12 +29,12 @@ Read every issue in scope, with its comments and linked PRs, and sort each into 
 
 - **No input:** the right fix is clear from the issue, the code, and the project's stated direction.
 - **One simple decision:** a single choice between concrete options stands between the issue and a fix.
-- **Needs input:** anything open-ended, or anything touching the areas below beyond what the issue already settles.
+- **Needs input:** anything open-ended, or anything touching the areas below beyond what the owner's own words already settle, as `review-and-merge`'s "Review" section counts them.
 
 An issue asking for code the project's stakes record does not pay for, as the global preferences say of what a project guarantees, is in none of them, unless the owner wrote the issue: leave it unfixed and recommend closing it in the report.
 
 The owner weighs in on user-visible behaviour and design, removing features or options,
-file formats, public interfaces, dependencies, and anything that conflicts with the roadmap or a recorded decision.
+file formats, public interfaces, dependencies, anything that conflicts with the roadmap, and a collision with a recorded decision where the global preferences make it the owner's.
 When unsure, the issue is not a no-input issue.
 
 Ask every simple decision in one message, each with its options and a recommendation.

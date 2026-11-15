@@ -13,9 +13,10 @@ In Claude that text is `$ARGUMENTS`; in Codex it is the text following `$design-
 
 Read the project's local contract, the intent records of the areas the change touches, and the issue or PR description behind it, before starting.
 What counts as maintainable depends on where the project is going: its roadmap, its recorded decisions, and the scale it must support.
-A recorded decision the change collides with is weighed as the global preferences say and becomes a question for the owner; none is reopened here otherwise, except as follows.
+A recorded decision the change collides with is weighed as the global preferences say: superseding it is an alternative like any other, or a question where they make it the owner's.
+None is reopened here otherwise, except as follows.
 A decision this change is the first to build is part of the design under review, not settled ground:
-defects that trace to its rule are evidence against it, and an alternative that departs from it is a question for the owner.
+defects that trace to its rule are evidence against it, and an alternative that departs from it is weighed the same way.
 One pass patched a just-accepted selection rule instead, and after the merge the owner had to ask why the module had so many edge cases.
 
 ## Correctness
