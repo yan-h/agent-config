@@ -105,5 +105,13 @@ class LineRanges(unittest.TestCase):
         self.assertEqual(ask_api.select_lines(text, 4, 9), "four\n")
 
 
+
+class Labels(unittest.TestCase):
+    def test_a_file_outside_the_root_is_labelled_by_name_alone(self):
+        root = PATH.parent.parent
+        self.assertEqual(ask_api.shown_path(PATH, root), "scripts/ask-api")
+        self.assertEqual(ask_api.shown_path(PATH, root / "references"), "ask-api")
+        self.assertEqual(ask_api.shown_path(PATH, None), "ask-api")
+
 if __name__ == "__main__":
     unittest.main()
