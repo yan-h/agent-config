@@ -26,7 +26,7 @@ Read the ratings file you were given before your own method; it overrides any ra
 - **Don't care:** open, and no attack. The candidate counts what goes.
 - **Unrated,** whether listed or found by you: open, as would trade, and reported with its size.
 
-The file's tolerances decide what counts as a cost for this run, over the standing preferences where the two differ.
+Tolerances the owner stated for this run, listed in the file, decide what counts as a cost, over the standing preferences where the two differ.
 
 ## How a candidate is judged
 
