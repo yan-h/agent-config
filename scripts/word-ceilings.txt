@@ -17,7 +17,7 @@ skills/audit-premises/references/reader.md 669
 skills/audit-premises/references/rules.md 851
 skills/audit-premises/references/stances.md 818
 skills/audit-premises/references/tester.md 694
-skills/audit-shared/SKILL.md 712
+skills/audit-shared/SKILL.md 717
 skills/design-review/SKILL.md 737
 skills/design-review/references/design-pass.md 552
 skills/propose-rework/SKILL.md 2457

@@ -22,7 +22,6 @@ Use the area map from the last area-based audit's tracking issue if there is one
 otherwise map the project into areas as the owner would name them —
 features and parts of the product, not crates or directories — usually six to twelve.
 Each should be small enough for one auditor to verify in a sitting.
-Put the map at the top of the report so the owner can correct its boundaries next time.
 
 ## Read the intent records
 
@@ -38,7 +37,7 @@ One tracking issue per run (a Markdown file in the repository if the project has
 - **Then one self-contained section per area:**
   its questions, the mechanical issue filed for it, and anything notable that needed no decision.
 
-Put the areas with the most consequential questions first.
+Put the areas with the most consequential questions first, and the area map at the top of the report so the owner can correct its boundaries next time.
 
 ## Fix what needs no answer, when the owner asks
 
@@ -54,7 +53,7 @@ the issue is what the next sweep and the next audit read.
 ## Review and merge the fixes
 
 Take each pull request through the `review-and-merge` skill's sections from "Decide whether to review" through "Review", its design pass included, because the audit designed these fixes itself.
-Then merge them as `sweep-issues`' "Merge" section describes, or leave draft pull requests when the owner asked only for fixes.
+Then merge them as `sweep-issues`' "Merge" section describes only where the owner's own message asked for the merge, and otherwise leave draft pull requests.
 Following those sections invokes neither skill; if either is not installed, say so and leave the pull requests unmerged.
 
 ## Record the answers

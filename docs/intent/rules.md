@@ -35,7 +35,7 @@ skill's "Record the answers" section says. Nothing the owner did not answer is h
 ## Audits
 
 - **Fixes swept from a drift or maintainability audit.** They get the design pass, as performance fixes do. 2026-11-14, #103 (C1); in #104.
-- **Proving that shorter audit text finds the same things by replaying a past audit.** Dropped: the same brief did not reproduce its own findings. A change to the audits' text is gated on a line-by-line trace of the old text into the new and a read of existing transcripts for whether each method step ran; no further replays or pooled runs. 2026-11-14, #110 (1).
+- **Proving that shorter audit text finds the same things by replaying a past audit.** Dropped as too expensive ("stop the expensive verifications"); the same brief also did not reproduce its own findings. The change that condenses them (#110) is gated instead on a line-by-line trace of the old text into the new and a read of existing transcripts for whether each method step ran; no further replays or pooled runs. 2026-11-14, #110 (1).
 - **The audits' shared text.** Moved word for word into one place, with every difference between the copies listed; then cut by a list with word counts that he takes whole or strikes from. 2026-11-14, #110 (2).
 - **The audit commands.** Today's five are kept, for now. 2026-11-14, #110 (3).
 - **`audit-premises` and `audit-merges` in that change.** Premises comes under the shared text, and its length waits for a draft; the merge audit's wording is left alone. 2026-11-14, #110 (4).
