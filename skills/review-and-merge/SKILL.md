@@ -60,7 +60,11 @@ An alternative that is a question waits for its answer, and so do the defects on
 one run spent three review rounds patching what such an alternative, filed as a follow-up, would have removed.
 File every other alternative placed in a follow-up as an issue, and link it from the PR.
 An alternative that proves unworkable once tried is reported with what defeated it, not filed.
-Fix every other finding the review confirms, and fix or answer the uncertain ones in the PR description.
+Price every other finding the review confirms before fixing it: how often its case occurs in the owner's use, and what it costs when it does (lost data, wrong output, a warning, a log line).
+Fix it when that outweighs the fix's lasting cost in lines, state and rules every caller must remember; otherwise state it in the PR description as a known limitation, with its price.
+An uncertain finding, or one whose case is rare, defaults to the limitation, though a rare case that loses data can still earn its fix.
+One run fixed every confirmed finding, so each rare case became machinery (a fallback settle that changed nothing visible, an arm-intent window, a backlog peek),
+and about half the mechanisms of two of its reworks later proved to protect cases the owner never meets; cutting them took 120 production and 700 test lines from one.
 Check what a review claims before acting on it or writing it into the PR: a design pass's guess, pasted into a PR body unchecked, became a false claim a later audit corrected.
 Keep fixes inside the PR's scope; anything else found along the way goes where the project contract sends it,
 and where it says nothing is reported, not fixed here.
@@ -92,5 +96,5 @@ Confirm the merge landed on the remote primary branch before reporting, and clea
 
 ## Report
 
-The merge commit, whether the PR was reviewed and why, who ran each pass (a fresh subagent or an API call) on which model, what the review changed, the design verdict, the adjustments made for it, the questions taken to the owner and how each was settled, and any follow-up issues filed.
+The merge commit, whether the PR was reviewed and why, who ran each pass (a fresh subagent or an API call) on which model, what the review changed, the findings left as limitations with their price, the design verdict, the adjustments made for it, the questions taken to the owner and how each was settled, and any follow-up issues filed.
 If the PR is left open, say so and name what blocks it.

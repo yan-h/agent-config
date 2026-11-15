@@ -1,6 +1,6 @@
 ---
 name: audit-drift
-description: Audit a project for drift from the owner's intent — machinery whose reason has gone, frozen values that stopped fitting, tests guarding a mechanism instead of a behaviour, prose describing code that no longer exists. Every area by default, or one named area. Started only by the repository owner invoking it explicitly.
+description: Audit a project for drift from the owner's intent — machinery whose reason has gone or whose case is too rare to pay for it, frozen values that stopped fitting, tests guarding a mechanism instead of a behaviour, prose describing code that no longer exists. Every area by default, or one named area. Started only by the repository owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
@@ -33,6 +33,9 @@ Tests asserted the mechanism rather than the behaviour, so two kept passing afte
 The kinds seen so far:
 
 - **Orphaned mechanism:** its motivating case was removed or replaced, and it stays for the others.
+- **Mechanism that does not pay for itself:** its reason holds, but the case occurs too seldom in the owner's use, or costs too little when it does, for the lines and state it takes.
+  Asked this, about half of two reworks' mechanisms protected a case never observed, a platform the owner does not run, or a flood of over 2,048 events at the moment of stopping,
+  and much of that had been added to answer review findings.
 - **Frozen or captured value that stopped fitting** once something beside it moved.
 - **Test guarding a mechanism rather than a behaviour, or a fixture that cannot reach its case.**
 - **Intent restated wrongly, then built on:** a handoff or cleanup keeps the data and loses the model.
@@ -80,6 +83,9 @@ Then sort what survived:
 - **Needs the owner's call:** the behaviour may or may not be what the owner wants.
   A describer item qualifies only when the auditor's history shows its reason moved, a recorded decision contradicts it,
   or it has a consequence the owner would notice.
+- **Necessity rows:** every simplification or cut in the auditor's necessity table is the owner's call, since it gives up protection of a case.
+  Put the table to the owner as the auditor laid it out, largest removal first, saying for each row what the owner would see when the case does occur.
+  It counts as one of the area's questions: the owner takes it whole or strikes rows.
 
 **Never hand the owner a raw description.**
 In the first trial a forty-item page was tiring and came back mostly "fine" or "don't care".
