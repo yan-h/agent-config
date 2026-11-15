@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Validate the portable core of every skill in this repository and the
-section names skills quote from each other, then run each skill's own tests
+"""Validate the portable core of every skill in this repository, the
+section names skills quote from each other and each rule file's word ceiling,
+then run each skill's own tests
 (skills/*/scripts/test_*.py and test_*.sh) and the repository's (scripts/test_*)."""
 
 from __future__ import annotations
@@ -28,6 +29,11 @@ PARAGRAPH = re.compile(r"(?:^[^\n#].*\n?)+", re.M)
 SENTENCE = re.compile(r"(?:[^.;]|[.;](?=\S))+")
 ABOUT_SECTIONS = re.compile(r"\bsections?\b|\bby name\b")
 REFERENCE = re.compile(r"`([a-z0-9-]+)`|\b(this skill)\b|\"([^\"\n]+)\"")
+# One "path words" line per Markdown file under global/ and skills/. A word is
+# a whitespace-separated token, frontmatter included, since a skill's
+# description is loaded into every session.
+CEILINGS = ROOT / "scripts" / "word-ceilings.txt"
+RULE_DIRECTORIES = ("global", "skills")
 
 
 def frontmatter_value(lines: list[str], key: str) -> str | None:
@@ -117,6 +123,32 @@ def check_section_references(names: dict[str, Path]) -> list[str]:
     return problems
 
 
+def check_word_ceilings() -> list[str]:
+    """Every rule file has a ceiling and is within it, and every ceiling names
+    a rule file, so a renamed file cannot leave its ceiling behind."""
+    listing = CEILINGS.relative_to(ROOT)
+    problems: list[str] = []
+    ceilings: dict[str, int] = {}
+    for number, line in enumerate(CEILINGS.read_text(encoding="utf-8").splitlines(), 1):
+        fields = line.split()
+        if len(fields) != 2 or not fields[1].isdigit():
+            problems.append(f"{listing}:{number}: expected a path and a number of words")
+        elif fields[0] in ceilings:
+            problems.append(f"{listing}:{number}: a second ceiling for {fields[0]}")
+        else:
+            ceilings[fields[0]] = int(fields[1])
+    for path in sorted(p for d in RULE_DIRECTORIES for p in (ROOT / d).rglob("*.md")):
+        name = path.relative_to(ROOT).as_posix()
+        words = len(path.read_text(encoding="utf-8").split())
+        ceiling = ceilings.pop(name, None)
+        if ceiling is None:
+            problems.append(f"{name}: {words} words and no ceiling in {listing}")
+        elif words > ceiling:
+            problems.append(f"{name}: {words} words, over its ceiling of {ceiling} in {listing}")
+    problems += [f"{listing}: {name} is not a Markdown file under global/ or skills/" for name in ceilings]
+    return problems
+
+
 def main() -> int:
     if not SKILLS.is_dir():
         print("skills/: directory is missing", file=sys.stderr)
@@ -149,6 +181,7 @@ def main() -> int:
 
     if not problems:
         problems = check_section_references(names)
+    problems += check_word_ceilings()
     if problems:
         for problem in problems:
             print(f"error: {problem}", file=sys.stderr)

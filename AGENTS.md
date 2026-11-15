@@ -37,6 +37,13 @@ projects and host tools.
   that measured them. Cut narration, hedges, restated rules, summaries of
   other skills, and history that no longer changes behaviour.
 - Run `python3 scripts/check.py` before committing.
+- Keep each Markdown file under `global/` and `skills/` within its word
+  ceiling in `scripts/word-ceilings.txt`, so the rules grow only as far as
+  the owner approves: they went from about 6,200 words to 27,300 in six
+  weeks, mostly procedure written from one run. A change that needs more
+  room cuts as many words as it adds, or raises the number in the same diff
+  for the owner to approve; a new file needs a new line, and a ceiling a
+  file has shrunk below is lowered to its size.
 
 ## Stakes record
 
