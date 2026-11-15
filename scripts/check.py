@@ -133,6 +133,8 @@ def check_word_ceilings() -> list[str]:
         fields = line.split()
         if len(fields) != 2 or not fields[1].isdigit():
             problems.append(f"{listing}:{number}: expected a path and a number of words")
+        elif fields[0] in ceilings:
+            problems.append(f"{listing}:{number}: a second ceiling for {fields[0]}")
         else:
             ceilings[fields[0]] = int(fields[1])
     for path in sorted(p for d in RULE_DIRECTORIES for p in (ROOT / d).rglob("*.md")):
