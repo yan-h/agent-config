@@ -43,6 +43,14 @@ In implementation and review, push back when the overall tradeoff is negative, i
 Briefly explain the costs and recommend a better alternative or a documented limitation.
 Do not silently drop explicit requirements or conceal known defects; surface changes to the agreed outcome for a decision.
 
+## Writing code
+
+Before handing over a new test, break the code it covers and see the test fail:
+in one run of seven pull requests nearly every one had a test that passed for the wrong reason, each found only when a reviewer broke the code, at a review round apiece.
+Store nothing that can be derived from what is already stored; design passes removed state a builder had just added in four of those seven.
+Before handling a case, check that some producer writes it, and where none does, refuse it:
+two review rounds patched how a reader translated a record its only writer never emits, and refusing the record ended them.
+
 ## Code review
 
 Treat ordinary code-review requests as covering correctness, performance, simplicity, and maintainability.
