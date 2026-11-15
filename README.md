@@ -134,8 +134,7 @@ this public repository.
   invoking it grants merge permission for the run.
 - `review-and-merge` — review a PR, or each of a set the owner names, for
   correctness and design if its diff warrants it, fix what the review
-  confirms and the project's stakes record pays for, wait for its checks,
-  then merge. Makes design adjustments itself;
+  finds worth fixing, wait for its checks, then merge. Makes design adjustments itself;
   the owner's questions, and a verdict to rethink the approach, hold the merge.
   Owner-requested: the owner's own message naming it, alone or chained after
   other work, grants merge permission for the PRs it covers.

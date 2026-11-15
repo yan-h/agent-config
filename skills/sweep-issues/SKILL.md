@@ -31,7 +31,7 @@ Read every issue in scope, with its comments and linked PRs, and sort each into 
 - **One simple decision:** a single choice between concrete options stands between the issue and a fix.
 - **Needs input:** anything open-ended, or anything touching the areas below beyond what the issue already settles.
 
-An issue asking to handle a case the project's stakes record puts outside its use is in none of them: leave it unfixed and recommend closing it in the report.
+An issue asking for code the project's stakes record does not pay for, as the global preferences say of what a project guarantees, is in none of them: leave it unfixed and recommend closing it in the report.
 
 The owner weighs in on user-visible behaviour and design, removing features or options,
 file formats, public interfaces, dependencies, and anything that conflicts with the roadmap or a recorded decision.

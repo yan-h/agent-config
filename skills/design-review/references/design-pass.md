@@ -41,7 +41,7 @@ Lead with a one-line verdict: merge as is, adjust within this change, merge and 
 
 Then:
 
-- **Correctness:** each confirmed defect, and each uncertain one marked as such, with whether its case lies inside the use the stakes record states and the worst it does,
+- **Correctness:** each confirmed defect, and each uncertain one marked as such, with whether its case lies within the use and load the stakes record states and the worst it does,
   naming the alternative that would remove it if one would.
 - **Design:** the current approach in a few sentences, then the alternatives ranked by lasting net benefit, counting the defects each removes, each with its tradeoff as above.
 - **Questions:** decisions that belong to the owner, with a recommendation for each,

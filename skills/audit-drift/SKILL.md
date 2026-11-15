@@ -33,7 +33,7 @@ Tests asserted the mechanism rather than the behaviour, so two kept passing afte
 The kinds seen so far:
 
 - **Orphaned mechanism:** its motivating case was removed or replaced, and it stays for the others.
-- **Mechanism the stakes record does not pay for:** its reason holds, but its case lies outside the use the record states, or the worst it prevents is one the record calls cheap.
+- **Mechanism the stakes record does not pay for,** as the global preferences say of what a project guarantees, though its reason holds.
   Asked this, about half of two reworks' mechanisms protected a case never observed, a platform the owner does not run, or a flood of over 2,048 events at the moment of stopping,
   and much of that had been added to answer review findings.
 - **Frozen or captured value that stopped fitting** once something beside it moved.

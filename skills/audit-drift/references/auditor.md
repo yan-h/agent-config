@@ -26,7 +26,7 @@ and every test of one feature turned out to run on a configuration the product d
    Beyond the record, take frequency from evidence, not from what could happen: the fresh defaults, the intent record,
    and whether the origin PR or any issue records the case happening, or only a review finding that supposed it.
    A mechanism that works leaves no reports, so an absence of them does not show its case never occurs:
-   where the origin only supposed the case and the stated use can reach it, give it a row as the owner's to decide, and say so in the row.
+   where the origin only supposed the case, the stated use and load are the evidence, and the row says so.
    Judge a requirement an issue took from current behaviour the same way.
 2. **Producer reachability.**
    For each field a consumer reads, list the values its callers can actually produce today.

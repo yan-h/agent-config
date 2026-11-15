@@ -1,6 +1,6 @@
 ---
 name: review-and-merge
-description: Review one pull request, or each of a set the owner names, for correctness and design if its diff warrants a review, fix what the review confirms and the project's stakes pay for, wait for its checks, then merge it. Only when the owner's own message names review-and-merge, never because a PR looks ready.
+description: Review one pull request, or each of a set the owner names, for correctness and design if its diff warrants a review, fix what the review finds worth fixing, wait for its checks, then merge it. Only when the owner's own message names review-and-merge, never because a PR looks ready.
 ---
 
 # Review if warranted, then merge
