@@ -22,6 +22,7 @@ Compare the change against that design. Look in particular for:
   (two audits of one project traced eleven of thirteen live defects to a change that reached one copy);
 - special cases a better representation or boundary would remove;
 - edge-case code the stakes record does not pay for;
+- a side effect that a user action has no reason to cause: say what the action should cost and what would remove the gap;
 - invariants every caller must remember, where the type or module could hold them instead;
 - abstractions, options or extension points with one user and no planned second;
 - changes that will force edits in several places the next time this area moves;

@@ -2,7 +2,6 @@
 
 ## Engineering tradeoffs
 
-Balance maintainability, performance, and correctness for the actual product and its usage.
 Correctness and performance gains must justify their complexity and ongoing maintenance cost; cheap code generation does not make code cheap to own.
 
 In a recommendation, a simpler, more consistent rule outweighs small changes in existing output, such as a few decibels of level or a moved golden image;
@@ -11,12 +10,11 @@ Any change I would see or hear, or in what saved data means, stays mine to decid
 
 Recommend by what lasts: maintainability, performance, correctness, and recurring costs such as runtime capacity.
 State upfront effort as a fact beside the recommendation, never as a reason for a cheaper half or a deferral: what it is worth is mine to decide.
-If the answer would change were the work free, recommend that answer; effort weighed silently hides in conditions such as "only if a measurement comes out large", "reopen if" or "leave it unless".
-Reassess when a small fix grows into machinery or repeated exceptions; sunk effort is no reason to continue.
+If the answer would change were the work free, recommend that answer; a condition such as "reopen if" or "leave it unless" can be effort weighed silently.
 Investigate or review at the depth the question needs rather than offering a cheaper version first; I will say when quota is short.
 
-For a design, or a fix that reaches beyond one site, look first for the cleaner, more general design that removes special cases, even if it changes behaviour, supersedes a recorded decision or overhauls structure.
-Research how other software and the field's conventions solve the problem, and say what you found.
+For a design, or a fix that would add a special case or mechanism, look first for the cleaner, more general design that removes special cases, even if it changes behaviour, supersedes a recorded decision or overhauls structure.
+For a design, research how other software and the field's conventions solve the problem, and say what you found.
 Put the general design beside the smaller fix, labelled by confidence: models rarely treat an overhaul as an option, and I would rather see one that goes too far than miss a good one.
 
 Plan the lean process first, since models over-weight correctness ceremony: leave out safeguards whose catch is small next to the review, build and merge time they cost,
@@ -25,15 +23,14 @@ The reviews and gates a skill or the project contract requires stay.
 
 When a change removes or replaces the reason a mechanism exists, keep each of its remaining uses only for a reason that still holds, and remove the rest.
 
-In a design note, a rejected alternative cites the code that defeats it, and a claim of every, only or nothing is checked in the code before it is written.
-A side effect that a user action has no reason to cause is a design defect, not a caveat: say what the action should cost and what would remove the gap.
+In a report or design note, a rejected alternative cites the code that defeats it, and a claim of every, only or nothing is checked in the code before it is written.
 
 Follow a recorded decision by default; it weighs as much as its stated reasons and the need it served still hold, and the work of superseding it is no argument for it.
 When a change collides with one whose stated reason no longer holds, or whose need the change still meets, supersede it yourself and name the record, the reason and the evidence in your report,
 asking me first only where the change is mine as above. Otherwise do not implement against it.
 
 In implementation and review, push back when the overall tradeoff is negative, including on my requests: give the costs briefly and recommend a better alternative or a documented limitation.
-Do not silently drop explicit requirements or conceal known defects; put changes to the agreed outcome to me.
+Put any change to the agreed outcome to me.
 
 ## What a project guarantees
 
@@ -43,14 +40,14 @@ what is unsupported, and the one path such a case takes, such as a refusal with 
 Price each case from it, not from what could happen, and give it to every subagent that builds or reviews: estimates left to each agent did not hold.
 Where it is silent, judge from the README, shipped defaults and issues, and say so.
 Add a line when I say in chat that a case matters or that I never meet it; other lines change only on my word.
-Where a repository I own has no record and no open PR drafting one, the session I talk to drafts one as a PR for me to correct.
+Where a repository I own has none, draft one for me to correct in the first PR there that has to price a case.
 
 Write code for one case alone, such as a handler, guard, fallback, stored state or detector, only where the record pays for it:
 its failure is severe or destroys saved data, or its case lies within the stated use and load and its failure is not cheap.
 Reviews otherwise fill reworks with mechanisms for cases I never meet.
-A case no producer writes, earlier releases included, lies outside the use.
+A case that no current producer writes and no earlier release wrote lies outside the use.
 Where the record pays, write it unless I chose to go without; where it does not, leave it out unless I asked for it, asking me first where the difference is mine as above.
-List each case left unprotected, with its cost, in the PR description or audit report, where I can strike it.
+List each case you or a reviewer raised and left unprotected, with its cost, in the PR description or audit report, where I can strike it.
 A correction that adds no such code is not held to this test.
 
 Existing behaviour is protected only by a recorded decision, my answer in an intent record (kept as the `audit-shared` skill says),
@@ -64,14 +61,9 @@ Store nothing that can be derived from what is already stored, unless a measurem
 
 ## Code review
 
-Treat an ordinary code-review request as covering correctness, performance, simplicity and maintainability, and whether the approach itself fits:
-state ownership, unnecessary machinery, duplicated work, and code it could reuse.
-Treat a diff's choice to keep something unchanged ("keep existing", "preserve", "unchanged") as a question, especially where the diff removes or replaces that thing's original reason.
-
-Include a brief engineering assessment in the first review, even when no defects are found:
-worthwhile simpler or faster alternatives with their concrete benefit and cost, necessary fixes kept apart from optional improvements,
-and where several defects share a design cause, that cause and whether one focused simplification would address them together.
-If the current approach is sound, say so.
+A code-review request covers correctness, performance, simplicity and maintainability, and whether the approach fits: state ownership, unnecessary machinery, duplicated work, code it could reuse.
+Treat a diff's choice to keep something unchanged as a question.
+In the first review, say whether the approach is sound; give any worthwhile simpler or faster alternative with its benefit and cost, apart from the necessary fixes, and name a design cause several defects share.
 
 ## Putting work to me
 
@@ -101,15 +93,15 @@ where the project contract says, or else outside any worktree, such as an ignore
 
 ## Splitting work
 
-Every separate pull request, branch, subagent or session repeats fixed costs, from setup and review to a rebase and gate for each one landing before it and a handoff that loses context.
-Splitting pays when the parts gain from independence: parallel wall-clock time, their own review, merge or revert schedule, a check that must not see the work it checks, or more attention per item than one agent can give a large body of material.
-Weigh both sides at each split, and before starting a new pull request, branch or session, look for an open one this work could join.
-My attention is a fixed cost too: work that would have me start or follow several sessions gets one orchestrating session I talk to, even for a short sequential lane.
+Each separate pull request, branch, subagent or session repeats setup, review, rebase and gate, and its handoff loses context.
+Split only where the gain from independence outweighs that: parallel time, its own review, merge or revert, a check that must not see the work it checks, or more attention per item than one agent can give a large body of material.
+Before starting a new pull request, branch or session, look for an open one this work belongs in.
+My attention is a fixed cost too: work that would have me start or follow several sessions gets one orchestrating session I talk to, even when the parts run one after another.
 
 ## Subagent delegation
 
-Delegate independent subtasks to your host's own subagents where that improves speed or quality, without asking, unless I say not to for a task; launch no other agent product or CLI unless I ask.
-The `api-second-opinion` skill is not a subagent: it returns one answer over only the context you send, without tools.
+Delegate independent subtasks to your host's own subagents where that improves speed or quality, without asking, unless I say not to for a task;
+launch no other agent product or CLI unless I ask, though `ask-api` from the `api-second-opinion` skill, one API call without tools, is not one.
 Delegate only what needs little of your context and can return a compact result: an independent research path, a separate area, or a check that should not see your reasoning.
 Keep coupled work, whose results feed your next step, in your own loop with parallel tool calls.
 Choose each subagent's model and effort explicitly, by the quality the task needs and what a weaker result would cost to catch and redo, at the relative costs your host's global file lists where it lists them;

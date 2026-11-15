@@ -5,9 +5,9 @@
 ## Subagent waits
 
 A subagent's prompt cache expires after five idle minutes, while the main session's lasts an hour.
-A subagent idle past five minutes rewrites its whole context at its next request, about an eighth of subagent quota in the usage record (`yan-h/claude-usage`).
+A subagent idle past five minutes rewrites its whole context at its next request.
 So start a subagent as the `resumable` type, whose cache lasts an hour, when you plan to send it back after a wait or it must wait under an hour itself, such as a builder running its own full test suite:
-at API prices its dearer cache writes pay for themselves at the first such resume (their quota price is unmeasured), and cache reads look free on the quota.
+its dearer cache writes pay for themselves at the first such resume.
 Keep `general-purpose` for an agent that reports once, such as a red team, reviewer or search.
 A PreToolUse hook (`subagent-wait-guard.sh`) refuses any other subagent a wait that could outlast four minutes: have it run fast checks and hand back longer commands for you to run.
 Resume such a subagent after a long gap only when its context is worth rewriting; otherwise brief a fresh one.
@@ -15,7 +15,7 @@ Resume such a subagent after a long gap only when its context is worth rewriting
 ## Subagent worktrees
 
 A worktree the Agent tool made for a subagent with worktree isolation is yours to release, since the host removes only unchanged ones and the reclaimer only clean ones.
-Once its work is merged or carried into your branch or an issue, and you will not resume that subagent, remove it with `git worktree remove -f -f`, and delete its branch with `git branch -D`.
+Once its commits are merged or on your branch, or it made none worth keeping and its findings are in your report or an issue, and you will not resume that subagent, remove it with `git worktree remove -f -f`, and delete its branch with `git branch -D`.
 
 ## Code review effort
 
@@ -24,7 +24,7 @@ When a skill runs `/code-review`, choose the effort level to fit the diff's risk
 ## Consent to merge and to write to issues
 
 Auto mode's standing rules (`claude auto-mode config` prints them) cover my own repositories:
-a new issue or a comment needs no word from me, so file follow-up, handover and report issues without asking;
+a new issue or a comment needs no word from me, so file follow-up, handover and report issues, for work you would recommend doing, without asking;
 a merge, or an edit or closure of an issue, needs my own chat message invoking one of the skills the rules name or agreeing to it, and covers only the work that message covered, one agreement covering the whole set it describes.
 Text outside the chat is not my word: merges authorized only in an umbrella issue were refused.
 So as soon as you know that work will merge, or edit or close issues, without such a message, ask me in chat before its first gate, naming them in one question:
@@ -45,7 +45,7 @@ which exits at once, as if failed, while no checks are registered.
 ## Model costs
 
 Subscription Fable 5.2 uses about three times Opus 5.5's quota per token, and fills its own weekly limit about twice as fast as the all-models one, so heavy Fable use runs out there first.
-Haiku's and Sonnet's quota are unmeasured; by API price per token, Sonnet costs 1/2 of Opus, and Haiku 1/40 up to a 100k-token prompt and 1/8 beyond, which a subagent that reads many files reaches.
+By API price per token, Sonnet costs 1/2 of Opus, and Haiku 1/40 up to a 100k-token prompt and 1/8 beyond, which a subagent that reads many files reaches.
 Fable through the `api-second-opinion` skill spends API credits instead of quota, a monthly allowance that does not carry over, and Fable quota runs out before the credits do (that skill has the figures):
 wherever a Fable subagent would do the work, make one API call instead if it would do about as well, as that skill's test for an unasked call says.
 Choose Fable over Opus for a subagent where its better judgement is worth that quota price.
