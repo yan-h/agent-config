@@ -1,5 +1,5 @@
-global/AGENTS.md 2437
-global/claude/CLAUDE.md 805
+global/AGENTS.md 2169
+global/claude/CLAUDE.md 746
 global/claude/agents/resumable.md 144
 skills/api-second-opinion/SKILL.md 1481
 skills/audit-drift/SKILL.md 961

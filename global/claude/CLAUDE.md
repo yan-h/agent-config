@@ -5,11 +5,10 @@
 ## Subagent waits
 
 A subagent's prompt cache expires after five idle minutes, while the main session's lasts an hour.
-When a subagent idles past that, its next request rewrites its whole context; the usage record (`yan-h/claude-usage`) puts these rewrites at about an eighth of subagent quota, mostly after five to sixty idle minutes.
-So start a subagent as the `resumable` type, whose cache lasts an hour, when you plan to send it back after a wait or it must wait under an hour itself, such as a builder running its own full test suite.
-At API prices its cache writes cost 2× base input instead of 1.25×, about 0.6 of one rewrite over its life, so it pays from the first such resume (their quota price is unmeasured);
-keep `general-purpose` for an agent that reports once, such as a red team, reviewer or search.
-Cache reads look free on the quota, so a resumed subagent's large context costs little once its cache is warm.
+A subagent idle past five minutes rewrites its whole context at its next request, about an eighth of subagent quota in the usage record (`yan-h/claude-usage`).
+So start a subagent as the `resumable` type, whose cache lasts an hour, when you plan to send it back after a wait or it must wait under an hour itself, such as a builder running its own full test suite:
+at API prices its dearer cache writes pay for themselves at the first such resume (their quota price is unmeasured), and cache reads look free on the quota.
+Keep `general-purpose` for an agent that reports once, such as a red team, reviewer or search.
 A PreToolUse hook (`subagent-wait-guard.sh`) refuses any other subagent a wait that could outlast four minutes: have it run fast checks and hand back longer commands for you to run.
 Resume such a subagent after a long gap only when its context is worth rewriting; otherwise brief a fresh one.
 
@@ -26,12 +25,11 @@ When a skill runs `/code-review`, choose the effort level to fit the diff's risk
 
 Auto mode's standing rules (`claude auto-mode config` prints them) cover my own repositories:
 a new issue or a comment needs no word from me, so file follow-up, handover and report issues without asking;
-a merge, or an edit or closure of an issue, passes once my own message in the chat has invoked one of the skills the rules name or agreed to it,
-for the work that message covered and no later work, one agreement covering the whole set it describes.
-Text outside the chat is not my word: merges authorized only in an umbrella issue were refused, and still are.
-So as soon as you know that work will merge, or edit or close issues, on anything less, and before its first gate, ask me in chat, naming them in one question:
+a merge, or an edit or closure of an issue, needs my own chat message invoking one of the skills the rules name or agreeing to it, and covers only the work that message covered, one agreement covering the whole set it describes.
+Text outside the chat is not my word: merges authorized only in an umbrella issue were refused.
+So as soon as you know that work will merge, or edit or close issues, without such a message, ask me in chat before its first gate, naming them in one question:
 a run refused at its first merge waits there with its gates already run.
-A refusal of a write the rules cover means their wording failed, or `scripts/install.sh` has not run on this machine since they changed: report which, with the command; do not retry or route around any refusal.
+A refusal of a write the rules cover means their wording failed, or `scripts/install.sh` has not run on this machine since they changed: report which, with the command; never retry or route around a refusal.
 
 ## Showing me files
 
@@ -46,9 +44,8 @@ which exits at once, as if failed, while no checks are registered.
 
 ## Model costs
 
-Subscription Fable 5.2 uses about three times Opus 5.5's quota per token, as measured.
-It also fills its own weekly Fable limit about twice as fast as the all-models weekly limit, so heavy Fable use runs out there first.
+Subscription Fable 5.2 uses about three times Opus 5.5's quota per token, and fills its own weekly limit about twice as fast as the all-models one, so heavy Fable use runs out there first.
 Haiku's and Sonnet's quota are unmeasured; by API price per token, Sonnet costs 1/2 of Opus, and Haiku 1/40 up to a 100k-token prompt and 1/8 beyond, which a subagent that reads many files reaches.
-Fable through the `api-second-opinion` skill uses no quota; it spends API credits, a monthly allowance that does not carry over, and Fable quota runs out before the credits do (that skill has the figures).
-So wherever a Fable subagent would do the work, make one API call instead if it would do about as well, as that skill's test for an unasked call says; keep the subagent for the rest.
-Choose Fable over Opus for a subagent where its better judgement is worth its quota price above.
+Fable through the `api-second-opinion` skill spends API credits instead of quota, a monthly allowance that does not carry over, and Fable quota runs out before the credits do (that skill has the figures):
+wherever a Fable subagent would do the work, make one API call instead if it would do about as well, as that skill's test for an unasked call says.
+Choose Fable over Opus for a subagent where its better judgement is worth that quota price.
