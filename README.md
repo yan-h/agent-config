@@ -80,15 +80,12 @@ The status line needs `jq`, which the installer checks for but does not install;
 `ant` CLI refreshes its context-window table.
 
 It also copies the entries of `global/claude/auto-mode.json` into `autoMode` in
-`~/.claude/settings.json`, the only file auto mode's classifier reads rules from besides
-managed settings. Each entry starts with `[agent-config]`: a rerun replaces the entries with
-that tag and keeps any others, so change these rules in the file and rerun, and add a
-machine's own rules without the tag (`/permissions` has an Auto mode tab). The rules let a
-session, in repositories under `github.com/yan-h`: file an issue or comment at any time; edit
-or close an issue, or merge a pull request, once the owner's message in the chat has invoked a
-skill that does so or agreed to it, one agreement covering the set it describes; and
-force-push with a lease to its own branch. `claude auto-mode config` prints what is in
-effect, and `claude auto-mode critique` reviews the entries.
+`~/.claude/settings.json`: auto mode's classifier reads rules from user and managed
+settings, never from a project's. It writes each entry under the tag `[agent-config]`, and a
+rerun replaces the entries with that tag and keeps any others, so change these rules in the
+file and rerun, and add a machine's own rules through `/permissions`, which has an Auto mode
+tab. `claude auto-mode config` prints what is in effect, and `claude auto-mode critique`
+reviews the entries.
 
 To restart `claude remote-control` servers at login on macOS, list one project per line
 (optionally followed by `claude remote-control` flags), then rerun `scripts/install.sh`, which
@@ -238,8 +235,8 @@ git clone --depth 1 https://github.com/yan-h/agent-config.git ~/projects/agent-c
 script stops the environment from starting), and adds a `SessionStart` hook
 that pulls the checkout. The environment reuses a snapshot of the setup for up
 to about 7 days, so the pull is what keeps skill instructions current; a new or
-removed skill appears only once the snapshot is rebuilt, which editing the
-setup script forces. For `ask-api`, add `ASK_API_KEY=<key>` to the environment
+removed skill, and a change to the auto mode rules, appear only once the snapshot
+is rebuilt, which editing the setup script forces. For `ask-api`, add `ASK_API_KEY=<key>` to the environment
 variables, from a key of its own in a spend-limited workspace: anyone who uses
 the environment, including its agent, can read it.
 

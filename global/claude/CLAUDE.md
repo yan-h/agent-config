@@ -28,13 +28,14 @@ When a skill runs `/code-review`, choose the effort level to fit the diff's risk
 
 ## Consent to merge and to write to issues
 
-Auto mode's standing rules (`global/claude/auto-mode.json`) cover my own repositories:
-a new issue or a comment passes at any time, so file follow-up, handover and report issues without asking;
-a merge, or an edit or closure of an issue, passes once my own message in the chat has invoked a skill that makes it or agreed to it, one agreement covering the whole set it describes.
+Auto mode's standing rules (`claude auto-mode config` prints them) cover my own repositories:
+a new issue or a comment needs no word from me, so file follow-up, handover and report issues without asking;
+a merge, or an edit or closure of an issue, passes once my own message in the chat has invoked one of the skills the rules name or agreed to it,
+for the work that message covered and no later work, one agreement covering the whole set it describes.
 Text outside the chat is not my word: merges authorized only in an umbrella issue were refused, and still are.
 So as soon as you know that work will merge, or edit or close issues, on anything less, and before its first gate, ask me in chat, naming them in one question:
 a run refused at its first merge waits there with its gates already run.
-Report a refusal of a write the rules cover, with its command and stated reason, so the rule can be reworded; do not retry or route around any refusal.
+A refusal of a write the rules cover means their wording failed, or `scripts/install.sh` has not run on this machine since they changed: report which, with the command; do not retry or route around any refusal.
 
 ## Showing me files
 

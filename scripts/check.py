@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Validate the portable core of every skill in this repository and the
 section names skills quote from each other, then run each skill's own tests
-(skills/*/scripts/test_*.py and test_*.sh)."""
+(skills/*/scripts/test_*.py and test_*.sh) and the repository's (scripts/test_*)."""
 
 from __future__ import annotations
 
@@ -165,7 +165,7 @@ def run_skill_tests() -> int:
     runners = {".py": [sys.executable], ".sh": ["bash"]}
     tests = [
         test
-        for test in sorted(SKILLS.glob("*/scripts/test_*"))
+        for test in sorted([*SKILLS.glob("*/scripts/test_*"), *ROOT.glob("scripts/test_*")])
         if test.suffix in runners
     ]
     runs = [(f"{test.relative_to(ROOT)}", [*runners[test.suffix], str(test)]) for test in tests]

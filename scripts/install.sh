@@ -96,22 +96,21 @@ if sys.argv[2] != "true":
     # Claude Code deletes transcripts after 30 days by default, which leaves nothing
     # to compare a new model against. An existing value is the owner's choice.
     settings.setdefault("cleanupPeriodDays", 365)
-# Auto mode reads its rules from user settings only, so they are installed here.
-# Every entry in the file carries one tag: a rerun replaces this checkout's entries
-# and keeps any the owner added on this machine. A list he set without "$defaults"
-# has replaced the built-in rules on purpose, and stays without them.
+# Auto mode reads its rules from user settings, never from a project's, so they
+# are installed here. Each entry is written under one tag: a rerun replaces this
+# checkout's entries and keeps any the owner added on this machine. A list he set
+# without "$defaults" has replaced the built-in rules on purpose, and stays without them.
 tag = "[agent-config] "
 with open(os.path.join(sys.argv[3], "global/claude/auto-mode.json")) as f:
     rules = json.load(f)
 lists = ("environment", "allow", "soft_deny", "hard_deny")
-stray = [e for key, entries in rules.items() for e in entries
-         if key not in lists or not e.startswith(tag)]
-if stray:
-    sys.exit(f"install: auto-mode.json: each entry sits in one of {lists} and starts with {tag!r}: {stray[0][:60]}")
+if set(rules) - set(lists):
+    sys.exit(f"install: auto-mode.json: its keys are among {lists}, not {sorted(set(rules) - set(lists))}")
 auto = settings.get("autoMode", {})
 for key in lists:
     if key in auto or key in rules:
-        auto[key] = [e for e in auto.get(key, ["$defaults"]) if not e.startswith(tag)] + rules.get(key, [])
+        auto[key] = ([e for e in auto.get(key, ["$defaults"]) if not e.startswith(tag)]
+                     + [tag + e for e in rules.get(key, [])])
 if auto:
     settings["autoMode"] = auto
 guard = "~/.claude/subagent-wait-guard.sh"
