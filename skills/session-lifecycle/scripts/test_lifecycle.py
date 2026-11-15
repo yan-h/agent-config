@@ -95,6 +95,17 @@ class LifecycleTests(unittest.TestCase):
         self.assertFalse(path.exists())
         self.assertTrue((self.repo / 'target/release/.cargo-lock').exists())
 
+    def test_trim_and_prune_cache_keep_every_cargo_lock(self):
+        debug = self.repo / 'target/debug'
+        debug.mkdir(parents=True)
+        for name in lc.CARGO_LOCKS:
+            (debug / name).write_text('')
+        for action in (['finish', '--source-only'], ['prune-cache', 'target/debug']):
+            (debug / 'deps').mkdir()
+            self.run_tool(*action)
+            self.assertFalse((debug / 'deps').exists())
+            self.assertEqual(sorted(p.name for p in debug.iterdir()), sorted(lc.CARGO_LOCKS))
+
     def test_custom_output_and_symlink_refused_before_publication(self):
         cache = self.cache()
         for variable in ('CARGO_TARGET_DIR', 'CARGO_BUILD_TARGET_DIR', 'CARGO_BUILD_BUILD_DIR', 'CARGO_BUILD_TARGET'):
