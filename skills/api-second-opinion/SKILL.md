@@ -87,7 +87,8 @@ Exit codes: 3 means the model declined (there is no automatic fallback, because 
 
 The owner's API credits do not cover Claude Code:
 Claude Code started with the key as `ANTHROPIC_API_KEY` fails with "credit balance too low", so do not route a session through it.
-The balance is prepaid, so running out makes calls fail rather than charge, as long as auto-reload stays off under the Console's Billing settings.
+The balance is prepaid, so running out makes calls fail rather than charge, as long as auto-reload stays off under the Console's Billing settings;
+once the credits have run out, give the question to the subagent the call would have replaced.
 
 ## Setup
 

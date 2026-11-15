@@ -36,8 +36,7 @@ Every finding cites the commits or PRs that paid for it, or the roadmap item it 
 The text after the invocation names one area (`$ARGUMENTS` in Claude, the text after `$audit-maintainability` in Codex).
 
 With none, audit every area.
-Use the area map from the last area-based audit's tracking issue if there is one, so findings from different audits line up;
-otherwise map the project as the `audit-drift` skill's "Choose the scope" section describes.
+Take the area map as the `audit-drift` skill's "Choose the scope" section describes.
 Read each area's intent record if it exists.
 Earlier audits' "checked and healthy" lists hold only for what they checked:
 a performance audit's clean list says nothing about structure, so pass an auditor only what bears on its question.

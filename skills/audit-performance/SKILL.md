@@ -35,7 +35,7 @@ Usually three to eight.
 Put the list at the top of the report so the owner can correct it next time.
 
 Intent records are kept per area, so place each workload in the areas its hot path crosses:
-use the area map from the last area-based audit's tracking issue if there is one, otherwise map the project as `audit-drift`'s "Choose the scope" section describes.
+take the area map as `audit-drift`'s "Choose the scope" section describes.
 Read those areas' intent records, so a trade the owner has already declined is not asked again,
 and the open tracking issues and rework issues from earlier audits, so a candidate already listed is linked rather than listed twice.
 

@@ -173,15 +173,14 @@ this public repository.
   owner names which guarantees an inventory finds must be kept, and the rest
   stay open; area readers and six cross-cutting stances propose; red teams,
   experiments and fact-finding test; a candidate whose shape an attack breaks
-  is reshaped before it is cut down, and reshaped forms are attacked, up to
-  three attacks in all, until an attack changes nothing the owner would decide.
+  is reshaped before it is cut down, and each reshaped form is attacked once,
+  further rounds left to `propose-rework`.
   Reports tested candidates for `propose-rework` as one current-state
   document. An inventory, two waves of agents and a last round, several
   million tokens.
   Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
-  named problem, as a costed proposal: the owner rates the guarantees an
-  inventory finds, the design starts from the outcome, a spike tests the
+  named problem, as a costed proposal: the design starts from the outcome, a spike tests the
   riskiest assumption, and fresh red teams attack the design, which is
   reshaped before it is cut down. Reports a target, a smaller change and doing
   nothing, behaviour changes as plain owner questions, and a lean incremental
