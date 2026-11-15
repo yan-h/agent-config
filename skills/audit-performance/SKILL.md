@@ -11,12 +11,9 @@ it does not run the procedure below by hand instead.
 `disable-model-invocation` above enforces that in hosts that honour it;
 Codex does not, so in Codex this paragraph is the rule itself.
 
-Read the project's local contract before starting.
-Build profiles, benchmark and profiling commands, worktrees, validation gates, PR conventions, and where intent records live and their form all come from there;
-where it says nothing about intent records, use `docs/intent/<area>.md`.
+This audit follows the sections of [the `audit-shared` skill](../audit-shared/SKILL.md) named below, installed beside this one; if it is not installed, say so and stop.
+Start by reading the project's local contract as its "Read the contract" section describes; build profiles, benchmark and profiling commands and validation gates come from it too.
 Measure the build users run, not a debug build, unless the contract says otherwise.
-
-This audit takes its area map, report layout and answer records from the sections of the `audit-drift` skill's `SKILL.md` named below; if that skill is not installed, say so and stop.
 
 ## What counts
 
@@ -35,8 +32,8 @@ Usually three to eight.
 Put the list at the top of the report so the owner can correct it next time.
 
 Intent records are kept per area, so place each workload in the areas its hot path crosses:
-take the area map as `audit-drift`'s "Choose the scope" section describes.
-Read those areas' intent records, so a trade the owner has already declined is not asked again,
+take the area map as the `audit-shared` skill's "Map the areas" section describes.
+Read those areas' intent records as its "Read the intent records" section describes, so a trade the owner has already declined is not asked again,
 and the open tracking issues and rework issues from earlier audits, so a candidate already listed is linked rather than listed twice.
 
 ## Measure first
@@ -47,8 +44,7 @@ Before anyone reads code for slow patterns, build per the contract, run each wor
 the export with its real encoder, the request through its real database, the launch to the first usable frame.
 Then break it into stages and find which ones overlap.
 A stage off the critical path is not a finding however much it speeds up;
-in the first trial a 34% faster drawing loop vanished behind an encoder fifteen times slower,
-and an earlier audit had measured the drawing with the encoder deliberately removed.
+in the first trial a 34% faster drawing loop vanished behind an encoder fifteen times slower.
 
 Record wall time, memory, and where the time goes.
 Run each measurement enough times to know its noise, and report the median and spread;
@@ -83,9 +79,8 @@ Anything unmeasured is listed under **Suspicions** with the measurement that wou
 
 Sort the findings.
 Local fixes are made in the run because the baseline and harness that prove them exist only then;
-they go up as PRs and are not merged here unless the owner's own message asked for the fixes to be merged.
-When it did, each is reviewed as the `review-and-merge` skill's sections from "Decide whether to review" through "Review" describe, its design pass included, because the audit designed these fixes itself,
-and they are merged as the `sweep-issues` skill's "Merge" section describes; following those sections invokes neither skill.
+they go up as PRs, reviewed as the `audit-shared` skill's "Review and merge the fixes" section describes,
+and are not merged here unless the owner's own message asked for the fixes to be merged.
 
 - **Behaviour-preserving and local:** fix it, measure again, and keep the fix only if the gain clears the noise and justifies its complexity.
   The project's tests must still pass; a fix that changes what a user sees belongs in the next group instead.
@@ -104,7 +99,7 @@ Then the cause, and the PR, question or candidate it became.
 
 Also give the baseline table for every workload, the workloads and hypotheses checked clean, and the harness if one was added.
 
-For a run covering several workloads, lay the report out as `audit-drift`'s "Report so it can be taken piecemeal" section describes,
+For a run covering several workloads, lay the report out as `audit-shared`'s "Report so it can be taken piecemeal" section describes,
 one section per workload, with the rework candidates ranked together after the index.
 Record the owner's answers as that skill's "Record the answers" section describes,
 in the intent record of the area the traded behaviour belongs to.

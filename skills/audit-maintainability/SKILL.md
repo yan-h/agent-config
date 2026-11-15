@@ -11,13 +11,9 @@ it does not run the procedure below by hand instead.
 `disable-model-invocation` above enforces that in hosts that honour it;
 Codex does not, so in Codex this paragraph is the rule itself.
 
-Read the project's local contract before starting, with its roadmap and recorded decisions.
-Worktrees, branch and PR conventions, and where intent records live and their form all come from there;
-where it says nothing about intent records, use `docs/intent/<area>.md`.
+This audit follows the sections of [the `audit-shared` skill](../audit-shared/SKILL.md) named below, installed beside this one; if it is not installed, say so and stop.
+Start by reading the project's local contract as its "Read the contract" section describes.
 A recorded decision is weighed, and superseded or put to the owner, as the global preferences say; a finding that one costs more than its reasons still justify cites the paid-for changes that show it.
-
-This audit shares its area map, report layout and answer records with the `audit-drift` skill, installed beside this one.
-Read that skill's `SKILL.md` for the sections named below; if it is not installed, say so and stop.
 
 ## What this audit is
 
@@ -36,8 +32,8 @@ Every finding cites the commits or PRs that paid for it, or the roadmap item it 
 The text after the invocation names one area (`$ARGUMENTS` in Claude, the text after `$audit-maintainability` in Codex).
 
 With none, audit every area.
-Take the area map as the `audit-drift` skill's "Choose the scope" section describes.
-Read each area's intent record if it exists.
+Take the area map as the `audit-shared` skill's "Map the areas" section describes.
+Read each area's intent record as its "Read the intent records" section describes.
 Earlier audits' "checked and healthy" lists hold only for what they checked:
 a performance audit's clean list says nothing about structure, so pass an auditor only what bears on its question.
 Read the last maintainability audit's tracking issue too, for its seen-and-left list,
@@ -104,7 +100,7 @@ Then sort what survived:
 
 ## Report
 
-Lay the report out as the `audit-drift` skill's "Report so it can be taken piecemeal" section describes,
+Lay the report out as the `audit-shared` skill's "Report so it can be taken piecemeal" section describes,
 with the rework candidates ranked together after the index, by lasting net benefit, since they often cross areas.
 List the auditors' drift items in their area's section, for the next drift audit.
 When the owner asks for the fixes too, make them as that skill's "Fix what needs no answer, when the owner asks" section describes;

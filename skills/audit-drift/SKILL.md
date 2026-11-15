@@ -11,17 +11,14 @@ it does not run the procedure below by hand instead.
 `disable-model-invocation` above enforces that in hosts that honour it;
 Codex does not, so in Codex this paragraph is the rule itself.
 
-Read the project's local contract before starting.
-Worktrees, branch and PR conventions, and where intent records live and their form all come from there;
-where it says nothing about intent records, use `docs/intent/<area>.md`.
-
+This audit follows the sections of [the `audit-shared` skill](../audit-shared/SKILL.md) named below, installed beside this one; if it is not installed, say so and stop.
+Start by reading the project's local contract as its "Read the contract" section describes.
 The `propose-rework` skill uses the describer brief by name; rename it only together with that skill.
 
 ## What drift is
 
 Code that no longer serves the owner's intent although every change on the way was locally reasonable.
-It is a different axis from a merge audit:
-not a bug born where two branches meet, but a reason that moved while the code it justified stayed,
+It is a reason that moved while the code it justified stayed,
 or a reason that never paid for that code.
 
 The shape it takes, from the case that prompted this skill:
@@ -45,16 +42,8 @@ The kinds seen so far:
 The text after the invocation names one area (`$ARGUMENTS` in Claude, the text after `$audit-drift` in Codex):
 a feature or part of the product as the owner names it.
 
-With no area, audit every area.
-Use the area map from the last area-based audit's tracking issue if there is one, so findings from different audits line up and the owner's corrections carry over;
-otherwise map the project into areas as the owner would name them —
-features and parts of the product, not crates or directories — usually six to twelve.
-Each should be small enough for one auditor to verify in a sitting.
-Put the map at the top of the report so the owner can correct its boundaries next time.
-
-Read each area's intent record if it exists: the owner's answers from earlier audits.
-It is the one place the owner's picture of that area is written down;
-a finding that contradicts it is the strongest kind, and a question it already answers is not asked again.
+With no area, audit every area, mapped as the `audit-shared` skill's "Map the areas" section describes.
+Read each area's intent record as its "Read the intent records" section describes.
 
 ## Per area, two agents in parallel
 
@@ -67,8 +56,7 @@ The auditor also gets the area's intent record and the project's stakes record; 
 - **Auditor** (`references/auditor.md`): traces the area's mechanisms to the PRs that added them and asks whether each reason still holds and ever paid for the mechanism.
 
 The auditor's work is consequential judgement; the describer's is lighter.
-Per area, a describer has cost about 115k to 220k tokens and an auditor 210k to 300k, across the first trial and three later full runs, the latest of which priced necessity;
-the first trial's area took twelve minutes of wall clock.
+Per area, a describer has cost about 115k to 220k tokens and an auditor 210k to 300k.
 A full run is several million tokens; invoking with no area is the owner accepting that.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
 
@@ -94,36 +82,8 @@ Then sort what survived:
 In the first trial a forty-item page was tiring and came back mostly "fine" or "don't care".
 Keep at most five questions per area, each answerable yes or no, each with what you would do on either answer.
 
-## Report so it can be taken piecemeal
+## Report, fix what needs no answer, and record the answers
 
-One tracking issue per run (a Markdown file in the repository if the project has no tracker), titled with the kind of audit and the date:
-
-- **An index first:** a table of every area with its question count, the issues filed for it, and a status the owner's answers tick off.
-- **Then one self-contained section per area:**
-  its questions, the mechanical issue filed for it, and anything notable that needed no decision.
-
-Put the areas with the most consequential questions first.
-
-## Fix what needs no answer, when the owner asks
-
-The audit ends at its report unless the owner's own message asks for its fixes to be made, or made and merged.
-Then, once the report is filed, sweep the issues this run filed:
-follow the `sweep-issues` skill's sections from "Triage" through "Fix" with those issues as the scope,
-then take each pull request through the `review-and-merge` skill's sections from "Decide whether to review" through "Review", its design pass included, because the audit designed these fixes itself,
-and merge them as `sweep-issues`' "Merge" section describes, or leave draft pull requests when the owner asked only for fixes.
-Following those sections invokes neither skill; if either is not installed, say so and leave the fixes filed.
-
-Triage holds the audit's sorting to the sweep's bar; the report's questions and its rework candidates are outside the sweep.
-When a fix the audit called mechanical proves wrong once built or reviewed, say on its issue what was tried and why it failed, and link the draft:
-in one run three such fixes were built and reverted, and the issue is what the next sweep and the next audit read.
-
-## Record the answers
-
-Whenever the owner answers an area's questions — in this session, a later one, or on the tracking issue —
-the session receiving them writes them into that area's intent record, in the form the project contract sets,
-or where it sets none, one line per decision: the behaviour, the owner's call, the date and any issue it produced.
-A "that's fine" is worth recording too, and so is a struck necessity row, as a keep; it is what stops the next audit asking again.
-Nothing the owner did not answer goes in: the record is the owner's picture, not the describer's.
-
-Tick the area in the index, file what the answers call for,
-and land the intent records by the project's PR conventions.
+Lay the report out as the `audit-shared` skill's "Report so it can be taken piecemeal" section describes.
+When the owner asks for the fixes too, make them as its "Fix what needs no answer, when the owner asks" section describes.
+Record the owner's answers as its "Record the answers" section describes.
