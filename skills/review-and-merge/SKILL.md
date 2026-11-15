@@ -60,7 +60,8 @@ An alternative that is a question waits for its answer, and so do the defects on
 one run spent three review rounds patching what such an alternative, filed as a follow-up, would have removed.
 File every other alternative placed in a follow-up as an issue, and link it from the PR.
 An alternative that proves unworkable once tried is reported with what defeated it, not filed.
-Price every other finding the review confirms before fixing it: how often its case occurs in the owner's use, and what it costs when it does (lost data, wrong output, a warning, a log line).
+Price every other finding the review confirms before fixing it, from the project's stakes record as the global preferences say:
+how often its case occurs in the owner's use, and what it costs when it does (lost data, wrong output, a warning, a log line).
 Fix it when that outweighs the fix's lasting cost in lines, state and rules every caller must remember; otherwise state it in the PR description as a known limitation, with its price.
 An uncertain finding, or one whose case is rare, defaults to the limitation, though a rare case that loses data can still earn its fix.
 One run fixed every confirmed finding, so each rare case became machinery (a fallback settle that changed nothing visible, an arm-intent window, a backlog peek),

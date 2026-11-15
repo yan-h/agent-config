@@ -6,7 +6,7 @@ First state the problem the change solves, in terms of behaviour rather than cod
 Then ask how you would solve that problem in this codebase if the change did not exist, reading beyond the diff as far as the answer needs.
 The best alternative often changes existing code the diff only works around.
 
-Price what the issue requires of the change before taking it as given: how often each required case occurs in the owner's use, and what going without it costs.
+Price what the issue requires of the change before taking it as given: how often each required case occurs in the owner's use, by the project's stakes record, and what going without it costs.
 A must-keep taken from existing behaviour, not from the owner's answer, is a question for the owner and not a constraint:
 design passes on two reworks took their issues' requirements as given, and about half of each rework's mechanisms later proved to protect cases the owner never meets.
 

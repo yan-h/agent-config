@@ -43,6 +43,20 @@ In implementation and review, push back when the overall tradeoff is negative, i
 Briefly explain the costs and recommend a better alternative or a documented limitation.
 Do not silently drop explicit requirements or conceal known defects; surface changes to the agreed outcome for a decision.
 
+## What a project guarantees
+
+Each project's contract holds a **stakes record**: who uses the product, on which platforms and hosts, the load it normally sees,
+which failures are severe and in which parts of the product they can occur, and the one path a case outside all that takes, such as a refusal with a log line.
+Take how often a case occurs and what it costs from that record, not from what could happen, and give the record to every subagent that builds or reviews:
+rules that left the estimate to each agent did not hold, and in one run about half the mechanisms of two reworks protected cases I never meet.
+
+Only what the record names, or an intent record (my recorded answers for one area, kept as the `audit-drift` skill says) rates must keep, is guaranteed.
+Any other existing behaviour yields to the simpler design; a change I would see or hear still comes to me first, as above.
+A case outside the stated use takes the record's failure path and gets no handler of its own, and a finding about one is reported in a line, not fixed.
+
+Where a contract has no record, say so, price from the evidence at hand (shipped defaults, intent records, issues that record a case happening),
+and offer to draft one from that evidence for me to correct.
+
 ## Writing code
 
 Before handing over a new test, break the code it covers and see the test fail:

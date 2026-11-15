@@ -24,7 +24,7 @@ and every test of one feature turned out to run on a configuration the product d
    Where it holds, ask whether it pays for the mechanism:
    how often the case occurs in the owner's use, what going without the mechanism costs when it does (lost data, wrong output, a warning, a log line),
    and the production and test lines that exist only for it.
-   Take frequency from evidence, not from what could happen: the fresh defaults, the intent record, the platforms the owner runs,
+   Take frequency from evidence, not from what could happen: the project's stakes record, the fresh defaults, the intent record,
    and whether the origin PR or any issue records the case happening, or only a review finding that supposed it.
    Where nothing shows the case occurring, say that.
    A rare case that loses data can still earn its mechanism; one that costs a warning does not.
