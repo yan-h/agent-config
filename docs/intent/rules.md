@@ -1,7 +1,7 @@
 # Intent record: the rules
 
 The owner's answers about this repository's own rules: the global files, the
-authoring contract and the skills. One line per decision, as the `audit-drift`
+authoring contract and the skills. One line per decision, as the `audit-shared`
 skill's "Record the answers" section says. Nothing the owner did not answer is here.
 
 ## Growth

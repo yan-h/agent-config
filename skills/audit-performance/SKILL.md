@@ -16,7 +16,7 @@ Build profiles, benchmark and profiling commands, worktrees, validation gates, P
 where it says nothing about intent records, use `docs/intent/<area>.md`.
 Measure the build users run, not a debug build, unless the contract says otherwise.
 
-This audit takes its area map, report layout and answer records from the sections of the `audit-drift` skill's `SKILL.md` named below; if that skill is not installed, say so and stop.
+This audit follows the sections of the `audit-shared` skill named below, installed beside this one; if it is not installed, say so and stop.
 
 ## What counts
 
@@ -35,8 +35,8 @@ Usually three to eight.
 Put the list at the top of the report so the owner can correct it next time.
 
 Intent records are kept per area, so place each workload in the areas its hot path crosses:
-take the area map as `audit-drift`'s "Choose the scope" section describes.
-Read those areas' intent records, so a trade the owner has already declined is not asked again,
+take the area map as the `audit-shared` skill's "Map the areas" section describes.
+Read those areas' intent records as its "Read the intent records" section describes, so a trade the owner has already declined is not asked again,
 and the open tracking issues and rework issues from earlier audits, so a candidate already listed is linked rather than listed twice.
 
 ## Measure first
@@ -104,7 +104,7 @@ Then the cause, and the PR, question or candidate it became.
 
 Also give the baseline table for every workload, the workloads and hypotheses checked clean, and the harness if one was added.
 
-For a run covering several workloads, lay the report out as `audit-drift`'s "Report so it can be taken piecemeal" section describes,
+For a run covering several workloads, lay the report out as `audit-shared`'s "Report so it can be taken piecemeal" section describes,
 one section per workload, with the rework candidates ranked together after the index.
 Record the owner's answers as that skill's "Record the answers" section describes,
 in the intent record of the area the traded behaviour belongs to.

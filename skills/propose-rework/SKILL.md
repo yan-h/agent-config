@@ -11,8 +11,8 @@ If it names no outcome — what should become cheaper, faster, or impossible to 
 If it names a design, the outcome that design serves is the target and the named design is one option:
 a target written as "replace today's seven collision answers… with a column model" never considered the free placement with snapping that the owner proposed after its verdict and chose.
 
-This skill borrows from two skills installed beside it; if either is not installed, say so and stop.
-From `audit-drift`: the describer brief and "Record the answers" section.
+This skill borrows from three skills installed beside it; if any is not installed, say so and stop.
+From `audit-drift`: the describer brief. From `audit-shared`: the "Record the answers" section.
 From `audit-premises`: [its rules](../audit-premises/references/rules.md), for what a guarantee is, how each rating judges a design and how a broken design is reshaped,
 and its tester brief.
 
@@ -165,7 +165,7 @@ Lead with a one-line verdict — do the rework, do the smaller change, or leave 
 
 Put the questions to the owner as the global preferences say, each in what a user hears or sees with one concrete case.
 A step that rests on an unanswered question does not start.
-When the owner answers, record the answers as `audit-drift`'s "Record the answers" section describes; this report has no index to tick.
+When the owner answers, record the answers as `audit-shared`'s "Record the answers" section describes; this report has no index to tick.
 
 Change no code beyond the spike.
 If the owner takes the proposal, offer to carry out the whole migration from a fresh session by the project's procedure for multi-PR work,

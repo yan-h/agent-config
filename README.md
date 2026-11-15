@@ -181,6 +181,10 @@ this public repository.
   document. An inventory, two waves of agents and a last round, several
   million tokens.
   Owner-invoked.
+- `audit-shared` — the sections the drift, maintainability, performance and
+  premises audits follow by name: the area map, intent records, the tracking
+  issue's layout, sweeping an audit's fixes, and recording the owner's
+  answers. Not a command: hidden from Claude's menu and never loaded on its own.
 - `propose-rework` — design one large rework, from an audit's candidate or a
   named problem, as a costed proposal: the design starts from the outcome, a spike tests the
   riskiest assumption, and fresh red teams attack the design, which is

@@ -14,7 +14,7 @@ Codex does not, so in Codex this paragraph is the rule itself.
 Read the project's local contract before starting, with its roadmap, recorded decisions and intent records.
 Worktrees, branch and PR conventions, and where intent records live all come from there;
 where it says nothing about intent records, use `docs/intent/<area>.md`.
-This audit uses the `audit-drift` skill's "Choose the scope" and "Record the answers" sections, installed beside this one;
+This audit uses the `audit-shared` skill's "Map the areas" and "Record the answers" sections, installed beside this one;
 if it is not installed, say so and stop.
 The `propose-rework` skill uses the rules and the tester brief by name; rename them only together with that skill.
 
@@ -55,7 +55,7 @@ The red teams and the designers among the stances are the consequential judgemen
 ## Choose the scope
 
 The text after the invocation names one area (`$ARGUMENTS` in Claude, the text after `$audit-premises` in Codex); with none, audit every area.
-Use the area map from the last area-based audit's tracking issue if there is one; otherwise map the project as the `audit-drift` skill's "Choose the scope" section describes.
+Take the area map as the `audit-shared` skill's "Map the areas" section describes.
 Split an area too large for one reader to read whole along its own seams.
 
 With one area named, its readers and every stance work inside it;
@@ -85,7 +85,7 @@ what counts first, how much machinery an edge case may keep, how loose performan
 
 Write the ratings file: each guarantee in user terms with its rating, or marked unrated, and any accepted form, then any tolerances the owner stated.
 Leave out the inventory's code pointers, which would anchor the clean-room designer. Every later agent gets the file's path.
-Record each rating the owner gave in the intent record of every area the guarantee touches, as the `audit-drift` skill's "Record the answers" section describes but with no index to tick;
+Record each rating the owner gave in the intent record of every area the guarantee touches, as the `audit-shared` skill's "Record the answers" section describes but with no index to tick;
 record a don't-care as open to giving up in a rework, not as leave to remove the guarantee outside one. The run's tolerances are not recorded there.
 When the owner changes a rating, update the file and the record before the next agent starts, and recheck the candidates that rested on the old rating;
 the owner reversed one within the same session in the first project.
@@ -203,6 +203,6 @@ when a later round or a new instruction from the owner changes the verdicts, rew
 Open your next message to the owner with anything you told them that turned out wrong.
 
 A standing candidate goes to `propose-rework` with its section of the report and its outcomes named; offer the invocation.
-When the owner answers, record each answer as the `audit-drift` skill's "Record the answers" section describes, in the intent record of every area the candidate touches;
+When the owner answers, record each answer as the `audit-shared` skill's "Record the answers" section describes, in the intent record of every area the candidate touches;
 a declined candidate is recorded there with the owner's reason, in the owner's words.
 This report has no index to tick: rewrite the answered decision's line in the report instead.

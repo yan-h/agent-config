@@ -62,7 +62,7 @@ Where the contract has a record, a change that goes without a case adds it there
 Such a line is not my decision and does not stand against a failure later found severe; the record's use, load, severe and cheap lines change only on my word.
 Reworks have filled with mechanisms for cases I never meet, many of them added to answer review findings.
 
-Existing behaviour is protected by a recorded decision, by my answer in an intent record (my answers for one area, kept as the `audit-drift` skill says),
+Existing behaviour is protected by a recorded decision, by my answer in an intent record (my answers for one area, kept as the `audit-shared` skill says),
 by a guarantee I rated must keep under the `audit-premises` skill, or by the stakes record.
 Any other yields to the simpler design, as does a requirement an agent took from it,
 unless I would see or hear the change or it changes what saved data means: those come to me first, as above.
