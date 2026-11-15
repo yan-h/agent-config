@@ -13,14 +13,13 @@ keep `general-purpose` for an agent that reports once, such as a red team, revie
 Cache reads look free on the quota, so a resumed subagent's large context costs little once its cache is warm.
 A PreToolUse hook (`subagent-wait-guard.sh`) refuses any other subagent a wait that could outlast four minutes: have it run fast checks and hand back longer commands for you to run.
 Resume such a subagent after a long gap only when its context is worth rewriting; otherwise brief a fresh one.
-A subscription in overage gets five minutes for `resumable` too.
 
 ## Subagent worktrees
 
 A worktree the Agent tool made for a subagent with worktree isolation is yours to release, since the host removes only unchanged ones and the reclaimer only clean ones:
 one audit left two behind, one holding a 242 MB build cache.
 Once its work is merged or carried into your branch or an issue, and you will not resume that subagent, remove it with `git worktree remove -f -f`,
-since its lock names your own session, and delete its branch with `git branch -D`.
+and delete its branch with `git branch -D`.
 
 ## Code review effort
 
@@ -55,4 +54,4 @@ It also fills its own weekly Fable limit about twice as fast as the all-models w
 Haiku's and Sonnet's quota are unmeasured; by API price per token, Sonnet costs 1/2 of Opus, and Haiku 1/40 up to a 100k-token prompt and 1/8 beyond, which a subagent that reads many files reaches.
 Fable through the `api-second-opinion` skill uses no quota; it spends API credits, a monthly allowance that does not carry over, and Fable quota runs out before the credits do (that skill has the figures).
 So wherever a Fable subagent would do the work, make one API call instead if it would do about as well, as that skill's test for an unasked call says; keep the subagent for the rest.
-Choose Fable over Opus for a subagent where its better judgement is worth three times the quota.
+Choose Fable over Opus for a subagent where its better judgement is worth its quota price above.

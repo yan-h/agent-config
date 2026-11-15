@@ -15,7 +15,7 @@ No configuration means no guessed artifact or cache paths.
 
 `./session-lifecycle.sh run -- <command>`, which the global defaults require for commands that write compilation output, holds one workspace lock outside `target/` and invalidates an old completion record before starting.
 Custom Cargo target/build directories are unsupported; keep their caches rather than guessing.
-Cleanup also takes Cargo 1.92's native debug/release locks without replacing those lock files; revisit that when the configured projects change Cargo version, output layout or locking behavior.
+Cleanup also takes an exclusive flock on each debug/release profile's `.cargo-lock` without replacing that file; Cargo 1.99.1, which the configured projects pin, takes it shared between its exclusive `.cargo-build-lock` and `.cargo-artifact-lock`, so a build waits for cleanup and cleanup refuses during a build. Revisit that when the configured projects change Cargo version, output layout or locking behavior.
 
 A project's loader runs under `lifecycle.py load`, which hands it the catalog lock so a retention sweep cannot retire the publication it is copying.
 Write a loader to build before it enters `load` and only select and copy under it:
@@ -76,5 +76,5 @@ If protected artifacts exceed the budget, report that fact rather than evicting 
 The budget covers preserved deliverables; active source/build caches can still exceed it and are not forcibly deleted.
 
 Install or update with agent-config's `scripts/install.sh --repo /path/to/repository` (repeat `--repo` for each project; a rerun keeps those registered).
-It links this skill into the user catalogs, then runs `scripts/install.py`, which installs the deterministic job and retains unrelated hooks and settings.
+It links this skill into the user catalogs, then runs this skill's own `scripts/install.py`, which installs the deterministic job and retains unrelated hooks and settings.
 Shared global defaults come from agent-config's existing global instruction links; they take effect in new sessions after that revision is installed.
