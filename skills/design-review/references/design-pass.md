@@ -2,15 +2,16 @@
 
 ## Design
 
-First state the problem the change solves, in terms of behaviour rather than code.
+First state the problem the change solves as behaviour, not code.
 Then ask how you would solve that problem in this codebase if the change did not exist, reading beyond the diff as far as the answer needs.
 The best alternative often changes existing code the diff only works around.
 
-Do not take what the issue requires of the change as given.
+Do not take what the issue requires of the change as given, as passes on two reworks did.
 Judge each requirement it took from existing behaviour as the global preferences say of what a project guarantees,
-and raise as an alternative the design that goes without those nothing there protects;
-a requirement in the owner's own words goes under Questions, not into an alternative.
-Design passes on two reworks took their issues' requirements as given.
+and raise as an alternative the design that drops the requirements nothing there protects;
+a requirement in the owner's own words goes under Questions instead.
+A decision this change is the first to build is under review with it:
+defects that trace to its rule count against it, and an alternative departing from it is weighed like any other; patching around one left a module full of edge cases.
 
 Compare the change against that design. Look in particular for:
 
@@ -18,8 +19,7 @@ Compare the change against that design. Look in particular for:
 - a new mechanism that parallels one the codebase already has;
 - a rule, list or sequence the change edits that is spelled at other sites too:
   search for each one's other spellings, or where you cannot search say which sites you were shown,
-  and name those the change missed as defects and the single owner as the alternative
-  (two audits of one project traced eleven of thirteen live defects to a change that reached one copy);
+  and name those the change missed as defects and the single owner as the alternative;
 - special cases a better representation or boundary would remove;
 - edge-case code the stakes record does not pay for;
 - a side effect that a user action has no reason to cause: say what the action should cost and what would remove the gap;
@@ -31,9 +31,9 @@ Compare the change against that design. Look in particular for:
 An alternative is worth raising only when it removes something: a concept, a duplicated mechanism, an invariant, a class of future edits, or a real performance cost.
 If the current approach is sound, say so and stop looking.
 
-For each alternative worth raising, give:
+For each, give:
 what changes and where; whether it changes anything a user sees; the upfront cost, including migration and risk; what it removes or prevents over time; and whether it belongs in this change, in a follow-up, or nowhere.
-Place it by its scope and its risk to this change; its upfront cost is stated, as the global preferences say, and does not send it to a follow-up.
+Place it by its scope and its risk to this change, not by its upfront cost.
 Prefer one focused restructuring that dissolves several findings over a list of local fixes.
 
 ## Report

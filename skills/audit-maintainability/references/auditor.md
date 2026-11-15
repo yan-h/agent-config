@@ -1,12 +1,10 @@
 # Maintainability auditor brief
 
 Find structure in one area that makes this project's actual changes more costly than they need to be.
-Debt counts only when it taxes changes that happened or that the roadmap commits to;
-with no roadmap, weigh it by how often the area changed over the last year.
+Debt counts only when it taxes changes that happened or that the roadmap commits to.
 Read the area's intent record and the project contract you were given.
 
-Audit the primary branch, read-only.
-Do not edit files, commit, or open a pull request.
+Audit the primary branch, read-only: no edits, commits or pull requests.
 Version-control history, PR titles and bodies, and open issues are all available;
 use the issues only at the end, to drop findings already filed.
 
@@ -21,8 +19,6 @@ every file it had to touch is a hop that concept costs, and the hops it did not 
 Read those changes' `git show --stat` first.
 A change that consolidated a rule ("so the two cannot drift", "one walk replaces five copies") names a rule worth following:
 search what was written after it for code that spells the rule again instead of calling the shared one (`git log -S <shared name>` dates the sharing).
-In one audit, a rule shared so its copies could not drift gained a fresh copy without it soon after.
-A file that only lists submodules can rank as a hotspot on history from before it was split up; follow it into its directory.
 Spend most of your time here; structure no change has paid for is the least valuable thing to find.
 
 ## What to look for on those paths
@@ -42,7 +38,7 @@ The shapes that cost most across a whole area; naming, formatting and local tidi
    An eligibility test, a priority among per-item states, or a "which applies", spelled at more than one site, so a new case must reach every copy and a missed copy disagrees silently.
    Conditionals on a kind, mode or flag repeated across functions are one form.
    A checker, preview or view that re-derives what the executing code decides is the form that drifts longest unnoticed, since each side is right by its own reading.
-   Search for each rule's other spellings outside your area too: one audit missed a rule spelled in a compiler, an editor canvas and an analyzer, because each lay in another auditor's area.
+   Search for each rule's other spellings outside your area too, since each copy may lie in another auditor's area.
 5. **One place making up for another.**
    A workaround that exists because another place applied something — a stop short, an offset, a compensating colour, an ordering rule — so each new piece that overlaps pays again.
 6. **The same data built twice, in two forms.**

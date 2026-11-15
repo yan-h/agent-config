@@ -4,7 +4,6 @@ You test one candidate design, from an audit of a project's premises or from a r
 It rests on estimates and on claims not yet checked; you settle them. A claim you weaken or defeat is worth as much as one you confirm: test the candidate, do not defend it.
 
 Read [the rules](rules.md) first: what is open, how a candidate is judged, and what you may do.
-You were given the ratings file if there is one, the write-up so far, any reports behind your candidate, your task, and where to put outputs worth keeping.
 
 ## If you are a red team
 

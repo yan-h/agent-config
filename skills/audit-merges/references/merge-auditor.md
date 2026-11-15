@@ -13,8 +13,7 @@ Treat cache invalidation, hand-resolved overlaps, unreachable test branches, and
 
 ## Method
 
-Work in this order.
-The early steps are cheap and identify where to spend the expensive reading.
+Work in this order: the early steps are cheap and show where to spend the expensive reading.
 
 1. **Size the range.**
 Run `git diff --stat <since>..HEAD`.
@@ -42,15 +41,13 @@ Ask what smallest input reaches each relevant new branch and whether the fixture
 6. **Check cross-branch invariants.**
 Look for an assertion such as "X always holds here" written before another branch made X conditional.
 7. **Check prose and scripts as caches.**
-If the range changed a subsystem described by `AGENTS.md`, `CLAUDE.md`, an agent configuration directory, or a helper script, verify that every named path, package, command, UI location, glob, and copy source still exists and means what the prose says.
-Weight this toward skills and scripts because they often carry code-shaped facts without compiler coverage.
-Use `test -e` on paths that scripts glob, grep, or copy.
-
-Prose a session loads or executes — `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, skills, scripts — is a finding, because a wrong fact there misroutes the next agent;
-so is a step in any other document that one of these sends a session to run.
+Prose a session loads or executes — `AGENTS.md`, `CLAUDE.md`, the agent configuration directory, skills, helper scripts, and a step in any other document one of these sends a session to run — carries code-shaped facts with no compiler.
+If the range changed a subsystem it describes, verify that every named path, package, command, UI location, glob, and copy source still exists and means what the prose says;
+use `test -e` on paths that scripts glob, grep, or copy.
+A wrong fact there is a finding, because it misroutes the next agent.
 Reference documentation and design notes go under **Documentation drift** instead:
 name the file and the claim that no longer holds and move on.
-Do not let that second list set the size of your report;
+Do not let that list set the size of your report;
 it is the cheapest thing here to find and the least likely to be read.
 
 ## Evidence bar
@@ -67,4 +64,3 @@ the caller files those rather than fixing them, so an honest "only reachable at 
 - **Suspicions** — separate and explicitly unproven, each with the input or state you would try first to reproduce it; the caller makes that attempt.
 - **Documentation drift** — stale reference documentation and design notes, named for the caller to file, not proposed for repair.
 - **Also checked, clean** — name the areas and hypotheses examined.
-- **Range** — give the `<since>..HEAD` range and the pull requests or merges it contains.

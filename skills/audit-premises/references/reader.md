@@ -18,8 +18,7 @@ You were given the owner's standing preferences. They decide what counts as a co
 
 1. Read the docs first: the project contract, the goals, your area's design, its live decision records and its intent record, as far as the project has them.
    Read the superseded records and closed issues too, for the owner's own stated reasons:
-   in the first run the reason that defeated one candidate was in a superseded record no reader had opened,
-   and another candidate's nearest form had been rejected in an issue the day before.
+   a reason that defeated one candidate was in a superseded record no reader had opened.
 2. Read the code properly: whole files where the structure lives.
 3. Look for signs that a premise, not an implementation, is what costs. You may have been given where change lands in your area; start there.
    - Several records patching one mechanism, or one record replaced again and again.
@@ -52,6 +51,7 @@ Then:
   what it would be made of, what the current design has that it would not, and what it would do better.
   Go further than seems prudent.
 - **Contracts you would break,** and what breaking each buys.
+- **What each must-keep ruled out,** as that guarantee's price.
 - **Guarantees the ratings file does not list, or that you could not tell were open** (marked unclear), each with what keeping it costs.
 - **Considered and rejected,** each with the code or measurement that defeats it.
 - **Load-bearing and right:** what a rework must not disturb, and why.

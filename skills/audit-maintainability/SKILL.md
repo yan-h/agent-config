@@ -1,30 +1,23 @@
 ---
 name: audit-maintainability
-description: Audit a project, or one named area, for structure that makes its likely changes costly — duplicated mechanisms, state with several owners, boundaries every change has to cross — grounded in where history shows changes and fixes actually land. Started only by the repository owner invoking it explicitly.
+description: Audit a project, or one named area, for structure that makes its likely changes costly, grounded in where history shows changes and fixes actually land. Started only by the repository owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
 # Audit for structure that taxes change
 
-**The owner starts this.** A session that notices costly structure says an audit looks due and stops there;
-it does not run the procedure below by hand instead.
-`disable-model-invocation` above enforces that in hosts that honour it;
-Codex does not, so in Codex this paragraph is the rule itself.
+**The owner starts this.** A session that notices costly structure says an audit looks due and stops there, rather than running the procedure below by hand.
+Codex ignores `disable-model-invocation`, so there this paragraph is the rule itself.
 
 This audit follows the sections of [the `audit-shared` skill](../audit-shared/SKILL.md) named below, installed beside this one; if it is not installed, say so and stop.
 Start by reading the project's local contract as its "Read the contract" section describes.
-A recorded decision is weighed, and superseded or put to the owner, as the global preferences say; a finding that one costs more than its reasons still justify cites the paid-for changes that show it.
 
 ## What this audit is
 
-The whole-area counterpart of the `design-review` skill:
-not whether one change should have been written differently,
-but whether the structure as it stands makes the changes this project actually makes more costly than they need to be.
-
+It asks whether the structure as it stands makes the changes this project actually makes more costly than they need to be.
 Whether a mechanism's reason still holds is drift, the `audit-drift` skill's question; such a finding is noted for a drift audit, not pursued.
 
 **Debt counts only when it taxes changes that happened or that the roadmap commits to.**
-Without a roadmap, weigh debt by how often the area changed over the last year.
 Every finding cites the commits or PRs that paid for it, or the roadmap item it would make costly.
 
 ## Choose the scope
@@ -34,8 +27,7 @@ The text after the invocation names one area (`$ARGUMENTS` in Claude, the text a
 With none, audit every area.
 Take the area map as the `audit-shared` skill's "Map the areas" section describes.
 Read each area's intent record as its "Read the intent records" section describes.
-Earlier audits' "checked and healthy" lists hold only for what they checked:
-a performance audit's clean list says nothing about structure, so pass an auditor only what bears on its question.
+Earlier audits' "checked and healthy" lists hold only for what they checked, so pass an auditor only what bears on its question.
 Read the last maintainability audit's tracking issue too, for its seen-and-left list,
 and the open tracking issues and rework issues from earlier audits, so a candidate already listed is linked rather than listed twice.
 
@@ -53,18 +45,17 @@ python3 <this skill's directory>/scripts/history-map.py origin/<primary> --since
   --exclude '^docs/' --exclude '\.lock$' [--path <file or directory> ...]
 ```
 
-It follows renames to each file's current path, which plain `git log --name-only` does not:
-a project that renamed its crates otherwise splits each file's history in two and hides its hotspots.
+It follows renames to each file's current path, which plain `git log --name-only` does not.
 `--max-count N` takes the last N changes instead of a date. It reports:
 
 - **Hotspots:** the files changed most often, beside their size.
-  Use them to locate an area's files, not as evidence of cost: three runs' method notes called the counts noise.
+  Use them to locate an area's files, not as evidence of cost: the counts are noise.
 - **Change coupling:** files in different directories that keep changing together.
 - **Widest changes:** the changes that touched the most files.
   Hand the auditor the file lists of those that changed a single concept, such as adding or removing one setting.
 
 Beside the map, list the PRs since the last maintainability audit that consolidated code, such as copies of a rule replaced by one shared one:
-searching after each for copies written since is, with one-concept file lists, what found things run after run.
+with one-concept file lists, searching after each for copies written since is what finds things.
 
 Exclude generated files, lockfiles and prose the project regenerates.
 For an area's slice pass every file and directory it spans; an area that does not map onto paths gets the whole map, and the auditor picks its files from it.
@@ -72,10 +63,10 @@ For an area's slice pass every file and directory it spans; an area that does no
 ## Per area, one auditor
 
 Read [the auditor brief](references/auditor.md) completely before delegating.
-Split an area whose share of the changes is too large for one auditor to read closely into sub-areas along its own seams, such as looks, model and gestures, and controls:
-in one audit an auditor held 191 of 282 changes and came back with two small fixes, where a later hunt split three ways found six refactors there.
+Split an area whose share of the changes is too large for one auditor to read closely into sub-areas along its own seams:
+one auditor holding two thirds of an audit's changes found two small fixes where three auditors found six refactors.
 Give each auditor that brief, its area, its part of the history map, the consolidating PRs in its area, the area's intent record, and the project contract.
-The auditor's work is consequential judgement; size it by the global subagent guidance.
+The auditor's work is consequential judgement.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
 
 ## Verify, then sort
@@ -92,7 +83,6 @@ Then sort what survived:
   File one grouped issue per area, skipping anything an open issue already covers.
 - **Rework candidates:** findings grouped by a shared design cause, or needing a change across areas or interfaces.
   One paragraph each: the cause, the evidence, a sketch of the target, a rough upfront cost, and what it removes.
-  The owner can take one into the `propose-rework` skill.
 - **Needs the owner's call:** a fix that changes behaviour or a public interface, or supersedes a recorded decision the global preferences leave to the owner.
   At most five questions per area, each answerable yes or no, each with what you would do on either answer.
 - **Seen and left:** debt with no history of cost and no roadmap pull, one line each,

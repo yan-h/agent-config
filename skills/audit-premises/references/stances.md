@@ -6,10 +6,9 @@ Read [the rules](rules.md) first, then "Every stance" and the section your task 
 ## Every stance
 
 You answer the audit's question, as [the reader brief](reader.md) states it, from your stance instead of from one area.
-You were given the owner's standing preferences; apply them as amended by the ratings file's tolerances, and say where one decides a verdict.
+Apply the owner's standing preferences as amended by the ratings file's tolerances, and say where one decides a verdict.
 Your section's method replaces the reader brief's.
 Report your candidates in the reader brief's form, plus whatever your section asks for, in about 3,000 words at most.
-Where the project lacks something your section rests on, say so and work from what it has.
 
 ## Clean-room designer
 
@@ -33,7 +32,7 @@ the overhauls they imply ranked by lines removed per would-trade or unrated guar
 
 ## Performance architect
 
-Earlier performance work optimised inside the architecture. Ask whether a different architecture changes the cost class.
+Ask whether a different architecture, not optimisation inside this one, changes the cost class.
 Read the measurements first and trust them over reasoning; where a claim needs a number nobody took, say so and name the probe that would take it.
 Read the hot paths whole.
 For each structural alternative give the arithmetic from measured figures, the contract or record it breaks, and what it costs in complexity.

@@ -1,22 +1,18 @@
 # Rules for every agent in the audit
 
-Every agent the audit starts is given this file and its own brief, by path.
-
 ## What is open
 
 Every recorded decision is open: a candidate may supersede any record, any intent entry the owner chose, and any contract the project calls hard.
 So is every guarantee, as the next section says by its rating.
 The audit proposes; the owner decides.
 Where you cannot tell whether something is open, treat it as open, and name it among the guarantees your report lists, marked unclear:
-every error of scope in the first project ran the other way, holding fixed what the owner later gave up and shrinking candidates to what survived.
-For each record a candidate supersedes, it says which of the record's stated reasons no longer holds, or how the target still meets the need the record served:
-a record weighs what its reasons and its need still weigh, as the global preferences say.
+errors of scope have run the other way, holding fixed what the owner later gave up and shrinking candidates to what survived.
+For each record a candidate supersedes, it says which of the record's stated reasons no longer holds, or how the target still meets the need the record served.
 
 ## Guarantees and their ratings
 
 A guarantee is what the product promises its user, recorded or not: a behaviour, a look, a capability, identity between runs or builds, a performance target, compatibility with saved data or a host.
-Left to themselves, agents hold an unrecorded guarantee fixed. In the first project, three designs kept every behaviour the product had;
-the larger rework came only once the owner gave up guarantees no record stated, among them seamless output across structural edits and identical output between builds.
+Left to themselves, agents hold an unrecorded guarantee fixed, such as seamless output across structural edits or identical output between builds.
 
 Read the ratings file you were given before your own method; it overrides any rating in an intent record. A candidate that gives up a guarantee is judged by its rating:
 
@@ -42,9 +38,8 @@ Tolerances the owner stated for this run, listed in the file, decide what counts
 - **A smaller form is the candidate only when it leaves nothing lasting in place.**
   "This is enough for one change" is not a reason to shrink one.
 
-An agent left to itself judges by whether a piece is worth its cost, and stops at the first form that survives.
-In the first run red teams reduced one candidate to its smallest surviving variant and defeated three other variants one at a time;
-the objections answered each other once the variants were combined, and the full form came back only when the owner said to ignore cost and allow reshaping.
+An agent left to itself judges by whether a piece is worth its cost, and stops at the first form that survives:
+red teams have defeated variants one at a time whose objections answered each other once the variants were combined.
 
 ## What you may do
 
