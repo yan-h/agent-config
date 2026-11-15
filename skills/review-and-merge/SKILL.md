@@ -29,7 +29,7 @@ Review tools, required checks, build obligations, merge method and cleanup all c
 
 Read the PR's full diff against the primary branch, fetched fresh, not a local branch ref that may be stale, and not only its file list.
 
-Review changes with real logic, shared or cached state, concurrency, persistence, security, or anything the project contract marks as risky.
+Review changes with real logic, shared or cached state, concurrency, persistence, security, or anything the project contract marks as risky, the parts its stakes record names as able to fail severely included.
 Skip it for documentation, configuration, mechanical renames, test-only edits, and obviously correct one-line changes.
 A constant that changes what the user sees, or what a saved value means, is not configuration: a scale change skipped as one left a regression and stale docs to two later audits.
 When unsure, review.
@@ -70,8 +70,11 @@ Check what a review claims before acting on it or writing it into the PR: a desi
 Keep fixes inside the PR's scope; anything else found along the way goes where the project contract sends it,
 and where it says nothing is reported, not fixed here.
 
-**Re-read.** After each round of changes, have the correctness review read the new diff, until a round confirms nothing new:
+**Re-read.** After each round of changes, have the correctness review read the new diff:
 in three audited runs re-reads found two, three and five new defects in fixes.
+Where the change touches a part the stakes record names as able to fail severely, re-read until a round confirms nothing new.
+Elsewhere re-read once and price what it finds like any other finding; the fixes that follow are not re-read. One rework read to nothing took five rounds.
+Where the contract has no stakes record, say with the review decision which parts you take as severe.
 When the changes or the owner's answers alter the design, by superseding a decision or adding a mechanism, rerun the design pass on the whole change.
 When a round finds defects in the previous round's fix twice running, stop patching and look for the alternative that removes them.
 
@@ -97,5 +100,5 @@ Confirm the merge landed on the remote primary branch before reporting, and clea
 
 ## Report
 
-The merge commit, whether the PR was reviewed and why, who ran each pass (a fresh subagent or an API call) on which model, what the review changed, the findings left as limitations with their price, the design verdict, the adjustments made for it, the questions taken to the owner and how each was settled, and any follow-up issues filed.
+The merge commit, whether the PR was reviewed and why, who ran each pass (a fresh subagent or an API call) on which model, what the review changed, the lines it added to the diff first reviewed and the rounds it ran, the findings left as limitations with their price, the design verdict, the adjustments made for it, the questions taken to the owner and how each was settled, and any follow-up issues filed.
 If the PR is left open, say so and name what blocks it.
