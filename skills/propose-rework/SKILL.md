@@ -97,17 +97,14 @@ Start fresh red teams with `audit-premises`' tester brief and rules, telling eac
 the `audit-premises` ratings file if the candidate came with one, the ratings the intent records hold, any tolerances the owner stated, the design, the spike's results, the behaviour differences and a path for its report, not your reasoning:
 one on the whole design, and one on each piece the verdict rests on that could fail alone. State the number of agents before each round.
 Every past run that added an attack found something its report would otherwise have carried.
-Check each attack's central claim against the code yourself before acting on it.
+Check each attack's central claim against the code yourself before acting on it,
+and check that each test the design relies on runs in CI: one design's loading-screen tests returned early there.
 
 An attack lands when it would change the verdict, a must-keep, a question for the owner or the point of no return,
 or when it shows a failure that a check the design relies on passes over or never runs; anything else is corrected, or goes unprotected as the global preferences say of what a project guarantees, and is not attacked again.
-Before any further round, stop and report the design open, with what the next attack would aim at and every attack listed, when:
+Stop and report the design open, with what the next attack would aim at and every attack listed, when the design now removes less than it did entering the first round, or the second round's attack lands.
 
-- a second reshape answers an attack on the same piece, as when one design reshaped a piece a third time;
-- the design now removes less than it did entering the first round; or
-- the third round's attack lands.
-
-Otherwise attack the answer to a landed attack where it revised the design, with one red team at what it revised and what that touches: up to three rounds for the design, reshapes included.
+Otherwise attack the answer to a landed attack where it revised the design, with one red team at what it revised and what that touches: up to two rounds for the design, reshapes included.
 An answer that only adds or rewords a question for the owner earns no round.
 
 ## Map the migration surface
