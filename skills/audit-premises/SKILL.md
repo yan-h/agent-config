@@ -30,7 +30,8 @@ The output is tested rework candidates for the `propose-rework` skill. This audi
 
 ## Before starting
 
-**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds up to three red teams for each form the verdict rests on.
+**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the second used 40, after the owner had been told 30 to 35.
+Count one inventory agent per area besides the waves, and up to three red teams for each form the verdict rests on in the last round below.
 Invoking the skill is the owner accepting a run of that order. State the number of agents before the inventory and before each wave, so the owner can interrupt.
 The owner's must-keeps shrink the second wave: readers report what a must-keep rules out as that guarantee's price, which the second wave does not test.
 In the first project, rating every guarantee with sizes in hand removed most of the planned agents before any ran; naming only must-keeps prunes less, so expect a larger second wave.
@@ -88,11 +89,6 @@ Record each rating the owner gave in the intent record of every area the guarant
 record a don't-care as open to giving up in a rework, not as leave to remove the guarantee outside one. The run's tolerances are not recorded there.
 When the owner changes a rating, update the file and the record before the next agent starts, and recheck the candidates that rested on the old rating;
 the owner reversed one within the same session in the first project.
-
-Both areas rated so far were rated with sizes from a full earlier run in hand, which is why the inventory gets earlier audits' measurements;
-whether an inventory sizes guarantees well enough without them is untested.
-Say in the report how many must-keeps the owner named before the first wave, whether the inventory had earlier measurements, and where readers' sizes disagreed with the inventory's;
-naming only must-keeps up front is untried too.
 
 ## First wave: readers who propose
 
@@ -202,6 +198,9 @@ Written as the current state:
 - **Defeated or set aside,** one line each with the reason, so it is not proposed again unchanged.
 - **Load-bearing and right:** what no candidate touches and why.
 - **Measurements,** issues filed on the way, open prototype pull requests, and what nobody checked.
+- **How the rating went:** how many must-keeps the owner named before the first wave, whether the inventory had earlier audits' measurements, and where readers' sizes disagreed with the inventory's.
+  Both areas rated so far had sizes from a full earlier run in hand, which is why the inventory gets those measurements;
+  whether an inventory sizes guarantees well enough without them is untested, and so is naming only must-keeps up front.
 - **Record:** the area map, each agent's report unedited, and where local outputs are.
 
 Write what stands, not how the audit got there.

@@ -113,9 +113,6 @@ Compare the describer's account with the target. Every difference is one of:
 
 ## Attack the design
 
-Seven of the fourteen runs before this step existed had an attack or independent review added, by the owner or by the agent, and every one found something the report would otherwise have carried:
-a headline figure from a spike that changed nothing, a watchdog the shipped change needed, notes stranded by a swap the spike's test passed by accident, about eight defeated claims in one design.
-
 Start fresh red teams with `audit-premises`' tester brief and rules, telling each that it is the red team, that its candidate is this design and the write-up is the design document, and giving it
 the ratings file, the design, the spike's results, the behaviour differences and a path for its report, not your reasoning:
 one on the whole design, and one on each piece the verdict rests on that could fail alone. State the number of agents before each round.
@@ -128,16 +125,19 @@ when it now removes less than it did entering the first round, or when the third
 one design ran a third round on a piece already reshaped twice, and reshaped it a third time.
 Otherwise attack the answer where it revised the design, with one red team at what it revised and what that touches: up to three rounds for the design, reshapes included.
 An answer that only adds or rewords a question for the owner earns no round.
-This rule has not yet run. Under the earlier one, every second round in four designs landed, one with a failure that passed all 224 of the plugin's tests;
-a rework that cut its second round met seven defects in the build, two of which, besides a local one, a second attack would plausibly have caught,
-one of them a claim assigned to a randomised test that held, and reworked no merged step.
+
+Seven of the fourteen runs before this step existed had an attack or independent review added, and every one found something the report would otherwise have carried,
+among them a headline figure from a spike that changed nothing, a watchdog the shipped change needed and about eight defeated claims in one design.
+Under the earlier stopping rule every second round in four designs landed, one with a failure that passed all 224 of the plugin's tests;
+a rework that cut its second round met seven defects in the build, two of which a second attack would plausibly have caught, though none reworked a merged step.
+The stopping rule above has not yet run.
 
 ## Map the migration surface
 
 If the verdict leans toward the rework, run one read-only agent, a lookup a light model can do:
 every caller, entry point, persisted format, public interface, configuration key and test that touches the part.
 Run before the attack, it mapped migrations that never happened: in two runs whose verdicts went elsewhere it took seven and twelve minutes and fed one sentence between them.
-A finding the design did not account for is a landed attack.
+A finding the design did not account for is a landed attack, answered as an attack is; where no round is left, the design is reported open with the finding.
 
 For persisted data, file formats and public interfaces, say how existing data and callers migrate or stay compatible.
 
@@ -176,10 +176,9 @@ Lead with a one-line verdict — do the rework, do the smaller change, or leave 
   One rework estimated at 300 lines removed landed 940 added, its 860 lines of event-sequence enumeration and file scanner costed at about 60.
 - **Open work and side findings:** what happens to each open issue and pull request on the part, and the describer's comment fixes.
 
-Put the questions to the owner as the global preferences say, each in what a user hears or sees with one concrete case:
-in six runs the owner asked for a report to be explained more simply, and twice to be taken through the questions one at a time.
+Put the questions to the owner as the global preferences say, each in what a user hears or sees with one concrete case.
 A step that rests on an unanswered question does not start.
-When the owner answers, offer to record the answers as `audit-drift`'s "Record the answers" section describes.
+When the owner answers, record the answers as `audit-drift`'s "Record the answers" section describes; this report has no index to tick.
 
 Change no code beyond the spike.
 If the owner takes the proposal, offer to carry out the whole migration from a fresh session by the project's procedure for multi-PR work,

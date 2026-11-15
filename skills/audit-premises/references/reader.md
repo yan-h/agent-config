@@ -40,7 +40,6 @@ Give the first five in full and each of the rest in a paragraph:
 
 - **Premise at fault:** each record and structural assumption it supersedes, with the reason that no longer holds.
 - **Recurring cost, with evidence:** commits, PRs, issues and `file:line`. Counted, not asserted.
-  Read a claim of "every", "only" or "nothing" in the code before writing it.
 - **Target design,** concrete enough to attack: what owns what, and what a typical change costs afterwards.
 - **What goes away,** and **what is lost or put at risk,** naming each guarantee given up with its rating, and counting what goes with a don't-care one.
 - **The strongest argument against,** whether the code supports it, and what change of shape would answer it.
