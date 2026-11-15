@@ -61,7 +61,6 @@ A correction that adds no such code is not held to this test.
 Where the record pays, the code is written and a finding is fixed, unless I decided to go without the case; leaving it out, or taking existing code out, is mine to decide, and your report names any you would have left.
 Where it does not pay, the code is not written unless I asked for it in my own words, a detector included: the case takes the record's failure path only where the code already tells it apart.
 Going without it is yours to decide, unless I would see or hear the change or it changes what saved data means, as above.
-Doubt about whether a failure is severe, or whether I would see or hear the change when the case occurs, makes the decision mine.
 List what goes unprotected, each case with its cost, where I can take the list whole or strike from it: the PR description, or an audit's report and the issues it files.
 Where the contract has a record, a change that goes without a case adds it there with the pull request's number, where the next reviewer and audit will find it.
 Such a line is not my decision and does not stand against a failure later found severe; the record's use, load, severe and cheap lines change only on my word.
