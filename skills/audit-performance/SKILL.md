@@ -11,12 +11,9 @@ it does not run the procedure below by hand instead.
 `disable-model-invocation` above enforces that in hosts that honour it;
 Codex does not, so in Codex this paragraph is the rule itself.
 
-Read the project's local contract before starting.
-Build profiles, benchmark and profiling commands, worktrees, validation gates, PR conventions, and where intent records live and their form all come from there;
-where it says nothing about intent records, use `docs/intent/<area>.md`.
-Measure the build users run, not a debug build, unless the contract says otherwise.
-
 This audit follows the sections of the `audit-shared` skill named below, installed beside this one; if it is not installed, say so and stop.
+Start by reading the project's local contract as its "Read the contract" section describes; build profiles, benchmark and profiling commands and validation gates come from it too.
+Measure the build users run, not a debug build, unless the contract says otherwise.
 
 ## What counts
 
@@ -47,8 +44,7 @@ Before anyone reads code for slow patterns, build per the contract, run each wor
 the export with its real encoder, the request through its real database, the launch to the first usable frame.
 Then break it into stages and find which ones overlap.
 A stage off the critical path is not a finding however much it speeds up;
-in the first trial a 34% faster drawing loop vanished behind an encoder fifteen times slower,
-and an earlier audit had measured the drawing with the encoder deliberately removed.
+in the first trial a 34% faster drawing loop vanished behind an encoder fifteen times slower.
 
 Record wall time, memory, and where the time goes.
 Run each measurement enough times to know its noise, and report the median and spread;
@@ -84,8 +80,7 @@ Anything unmeasured is listed under **Suspicions** with the measurement that wou
 Sort the findings.
 Local fixes are made in the run because the baseline and harness that prove them exist only then;
 they go up as PRs and are not merged here unless the owner's own message asked for the fixes to be merged.
-When it did, each is reviewed as the `review-and-merge` skill's sections from "Decide whether to review" through "Review" describe, its design pass included, because the audit designed these fixes itself,
-and they are merged as the `sweep-issues` skill's "Merge" section describes; following those sections invokes neither skill.
+When it did, review and merge each as the `audit-shared` skill's "Review and merge the fixes" section describes.
 
 - **Behaviour-preserving and local:** fix it, measure again, and keep the fix only if the gain clears the noise and justifies its complexity.
   The project's tests must still pass; a fix that changes what a user sees belongs in the next group instead.

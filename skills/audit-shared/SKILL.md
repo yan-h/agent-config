@@ -1,6 +1,6 @@
 ---
 name: audit-shared
-description: Sections the audit skills share — the area map, intent records, the tracking issue's layout, sweeping an audit's fixes, and recording the owner's answers. Read only when another skill names one of its sections; never a task of its own.
+description: Sections the audit skills follow by name. Read one only when another skill names it; never a task of its own.
 user-invocable: false
 disable-model-invocation: true
 ---
@@ -9,6 +9,12 @@ disable-model-invocation: true
 
 `audit-drift`, `audit-maintainability`, `audit-performance` and `audit-premises` follow the sections below by name, and `propose-rework` also follows this skill's "Record the answers" section.
 A section binds only the skills that name it, so each of its sentences must hold for every one of them; change a section only with all of them in view.
+
+## Read the contract
+
+Read the project's local contract, with its roadmap and recorded decisions.
+Worktrees, branch and PR conventions, and where intent records live and their form all come from there;
+where it says nothing about intent records, use `docs/intent/<area>.md`.
 
 ## Map the areas
 
@@ -39,13 +45,17 @@ Put the areas with the most consequential questions first.
 The audit ends at its report unless the owner's own message asks for its fixes to be made, or made and merged.
 Then, once the report is filed, sweep the issues this run filed:
 follow the `sweep-issues` skill's sections from "Triage" through "Fix" with those issues as the scope,
-then take each pull request through the `review-and-merge` skill's sections from "Decide whether to review" through "Review", its design pass included, because the audit designed these fixes itself,
-and merge them as `sweep-issues`' "Merge" section describes, or leave draft pull requests when the owner asked only for fixes.
-Following those sections invokes neither skill; if either is not installed, say so and leave the fixes filed.
+then review and merge each pull request as this skill's "Review and merge the fixes" section describes, or leave draft pull requests when the owner asked only for fixes.
 
 Triage holds the audit's sorting to the sweep's bar; the report's questions and its rework candidates are outside the sweep.
 When a fix the audit called mechanical proves wrong once built or reviewed, say on its issue what was tried and why it failed, and link the draft:
-in one run three such fixes were built and reverted, and the issue is what the next sweep and the next audit read.
+the issue is what the next sweep and the next audit read.
+
+## Review and merge the fixes
+
+Take each pull request through the `review-and-merge` skill's sections from "Decide whether to review" through "Review", its design pass included, because the audit designed these fixes itself,
+and merge them as `sweep-issues`' "Merge" section describes.
+Following those sections invokes neither skill; if either is not installed, say so and leave the pull requests unmerged.
 
 ## Record the answers
 

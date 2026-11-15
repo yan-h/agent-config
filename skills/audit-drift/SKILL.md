@@ -11,18 +11,14 @@ it does not run the procedure below by hand instead.
 `disable-model-invocation` above enforces that in hosts that honour it;
 Codex does not, so in Codex this paragraph is the rule itself.
 
-Read the project's local contract before starting.
-Worktrees, branch and PR conventions, and where intent records live and their form all come from there;
-where it says nothing about intent records, use `docs/intent/<area>.md`.
-
 This audit follows the sections of the `audit-shared` skill named below, installed beside this one; if it is not installed, say so and stop.
+Start by reading the project's local contract as its "Read the contract" section describes.
 The `propose-rework` skill uses the describer brief by name; rename it only together with that skill.
 
 ## What drift is
 
 Code that no longer serves the owner's intent although every change on the way was locally reasonable.
-It is a different axis from a merge audit:
-not a bug born where two branches meet, but a reason that moved while the code it justified stayed,
+It is a reason that moved while the code it justified stayed,
 or a reason that never paid for that code.
 
 The shape it takes, from the case that prompted this skill:
@@ -60,8 +56,7 @@ The auditor also gets the area's intent record and the project's stakes record; 
 - **Auditor** (`references/auditor.md`): traces the area's mechanisms to the PRs that added them and asks whether each reason still holds and ever paid for the mechanism.
 
 The auditor's work is consequential judgement; the describer's is lighter.
-Per area, a describer has cost about 115k to 220k tokens and an auditor 210k to 300k, across the first trial and three later full runs, the latest of which priced necessity;
-the first trial's area took twelve minutes of wall clock.
+Per area, a describer has cost about 115k to 220k tokens and an auditor 210k to 300k.
 A full run is several million tokens; invoking with no area is the owner accepting that.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
 
