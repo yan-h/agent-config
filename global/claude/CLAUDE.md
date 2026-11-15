@@ -5,8 +5,7 @@
 ## Subagent waits
 
 A subagent's prompt cache expires after five idle minutes, while the main session's lasts an hour.
-When a subagent idles past that, its next request rewrites its whole context; the usage record (`yan-h/claude-usage`) puts these rewrites at about an eighth of subagent quota, mostly after five to sixty idle minutes,
-and in one `propose-rework` run they were about a third of four designers' quota, each designer resumed four times after a red team's ten to thirty-five minutes.
+When a subagent idles past that, its next request rewrites its whole context; the usage record (`yan-h/claude-usage`) puts these rewrites at about an eighth of subagent quota, mostly after five to sixty idle minutes.
 So start a subagent as the `resumable` type, whose cache lasts an hour, when you plan to send it back after a wait or it must wait under an hour itself, such as a builder running its own full test suite.
 At API prices its cache writes cost 2× base input instead of 1.25×, about 0.6 of one rewrite over its life, so it pays from the first such resume (their quota price is unmeasured);
 keep `general-purpose` for an agent that reports once, such as a red team, reviewer or search.
@@ -16,10 +15,8 @@ Resume such a subagent after a long gap only when its context is worth rewriting
 
 ## Subagent worktrees
 
-A worktree the Agent tool made for a subagent with worktree isolation is yours to release, since the host removes only unchanged ones and the reclaimer only clean ones:
-one audit left two behind, one holding a 242 MB build cache.
-Once its work is merged or carried into your branch or an issue, and you will not resume that subagent, remove it with `git worktree remove -f -f`,
-and delete its branch with `git branch -D`.
+A worktree the Agent tool made for a subagent with worktree isolation is yours to release, since the host removes only unchanged ones and the reclaimer only clean ones.
+Once its work is merged or carried into your branch or an issue, and you will not resume that subagent, remove it with `git worktree remove -f -f`, and delete its branch with `git branch -D`.
 
 ## Code review effort
 
@@ -39,7 +36,7 @@ A refusal of a write the rules cover means their wording failed, or `scripts/ins
 ## Showing me files
 
 In a Remote Control session, `SendUserFile` refuses and the desktop app cannot open `Read`'s image cards or an HTML page, though the session runs on my Mac:
-open the file there with `open` (Preview for images, the browser for HTML) and say that you did, unless I said I am on my phone. `SendUserFile` failed in thirteen sessions across four projects.
+open the file there with `open` (Preview for images, the browser for HTML) and say that you did, unless I said I am on my phone.
 
 ## Auto-fix and waiting
 
