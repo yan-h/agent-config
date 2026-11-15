@@ -169,8 +169,10 @@ Lead with a one-line verdict — do the rework, do the smaller change, or leave 
 - **Attacks:** what each round hit and what changed, and whether the design was left open.
 - **Behaviour changes:** the fixes, as facts, and the don't-cares given up.
 - **Migration:** the steps, each sized roughly as a PR, the safeguards left out, and the point of no return.
-- **Cost and risk:** total upfront cost, what is left if the work stops after any step,
+- **Cost and risk:** total upfront cost, with tests, oracles and test-only hooks counted apart from production lines; what is left if the work stops after any step;
   and the signs during the migration that should stop it.
+  An oracle that restates the design has a lasting cost too, stated with the target's: every change to what it restates must edit it.
+  One rework estimated at 300 lines removed landed 940 added, its 860 lines of event-sequence enumeration and file scanner costed at about 60.
 - **Open work and side findings:** what happens to each open issue and pull request on the part, and the describer's comment fixes.
 
 Put the questions to the owner as the global preferences say, each in what a user hears or sees with one concrete case:
