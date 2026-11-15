@@ -48,7 +48,8 @@ projects and host tools.
   issue, without the owner's own word.
 - **Cheap:** a sentence in a skill that misleads one session; an install
   that fails and says so.
-- **Unsupported case:** a script refuses with a message and a nonzero exit.
+- **Unsupported case:** a script that already detects one refuses with a
+  message and a nonzero exit.
   `install.sh --cloud` alone always exits 0, since a failing setup would
   stop a cloud session from starting.
 

@@ -35,7 +35,7 @@ The file's tolerances decide what counts as a cost for this run, over the standi
 - **An attack on the problem ends the candidate in every shape.**
   The cost it cites did not happen as claimed, or has stopped; or a recorded reason still holds and no form that reaches the outcome could meet its need; or no form keeps a must-keep guarantee.
 - **An attack on the shape holds against this design but not against the outcome:**
-  a hard case within the use and load the project's stakes record states that it gets wrong, a must-keep guarantee it loses, a piece that does not work alone, a recorded need this form leaves unmet.
+  a hard case the project's stakes record pays for, as the global preferences say of what a project guarantees, that it gets wrong, a must-keep guarantee it loses, a piece that does not work alone, a recorded need this form leaves unmet.
   It is answered by reshaping first: a wider rework, a combination with another candidate or variant, a different mechanism for the same outcome.
   The reshaped candidate is a new candidate, untested until something attacks it.
   A candidate for which no answering shape is found is set aside with the attack recorded, not counted as defeated on the problem.

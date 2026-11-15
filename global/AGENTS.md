@@ -46,19 +46,21 @@ Do not silently drop explicit requirements or conceal known defects; surface cha
 ## What a project guarantees
 
 Each project's contract has a section named **Stakes record**: who uses the product, on which platforms and hosts, the load it normally sees,
-which failures are severe, in which parts of the product they can occur, and which are cheap (a refusal, a warning or a log line always is), what is not supported or goes unprotected,
+which failures are severe, in which parts of the product they can occur, and which are cheap (a refusal, a warning or a log line is, unless the record calls it severe), what is not supported or goes unprotected,
 and the one path an unsupported case takes, such as a refusal with a log line.
 Take how often a case occurs and what it costs from that record, not from what could happen, and give the record to every subagent that builds or reviews:
 rules that left the estimate to each agent did not hold, and I had to steer agents away from correctness machinery constantly.
 When I say in chat that a case matters, or that I never meet it, add that line to the record in the change at hand.
 
 Code that exists for one case alone, such as a handler, guard, fallback, stored state or test hook, is written only where the record pays for it:
-its failure is one the record calls severe or destroys saved data, wherever it arises,
-or its case lies within the stated use and load and its failure is not one the record calls cheap.
+its failure is severe or destroys saved data, wherever it arises,
+or its case lies within the stated use and load and its failure is not cheap.
+Use, load, severe and cheap are what the record says; where it is silent on a case, or the contract has no record,
+judge them from the evidence at hand (the README, shipped defaults, intent records, issues that record a case happening) and say that you did.
 A correction that adds no such code is simply made.
-Where the record pays, the code is written and a finding is fixed; leaving it out, or taking existing code out, is mine to decide, and your report names any you would have left.
+Where the record pays, the code is written and a finding is fixed, unless the record lists the case as unprotected; leaving it out, or taking existing code out, is mine to decide, and your report names any you would have left.
 Where it does not pay, the code is not written, a detector included: the case takes the record's failure path only where the code already tells it apart.
-Going without it is yours to decide, unless I would see or hear the change, as above.
+Going without it is yours to decide, unless I would see or hear the change or it changes what saved data means, as above.
 List what goes unprotected, each case with its cost, where I can take the list whole or strike from it: the PR description, or an audit's report and the issues it files.
 Where the contract has a record, a change that goes without a case adds it there with the pull request's number, where the next reviewer and audit will find it.
 In one run about half the mechanisms of two reworks protected cases I never meet, many of them added to answer review findings.
@@ -69,9 +71,7 @@ Any other yields to the simpler design, as does a requirement an agent took from
 unless I would see or hear the change or it changes what saved data means: those come to me first, as above.
 A requirement in my own words is changed only by asking me.
 
-Where a contract has no stakes record, or its record is silent on a case, judge use, load, severe and cheap from the evidence at hand
-(the README, shipped defaults, intent records, issues that record a case happening), and say that you did.
-Where there is none, the session I am talking to, in a repository I own, drafts one from that evidence as a pull request for me to correct, if none is open.
+Where a contract has no stakes record, the session I am talking to, in a repository I own, drafts one from that evidence as a pull request for me to correct, if none is open.
 
 ## Writing code
 
