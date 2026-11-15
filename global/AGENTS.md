@@ -39,37 +39,27 @@ Do not silently drop explicit requirements or conceal known defects; surface cha
 
 ## What a project guarantees
 
-Each project's contract has a section named **Stakes record**: who uses the product, on which platforms and hosts, the load it normally sees,
-which failures are severe, in which parts of the product they can occur, and which are cheap (a refusal, a warning or a log line is, unless the record calls it severe), what is not supported or goes unprotected,
-and the one path an unsupported case takes, such as a refusal with a log line.
-Take how often a case occurs and what it costs from that record, not from what could happen, and give the record to every subagent that builds or reviews:
-rules that left the estimate to each agent did not hold.
-When I say in chat that a case matters, or that I never meet it, add that line to the record in the change at hand.
+Each project's contract has a **Stakes record**: who uses the product, on what, under what load;
+which failures are severe and where, and which are cheap (a refusal, a warning or a log line, unless it says otherwise);
+what is unsupported, and the one path an unsupported case takes, such as a refusal with a log line.
+Price each case from it, not from what could happen, and give it to every subagent that builds or reviews: estimates left to each agent did not hold.
+Where it is silent, judge from the README, shipped defaults and issues, and say so.
+When I say in chat that a case matters or that I never meet it, add that line; its other lines change only on my word.
+Where a repository I own has no record, the session I talk to drafts one as a pull request for me to correct, if none is open.
 
-Code that exists for one case alone, such as a handler, guard, cache, fast path, fallback, stored state or test hook, is written only where the record pays for it:
-its failure is severe or destroys saved data, wherever it arises,
-or its case lies within the stated use and load and its failure is not cheap.
-A case no producer writes, earlier releases and other software included, lies outside the use:
-two review rounds patched how a reader translated a record its only writer never emits, and refusing the record ended them.
-Use, load, severe and cheap are what the record says; where it is silent on a case, or the contract has no record,
-judge them from the evidence at hand (the README, shipped defaults, intent records, issues that record a case happening) and say that you did.
+Code for one case alone, such as a handler, guard, fallback, stored state or detector, is written only where the record pays for it:
+its failure is severe or destroys saved data, or its case lies within the stated use and load and its failure is not cheap.
+Reviews otherwise fill reworks with mechanisms for cases I never meet.
+A case no producer writes, earlier releases included, lies outside the use.
+Where the record pays, write it unless I chose to go without.
+Where it does not, leave it out unless I asked for it; that call is yours, unless I would see or hear the difference or it changes what saved data means.
+List each case that goes unprotected, with its cost, in the PR description or audit report, where I can strike it.
 A correction that adds no such code is not held to this test.
-Where the record pays, the code is written and a finding is fixed, unless I decided to go without the case; leaving it out, or taking existing code out, is mine to decide, and your report names any you would have left.
-Where it does not pay, the code is not written unless I asked for it in my own words, a detector included: the case takes the record's failure path only where the code already tells it apart.
-Going without it is yours to decide, unless I would see or hear the change or it changes what saved data means, as above.
-List what goes unprotected, each case with its cost, where I can take the list whole or strike from it: the PR description, or an audit's report and the issues it files.
-Where the contract has a record, a change that goes without a case adds it there with the pull request's number, where the next reviewer and audit will find it.
-Such a line is not my decision and does not stand against a failure later found severe; the record's use, load, severe and cheap lines change only on my word.
-Reworks have filled with mechanisms for cases I never meet, many of them added to answer review findings.
 
-Existing behaviour is protected by a recorded decision, by my answer in an intent record (my answers for one area, kept as the `audit-shared` skill says),
-by a guarantee I rated must keep under the `audit-premises` skill, or by the stakes record.
-Any other yields to the simpler design, as does a requirement an agent took from it,
-unless I would see or hear the change or it changes what saved data means: those come to me first, as above.
-Where a change deliberately leaves any other behaviour, or the code behind it, as it was, say why it still earns its place; "keep existing behaviour" alone is not a reason.
-A requirement in my own words is changed only by asking me.
-
-Where a contract has no stakes record, the session I am talking to, in a repository I own, drafts one from that evidence as a pull request for me to correct, if none is open.
+Existing behaviour is protected only by a recorded decision, my answer in an intent record (kept as the `audit-shared` skill says),
+a guarantee I rated must keep under `audit-premises`, or the stakes record.
+Any other yields to the simpler design, as does a requirement an agent took from it, unless I would see or hear the change or it changes what saved data means.
+A requirement in my own words changes only by asking me.
 
 ## Writing code
 

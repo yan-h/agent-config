@@ -1,4 +1,4 @@
-global/AGENTS.md 2729
+global/AGENTS.md 2437
 global/claude/CLAUDE.md 805
 global/claude/agents/resumable.md 144
 skills/api-second-opinion/SKILL.md 1481
