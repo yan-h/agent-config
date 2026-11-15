@@ -69,10 +69,11 @@ Check what a review claims before acting on it or writing it into the PR: a desi
 Keep fixes inside the PR's scope; anything else found along the way goes where the project contract sends it,
 and where it says nothing is reported, not fixed here.
 
-**Re-read.** After each round that changed the diff, have the correctness review read the new diff, until a round changes nothing:
+**Re-read.** After each round of fixes, have the correctness review read that round's changes alone, asking only whether they broke something the stakes record pays for, until a round changes nothing:
 in three audited runs re-reads found two, three and five new defects in fixes.
-Its findings are settled like any other, so a round whose findings earn no fix ends the loop.
-When the changes or the owner's answers alter the design, by superseding a decision or adding a mechanism, rerun the design pass on the whole change.
+A re-read is not a fresh review of the whole change, and what it finds that the record calls cheap is listed, not fixed:
+one run re-read a prose change whole six times, each read finding new and smaller things in sentences the last fix had not touched, until the owner stopped it.
+When the changes or the owner's answers alter the design, by superseding a decision or adding a mechanism, rerun the design pass on the whole change, once.
 When a round finds defects in the previous round's fix twice running, stop patching and look for the alternative that removes them.
 
 **Gate.** Commit and push, then run the build and gate the project contract owes once, on the head that will merge, as the global rules say.
