@@ -22,7 +22,7 @@ One pass patched a just-accepted selection rule instead, and after the merge the
 
 Run a correctness review in parallel with the design pass, in a fresh subagent:
 brief it to run the review tool the project contract names, or the host's review command, or where neither exists to review the diff against the project contract.
-Give it the project's stakes record where the contract has one, and have it say of each finding whether its case lies within the use and load the record states, and the worst the case does.
+Have it say of each finding whether its case lies within the use and load the stakes record states, and the worst the case does.
 Name the commit, and brief it as the global delegation guidance says of a subagent that shares a checkout.
 Do not run that tool in your own session: Claude Code's `/code-review` loads into the context that calls it,
 and five audited runs that ran it there had the author review its own change, two of whose reports then claimed independent reviewers.
@@ -47,4 +47,4 @@ The pass itself, and the shape of the report, are in [references/design-pass.md]
 Report as that file says.
 
 Change no code in this pass; run from `review-and-merge`, that skill says what follows it.
-The owner chooses which alternatives to take; offer to implement them, and to file the rest as follow-up issues.
+The owner chooses which alternatives to take; offer to implement them, and file the rest as follow-up issues.
