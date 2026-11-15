@@ -12,8 +12,8 @@ use the issues only at the end, to drop findings already filed.
 
 ## Start from the history
 
-You were given where change lands in this area: hotspots, coupled files, fix clusters, and the widest changes.
-For each, read the commits and PRs behind it and ask why that change had to touch those places, or had to be fixed again.
+You were given where change lands in this area: hotspots, coupled files, the widest changes, and the PRs that consolidated code here since the last audit.
+Use the hotspots to find the area's files; for the rest, read the commits and PRs behind them and ask why that change had to touch those places, or had to be fixed again.
 The answer names the structure.
 
 The most telling evidence is the file list of a change that added or removed one concept, such as one setting:

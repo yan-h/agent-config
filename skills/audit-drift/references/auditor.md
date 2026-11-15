@@ -21,10 +21,7 @@ and every test of one feature turned out to run on a configuration the product d
    Inventory the area's flags, passes, special cases, constants and settings.
    For each, search history for the change that added it (`git log -S` / `-G`), read that PR's body for the reason,
    and judge whether the reason still holds on the primary branch.
-   Where it holds, ask whether it pays for the mechanism, as the global preferences say of what a project guarantees:
-   whether the use and load the stakes record states can reach the case, the worst going without the mechanism does, and the production and test lines that exist only for it.
-   Beyond the record, take frequency from evidence, not from what could happen: the fresh defaults, the intent record,
-   and whether the origin PR or any issue records the case happening, or only a review finding that supposed it.
+   Where it holds, ask whether the stakes record pays for the mechanism, as the global preferences' section "What a project guarantees" says.
    A mechanism that works leaves no reports, so an absence of them does not show its case never occurs:
    where the origin only supposed the case, the stated use and load are the evidence, and the row says so.
    Judge a requirement an issue took from current behaviour the same way.
@@ -44,8 +41,6 @@ and every test of one feature turned out to run on a configuration the product d
   but only in PRs that REMOVE a setting, feature or target.
   Across every PR it was ninety hits for two findings; those two were the best evidence of intent the trial had.
   For each, name what was kept and trace it to where it was added.
-
-Defaults at a range end found nothing in the first trial; skip it unless the area is mostly settings.
 
 ## Report
 

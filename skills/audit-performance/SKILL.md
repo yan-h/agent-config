@@ -12,7 +12,7 @@ it does not run the procedure below by hand instead.
 Codex does not, so in Codex this paragraph is the rule itself.
 
 Read the project's local contract before starting.
-Build profiles, benchmark and profiling commands, worktrees, validation gates, PR conventions, and where intent records live all come from there;
+Build profiles, benchmark and profiling commands, worktrees, validation gates, PR conventions, and where intent records live and their form all come from there;
 where it says nothing about intent records, use `docs/intent/<area>.md`.
 Measure the build users run, not a debug build, unless the contract says otherwise.
 
@@ -84,7 +84,7 @@ Anything unmeasured is listed under **Suspicions** with the measurement that wou
 Sort the findings.
 Local fixes are made in the run because the baseline and harness that prove them exist only then;
 they go up as PRs and are not merged here unless the owner's own message asked for the fixes to be merged.
-Then each is reviewed and merged as the `review-and-merge` skill's sections from "Decide whether to review" describe, its design pass included, because the audit designed these fixes itself;
+When it did, each is reviewed and merged as the `review-and-merge` skill's sections from "Decide whether to review" describe, its design pass included, because the audit designed these fixes itself;
 following those sections does not invoke that skill.
 
 - **Behaviour-preserving and local:** fix it, measure again, and keep the fix only if the gain clears the noise and justifies its complexity.

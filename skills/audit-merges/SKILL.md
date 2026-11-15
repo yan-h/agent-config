@@ -25,8 +25,7 @@ In Claude that argument is `$0`;
 in Codex it is the text following `$audit-merges`.
 Otherwise start where the last audit ended:
 the `<end>` of the newest first-parent commit whose subject begins `Merge audit <since>..<end>`.
-That marker lives in the primary branch's history, so a cloud session and every clone find the same one;
-a local tag is invisible to a cloud audit, which cannot move it either, so it goes stale and starts the next audit too early.
+That marker lives in the primary branch's history, so every clone finds the same one.
 If no commit carries the marker, start after the newest commit the log shows to be an earlier audit's fixes,
 and failing that inspect the last 12 first-parent commits on the primary branch.
 
@@ -110,7 +109,8 @@ Where the range's fixes return to a mechanism that earlier fixes also corrected,
 repeated corrections are the debt that audit exists to find, and a scheduled one can run before most of them land.
 
 Title the pull request `Merge audit <since>..<end>: <what it fixes>`, with `<end>` the abbreviated hash of the primary-branch commit the audit read rather than the branch's own head.
-It merges into the marker the next audit starts from, so the commit that lands on the primary branch must keep that subject.
+Like any pull request it merges only on the owner's word, and the marker exists only once it lands:
+the commit that lands on the primary branch must keep that subject, since the next audit starts from it.
 
 If nothing is found, report the range and the specific clean list and make no code change.
 A clean audit leaves no marker, so the next audit surveys its range again;
