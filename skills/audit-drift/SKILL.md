@@ -108,9 +108,10 @@ Put the areas with the most consequential questions first.
 
 The audit ends at its report unless the owner's own message asks for its fixes to be made, or made and merged.
 Then, once the report is filed, sweep the issues this run filed:
-follow the `sweep-issues` skill from its "Triage" section with those issues as the scope,
-stopping before "Merge" and leaving draft pull requests when the owner asked only for fixes.
-Following those sections does not invoke that skill; if it is not installed, say so and leave the fixes filed.
+follow the `sweep-issues` skill's sections from "Triage" through "Fix" with those issues as the scope,
+then take each pull request, in the planned order, through the `review-and-merge` skill's sections from "Decide whether to review", its design pass included, because the audit designed these fixes itself;
+stop before that skill's "Merge" section and leave draft pull requests when the owner asked only for fixes.
+Following those sections invokes neither skill; if either is not installed, say so and leave the fixes filed.
 
 Triage holds the audit's sorting to the sweep's bar; the report's questions and its rework candidates are outside the sweep.
 When a fix the audit called mechanical proves wrong once built or reviewed, say on its issue what was tried and why it failed, and link the draft:

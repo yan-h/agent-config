@@ -14,7 +14,7 @@ Codex does not, so in Codex this paragraph is the rule itself.
 Read the project's local contract before starting, with its roadmap and recorded decisions.
 Worktrees, branch and PR conventions, and where intent records live and their form all come from there;
 where it says nothing about intent records, use `docs/intent/<area>.md`.
-A recorded decision is weighed as the global preferences say; one that paid-for changes show costs more than its reasons still justify becomes a question for the owner, citing those changes.
+A recorded decision is weighed, and superseded or put to the owner, as the global preferences say; a finding that one costs more than its reasons still justify cites the paid-for changes that show it.
 
 This audit shares its area map, report layout and answer records with the `audit-drift` skill, installed beside this one.
 Read that skill's `SKILL.md` for the sections named below; if it is not installed, say so and stop.
@@ -92,12 +92,13 @@ Reproduce each live defect an auditor reports, including those seen in passing; 
 
 Then sort what survived:
 
-- **Mechanical:** behaviour-preserving, local, and needing no decision — a dead path, a duplicated helper with an obvious survivor.
+- **Mechanical:** behaviour-preserving, local, and needing no decision of the owner's — a dead path, a duplicated helper with an obvious survivor,
+  a recorded decision the global preferences let the session supersede.
   File one grouped issue per area, skipping anything an open issue already covers.
 - **Rework candidates:** findings grouped by a shared design cause, or needing a change across areas or interfaces.
   One paragraph each: the cause, the evidence, a sketch of the target, a rough upfront cost, and what it removes.
   The owner can take one into the `propose-rework` skill.
-- **Needs the owner's call:** a fix that changes behaviour, a public interface or a recorded decision.
+- **Needs the owner's call:** a fix that changes behaviour or a public interface, or supersedes a recorded decision the global preferences leave to the owner.
   At most five questions per area, each answerable yes or no, each with what you would do on either answer.
 - **Seen and left:** debt with no history of cost and no roadmap pull, one line each,
   so the next audit does not rediscover it.
