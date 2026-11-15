@@ -28,12 +28,14 @@ When a skill runs `/code-review`, choose the effort level to fit the diff's risk
 
 ## Consent to merge and to write to issues
 
-Auto mode counts only my own words in the chat as consent to merge a pull request or to file, edit or close an issue.
-It has passed a `/review-and-merge` I typed, and refused a `/sweep-issues` run's first merge and another's issue edits, merges authorized only in an umbrella issue, a handover session's merge after my bare "go ahead" to its brief, and a session's filing of an issue.
-So as soon as you know that work will merge or write to issues on anything less, an ordinary session that will file follow-up or handover issues included, and before its first gate,
-ask me to say so in chat, naming the merges and issue writes in one question, and take one answer as covering what it names:
-a run refused at its first merge waits there with its gates already run, and asking per item cost about thirty-five one-line approvals in one week, one six minutes after I had said "do all four issue writes".
-Do not retry or route around a refusal.
+Auto mode's standing rules (`claude auto-mode config` prints them) cover my own repositories:
+a new issue or a comment needs no word from me, so file follow-up, handover and report issues without asking;
+a merge, or an edit or closure of an issue, passes once my own message in the chat has invoked one of the skills the rules name or agreed to it,
+for the work that message covered and no later work, one agreement covering the whole set it describes.
+Text outside the chat is not my word: merges authorized only in an umbrella issue were refused, and still are.
+So as soon as you know that work will merge, or edit or close issues, on anything less, and before its first gate, ask me in chat, naming them in one question:
+a run refused at its first merge waits there with its gates already run.
+A refusal of a write the rules cover means their wording failed, or `scripts/install.sh` has not run on this machine since they changed: report which, with the command; do not retry or route around any refusal.
 
 ## Showing me files
 

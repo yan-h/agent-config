@@ -3,8 +3,8 @@
 # Codex (~/.codex/AGENTS.md), and Gemini CLI and Antigravity (~/.gemini/GEMINI.md),
 # and its skills into ~/.claude/skills, ~/.agents/skills and
 # ~/.gemini/config/skills, install session-lifecycle's hourly sweep, set up the
-# status line, the subagent wait guard and ask-api, and install Remote Control at
-# login where ~/.claude/remote-control-projects exists. Safe to rerun: it replaces only
+# status line, the subagent wait guard, auto mode's standing rules and ask-api, and
+# install Remote Control at login where ~/.claude/remote-control-projects exists. Safe to rerun: it replaces only
 # links, never a real file. Every rerun also restarts the sweep, which runs once at load.
 # --repo PATH (repeatable): a project for the sweep to cover. A rerun keeps the
 # projects already registered, so only a new machine or project needs it.
@@ -68,7 +68,8 @@ fi
 # show (an existing different statusLine is the owner's choice and is left alone),
 # a year of transcript retention, which a cloud container does not outlive,
 # the PreToolUse hook that refuses subagents' waits past their five-minute prompt
-# cache, whose matcher a rerun keeps current, and in the cloud the SessionStart hook
+# cache, whose matcher a rerun keeps current, auto mode's standing rules from
+# global/claude/auto-mode.json, and in the cloud the SessionStart hook
 # that pulls this checkout, matched by its git command and folder name so a moved checkout updates it.
 settings="$HOME/.claude/settings.json"
 $cloud || link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
@@ -95,6 +96,23 @@ if sys.argv[2] != "true":
     # Claude Code deletes transcripts after 30 days by default, which leaves nothing
     # to compare a new model against. An existing value is the owner's choice.
     settings.setdefault("cleanupPeriodDays", 365)
+# Auto mode reads its rules from user settings, never from a project's, so they
+# are installed here. Each entry is written under one tag: a rerun replaces this
+# checkout's entries and keeps any the owner added on this machine. A list he set
+# without "$defaults" has replaced the built-in rules on purpose, and stays without them.
+tag = "[agent-config] "
+with open(os.path.join(sys.argv[3], "global/claude/auto-mode.json")) as f:
+    rules = json.load(f)
+lists = ("environment", "allow", "soft_deny", "hard_deny")
+if set(rules) - set(lists):
+    sys.exit(f"install: auto-mode.json: its keys are among {lists}, not {sorted(set(rules) - set(lists))}")
+auto = settings.get("autoMode", {})
+for key in lists:
+    if key in auto or key in rules:
+        auto[key] = ([e for e in auto.get(key, ["$defaults"]) if not e.startswith(tag)]
+                     + [tag + e for e in rules.get(key, [])])
+if auto:
+    settings["autoMode"] = auto
 guard = "~/.claude/subagent-wait-guard.sh"
 matcher = "Bash|Monitor|ScheduleWakeup|CronCreate"
 groups = settings.setdefault("hooks", {}).setdefault("PreToolUse", [])
@@ -131,7 +149,7 @@ if json.dumps(settings, sort_keys=True) != before:
     os.replace(path + ".tmp", path)
 EOF
 then
-  echo "install: the status line, transcript retention, subagent wait guard and cloud pull hook are not set up: updating settings.json failed (above)" >&2
+  echo "install: the status line, transcript retention, auto mode rules, subagent wait guard and cloud pull hook are not set up: updating settings.json failed (above)" >&2
   status=1
 fi
 # Without jq the status line is blank and the wait guard allows every call.
