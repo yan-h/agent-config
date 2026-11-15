@@ -8,6 +8,8 @@ and skills stay in the project that owns them.
 
 - `global/AGENTS.md` — shared personal defaults for coding agents across projects.
 - `global/claude/CLAUDE.md` — imports the shared defaults, then adds Claude-only sections.
+- `global/claude/auto-mode.json` — standing rules for Claude Code's auto mode: what a session
+  may do in the owner's own repositories without his word in the chat each time.
 - `global/claude/statusline.sh` — Claude Code status line: location, model, effort, running
   agents, context, and the 5h/7d quota meters.
   It displays the meters but does not record them: the private repo `yan-h/claude-usage` does,
@@ -76,6 +78,17 @@ Outside the cloud it also sets `cleanupPeriodDays` to 365 unless one is already 
 transcripts outlive Claude Code's 30-day default (about 20 GB a year at current use).
 The status line needs `jq`, which the installer checks for but does not install; the optional
 `ant` CLI refreshes its context-window table.
+
+It also copies the entries of `global/claude/auto-mode.json` into `autoMode` in
+`~/.claude/settings.json`, the only file auto mode's classifier reads rules from besides
+managed settings. Each entry starts with `[agent-config]`: a rerun replaces the entries with
+that tag and keeps any others, so change these rules in the file and rerun, and add a
+machine's own rules without the tag (`/permissions` has an Auto mode tab). The rules let a
+session, in repositories under `github.com/yan-h`: file an issue or comment at any time; edit
+or close an issue, or merge a pull request, once the owner's message in the chat has invoked a
+skill that does so or agreed to it, one agreement covering the set it describes; and
+force-push with a lease to its own branch. `claude auto-mode config` prints what is in
+effect, and `claude auto-mode critique` reviews the entries.
 
 To restart `claude remote-control` servers at login on macOS, list one project per line
 (optionally followed by `claude remote-control` flags), then rerun `scripts/install.sh`, which
