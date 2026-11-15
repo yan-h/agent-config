@@ -34,7 +34,7 @@ Second, wherever you would otherwise brief a Fable subagent and one answer would
 the design pass on a change, with `--review` and the files beyond the diff it turns on; choosing between architectures, or judging a rework's lasting costs against its gains;
 a design written as a proposal, before its code; a correctness or performance diagnosis that has stalled once the evidence is gathered.
 
-Keep the subagent when the work needs exploring, running or editing, or when the answer turns on code you cannot name in advance:
+Keep the subagent when the work needs exploring, running or editing, or when one call cannot carry everything the answer turns on:
 a correctness review hunts through callers, tests and definitions the diff does not show, which a subagent can open and an API call cannot.
 Where an Opus subagent would serve, because Fable would answer the same way, use that rather than the API.
 
@@ -59,7 +59,7 @@ Ask the model to check the proposal's claims against the excerpts and to say wha
 ## The cost guard
 
 Before sending, `ask-api` prints the worst case, the input plus `--max-tokens` of output at the model's price, and stops with exit code 2 over `--max-input` (default 100k tokens), over `--max-cost` (default $20), or for a model with no known price.
-Over the input limit, narrow the context if the answer turns on less of it; otherwise give the question to a subagent, which reads only what it needs, with the files to start from.
+Over the input limit, leave out only what the answer does not turn on, or give the question to a subagent, which reads only what it needs, with the files to start from.
 Do not pass `--yes` or raise either limit unless the owner has agreed to that call's cost; narrow the context or ask instead.
 `--dry-run` prints the estimate and the included context without sending.
 When the estimate says a price was assumed from an older model's row, tell the owner: the table wants a row for the new model.
