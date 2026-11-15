@@ -1,12 +1,12 @@
 # Auditor brief
 
 Find where one area of the product has drifted from intent:
-code that every change kept for a locally good reason, whose reason no longer holds.
+code that every change kept for a locally good reason, whose reason no longer holds or never paid for it.
 Read `SKILL.md` beside this file for the kinds and the worked example, and the area's intent record if the caller names one.
 
 Audit the primary branch, read-only.
-Version-control history, PR titles and bodies, and open issues are all available;
-use the issues only at the end, to drop findings already filed.
+Version-control history, PR titles and bodies, and issues open and closed are all available;
+use the issues only to drop findings already filed, at the end, and for whether a case was ever reported.
 
 ## Before anything else
 
@@ -21,6 +21,13 @@ and every test of one feature turned out to run on a configuration the product d
    Inventory the area's flags, passes, special cases, constants and settings.
    For each, search history for the change that added it (`git log -S` / `-G`), read that PR's body for the reason,
    and judge whether the reason still holds on the primary branch.
+   Where it holds, ask whether it pays for the mechanism, as the global preferences say of what a project guarantees:
+   whether the use and load the stakes record states can reach the case, the worst going without the mechanism does, and the production and test lines that exist only for it.
+   Beyond the record, take frequency from evidence, not from what could happen: the fresh defaults, the intent record,
+   and whether the origin PR or any issue records the case happening, or only a review finding that supposed it.
+   A mechanism that works leaves no reports, so an absence of them does not show its case never occurs:
+   where the origin only supposed the case, the stated use and load are the evidence, and the row says so.
+   Judge a requirement an issue took from current behaviour the same way.
 2. **Producer reachability.**
    For each field a consumer reads, list the values its callers can actually produce today.
    A branch no caller can reach, a field every stage overwrites,
@@ -45,6 +52,8 @@ Defaults at a range end found nothing in the first trial; skip it unless the are
 - **Findings, ranked by how much the owner would notice:**
   observable behaviour, `file:line`, the PRs and the step where it drifted, your confidence,
   and whether the fix is mechanical or needs the owner's call — phrased as a yes/no question when it does.
+- **Necessity table**, from step 1: mechanism · reason · whether the stated use reaches it, with the evidence · the worst without it · production and test lines · keep, simplify or cut.
+  One row for every simplify and cut, and for each keep that was close.
 - **Sweep hits you dismissed**, one line each with why.
 - **Tests flagged**, with the reason.
 - **Method notes:** which steps found things, which were noise, what you would change.

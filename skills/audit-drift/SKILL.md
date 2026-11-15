@@ -1,6 +1,6 @@
 ---
 name: audit-drift
-description: Audit a project for drift from the owner's intent — machinery whose reason has gone, frozen values that stopped fitting, tests guarding a mechanism instead of a behaviour, prose describing code that no longer exists. Every area by default, or one named area. Started only by the repository owner invoking it explicitly.
+description: Audit a project for drift from the owner's intent — machinery whose reason has gone or that the project's stakes do not pay for, frozen values that stopped fitting, tests guarding a mechanism instead of a behaviour, prose describing code that no longer exists. Every area by default, or one named area. Started only by the repository owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
@@ -33,6 +33,9 @@ Tests asserted the mechanism rather than the behaviour, so two kept passing afte
 The kinds seen so far:
 
 - **Orphaned mechanism:** its motivating case was removed or replaced, and it stays for the others.
+- **Mechanism the stakes record does not pay for,** as the global preferences say of what a project guarantees, though its reason holds.
+  Asked this, about half of two reworks' mechanisms protected a case never observed, a platform the owner does not run, or a flood of over 2,048 events at the moment of stopping,
+  and much of that had been added to answer review findings.
 - **Frozen or captured value that stopped fitting** once something beside it moved.
 - **Test guarding a mechanism rather than a behaviour, or a fixture that cannot reach its case.**
 - **Intent restated wrongly, then built on:** a handoff or cleanup keeps the data and loses the model.
@@ -64,13 +67,13 @@ The auditor also gets the area's intent record; the describer gets nothing else.
 - **Auditor** (`references/auditor.md`): traces the area's mechanisms to the PRs that added them and asks whether each reason still holds.
 
 The auditor's work is consequential judgement; the describer's is lighter.
-In the first trial one area cost about 190k tokens for the describer and 275k for the auditor, twelve minutes of wall clock.
+In the first trial, before the auditor priced necessity, one area cost about 190k tokens for the describer and 275k for the auditor, twelve minutes of wall clock.
 A full run is several million tokens; invoking with no area is the owner accepting that.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
 
 ## Verify, then sort
 
-Verify every finding against the primary branch before it goes anywhere;
+Verify every finding against the primary branch before it goes anywhere, a necessity row's line counts included;
 an auditor's line numbers drift, and its "dead" can be a caller it missed.
 
 Then sort what survived:
@@ -80,6 +83,10 @@ Then sort what survived:
 - **Needs the owner's call:** the behaviour may or may not be what the owner wants.
   A describer item qualifies only when the auditor's history shows its reason moved, a recorded decision contradicts it,
   or it has a consequence the owner would notice.
+- **Necessity rows:** sort each simplification or cut in the auditor's table as the global preferences say of what a project guarantees.
+  One that is yours to decide joins the area's mechanical issue.
+  The owner's go into the report as a table, largest removal first and ten rows at most, saying for each what the owner would see when the case occurs.
+  That table counts as one of the area's questions: the owner takes it whole or strikes rows.
 
 **Never hand the owner a raw description.**
 In the first trial a forty-item page was tiring and came back mostly "fine" or "don't care".
@@ -112,7 +119,7 @@ in one run three such fixes were built and reverted, and the issue is what the n
 Whenever the owner answers an area's questions — in this session, a later one, or on the tracking issue —
 the session receiving them writes them into that area's intent record, one line per decision:
 the behaviour, the owner's call, the date and any issue it produced.
-A "that's fine" is worth recording too; it is what stops the next audit asking again.
+A "that's fine" is worth recording too, and so is a struck necessity row, as a keep; it is what stops the next audit asking again.
 Nothing the owner did not answer goes in: the record is the owner's picture, not the describer's.
 
 Tick the area in the index, file what the answers call for,

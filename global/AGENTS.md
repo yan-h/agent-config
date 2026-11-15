@@ -43,6 +43,45 @@ In implementation and review, push back when the overall tradeoff is negative, i
 Briefly explain the costs and recommend a better alternative or a documented limitation.
 Do not silently drop explicit requirements or conceal known defects; surface changes to the agreed outcome for a decision.
 
+## What a project guarantees
+
+Each project's contract has a section named **Stakes record**: who uses the product, on which platforms and hosts, the load it normally sees,
+which failures are severe, in which parts of the product they can occur, and which are cheap (a refusal, a warning or a log line is, unless the record calls it severe), what is not supported or goes unprotected,
+and the one path an unsupported case takes, such as a refusal with a log line.
+Take how often a case occurs and what it costs from that record, not from what could happen, and give the record to every subagent that builds or reviews:
+rules that left the estimate to each agent did not hold, and I had to steer agents away from correctness machinery constantly.
+When I say in chat that a case matters, or that I never meet it, add that line to the record in the change at hand.
+
+Code that exists for one case alone, such as a handler, guard, fallback, stored state or test hook, is written only where the record pays for it:
+its failure is severe or destroys saved data, wherever it arises,
+or its case lies within the stated use and load and its failure is not cheap.
+Use, load, severe and cheap are what the record says; where it is silent on a case, or the contract has no record,
+judge them from the evidence at hand (the README, shipped defaults, intent records, issues that record a case happening) and say that you did.
+A correction that adds no such code is not held to this test.
+Where the record pays, the code is written and a finding is fixed, unless I decided to go without the case; leaving it out, or taking existing code out, is mine to decide, and your report names any you would have left.
+Where it does not pay, the code is not written unless I asked for it in my own words, a detector included: the case takes the record's failure path only where the code already tells it apart.
+Going without it is yours to decide, unless I would see or hear the change or it changes what saved data means, as above.
+List what goes unprotected, each case with its cost, where I can take the list whole or strike from it: the PR description, or an audit's report and the issues it files.
+Where the contract has a record, a change that goes without a case adds it there with the pull request's number, where the next reviewer and audit will find it.
+Such a line is not my decision and does not stand against a failure later found severe; the record's use, load, severe and cheap lines change only on my word.
+In one run about half the mechanisms of two reworks protected cases I never meet, many of them added to answer review findings.
+
+Existing behaviour is protected by a recorded decision, by my answer in an intent record (my answers for one area, kept as the `audit-drift` skill says),
+by a guarantee I rated must keep under the `audit-premises` skill, or by the stakes record.
+Any other yields to the simpler design, as does a requirement an agent took from it,
+unless I would see or hear the change or it changes what saved data means: those come to me first, as above.
+A requirement in my own words is changed only by asking me.
+
+Where a contract has no stakes record, the session I am talking to, in a repository I own, drafts one from that evidence as a pull request for me to correct, if none is open.
+
+## Writing code
+
+Before handing over a new test, break the code it covers and see the test fail:
+in one run of seven pull requests nearly every one had a test that passed for the wrong reason, each found only when a reviewer broke the code, at a review round apiece.
+Store nothing that can be derived from what is already stored, unless a measurement pays for the copy; design passes removed state a builder had just added in four of those seven.
+Before handling a case, check that some producer writes it, earlier releases and other software included, and where none does, write no handler for it:
+two review rounds patched how a reader translated a record its only writer never emits, and refusing the record ended them.
+
 ## Code review
 
 Treat ordinary code-review requests as covering correctness, performance, simplicity, and maintainability.
@@ -109,7 +148,8 @@ Local builds share one machine, so parallelism can stop paying well before the a
 Run a full gate only on the head that will land: finish review and its fixes first, then gate once.
 
 Follow each project's rules for worktrees and concurrent edits, and avoid overlapping writes.
-Brief a read-only subagent that shares a checkout not to change its checked-out branch or files, and to probe and build only in a scratch copy:
+Brief a read-only subagent that shares a checkout not to change its checked-out branch or files, and to probe and build only in a scratch copy at a path the brief names, where it also runs any review command, naming the path to it, and which it removes when done:
+a brief that only forbade checkouts had the host's review command fork and check out the reviewed commit in the coordinating session's worktree, twice in one run,
 a reviewer that built in the shared checkout, with a probe edited into a source file, failed the author's handoff build on a busy lock, and
 a reviewer's `git checkout` of the pull request's head left a builder's worktree on a detached HEAD under a second reviewer, where the next fixer's commits would have landed on no branch.
 The main agent remains responsible for integrating and verifying delegated results and completing the task.

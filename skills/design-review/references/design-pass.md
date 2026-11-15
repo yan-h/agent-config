@@ -6,6 +6,12 @@ First state the problem the change solves, in terms of behaviour rather than cod
 Then ask how you would solve that problem in this codebase if the change did not exist, reading beyond the diff as far as the answer needs.
 The best alternative often changes existing code the diff only works around.
 
+Do not take what the issue requires of the change as given.
+Judge each requirement it took from existing behaviour as the global preferences say of what a project guarantees,
+and raise as an alternative the design that goes without those nothing there protects;
+a requirement in the owner's own words goes under Questions, not into an alternative.
+Design passes on two reworks took their issues' requirements as given.
+
 Compare the change against that design. Look in particular for:
 
 - state with more than one owner, or derived state stored rather than computed;
@@ -35,7 +41,8 @@ Lead with a one-line verdict: merge as is, adjust within this change, merge and 
 
 Then:
 
-- **Correctness:** each confirmed defect, and each uncertain one marked as such, naming the alternative that would remove it if one would.
+- **Correctness:** each confirmed defect, and each uncertain one marked as such, with whether its case lies within the use and load the stakes record states and the worst it does,
+  naming the alternative that would remove it if one would.
 - **Design:** the current approach in a few sentences, then the alternatives ranked by lasting net benefit, counting the defects each removes, each with its tradeoff as above.
 - **Questions:** decisions that belong to the owner, with a recommendation for each,
   each saying what its answer would alter, and whether a later change could apply that without undoing this one.
