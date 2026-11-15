@@ -58,7 +58,7 @@ or its case lies within the stated use and load and its failure is not cheap.
 Use, load, severe and cheap are what the record says; where it is silent on a case, or the contract has no record,
 judge them from the evidence at hand (the README, shipped defaults, intent records, issues that record a case happening) and say that you did.
 A correction that adds no such code is simply made.
-Where the record pays, the code is written and a finding is fixed, unless the record lists the case as unprotected; leaving it out, or taking existing code out, is mine to decide, and your report names any you would have left.
+Where the record pays, the code is written and a finding is fixed, unless I decided to go without the case; leaving it out, or taking existing code out, is mine to decide, and your report names any you would have left.
 Where it does not pay, the code is not written, a detector included: the case takes the record's failure path only where the code already tells it apart.
 Going without it is yours to decide, unless I would see or hear the change or it changes what saved data means, as above.
 List what goes unprotected, each case with its cost, where I can take the list whole or strike from it: the PR description, or an audit's report and the issues it files.
