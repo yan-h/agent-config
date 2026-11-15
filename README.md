@@ -131,7 +131,8 @@ source authoritative and refresh that setting when the source changes.
 
 Edits through any link change the versioned file; commit and push them to
 save them on GitHub. The `SessionStart` hook `install.sh` adds pulls this checkout
-(fast-forward only) when a session starts, so every machine picks up merged changes then.
+(fast-forward only) when a session starts, so every machine picks up merged edits
+then; a new or removed skill, or a change to the auto mode rules, needs `install.sh` rerun.
 Keep credentials, session history, caches, and private information out of
 this public repository.
 

@@ -51,6 +51,8 @@ projects and host tools.
   closes an issue, without the owner's own word.
 - **Cheap:** a sentence in a skill that misleads one session; an install
   that fails and says so.
+- **Unprotected:** a session-start pull that hangs delays that session until
+  the host's hook timeout; a failed pull is ignored (#108).
 - **Unsupported case:** a script that already detects one refuses with a
   message and a nonzero exit.
   `install.sh --cloud` alone always exits 0, since a failing setup would

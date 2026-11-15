@@ -100,7 +100,7 @@ Compare the describer's account with the target. Every difference is one of:
 ## Attack the design
 
 Start fresh red teams with `audit-premises`' tester brief and rules, telling each that it is the red team, that its candidate is this design and the write-up is the design document, and giving it
-the `audit-premises` ratings file if the candidate came with one, any tolerances the owner stated, the design, the spike's results, the behaviour differences and a path for its report, not your reasoning:
+the `audit-premises` ratings file if the candidate came with one, the ratings the intent records hold, any tolerances the owner stated, the design, the spike's results, the behaviour differences and a path for its report, not your reasoning:
 one on the whole design, and one on each piece the verdict rests on that could fail alone. State the number of agents before each round.
 Check each attack's central claim against the code yourself before acting on it.
 
@@ -130,7 +130,7 @@ For persisted data, file formats and public interfaces, say how existing data an
 ## Migration
 
 Plan the fewest steps that each land on their own with the project's gate passing.
-Behaviour and speed must hold at the migration's end, and between its steps only where the owner said they must.
+The target's behaviour and speed hold at the migration's end, and between its steps only where the owner said they must.
 Plan the safeguards lean, as the global preferences say.
 Pin with tests only the must-keeps that existing tests do not cover; pin nothing the rework deletes.
 

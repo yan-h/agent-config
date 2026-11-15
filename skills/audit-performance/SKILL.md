@@ -84,8 +84,8 @@ Anything unmeasured is listed under **Suspicions** with the measurement that wou
 Sort the findings.
 Local fixes are made in the run because the baseline and harness that prove them exist only then;
 they go up as PRs and are not merged here unless the owner's own message asked for the fixes to be merged.
-When it did, each is reviewed and merged as the `review-and-merge` skill's sections from "Decide whether to review" describe, its design pass included, because the audit designed these fixes itself;
-following those sections does not invoke that skill.
+When it did, each is reviewed as the `review-and-merge` skill's sections from "Decide whether to review" through "Review" describe, its design pass included, because the audit designed these fixes itself,
+and they are merged as the `sweep-issues` skill's "Merge" section describes; following those sections invokes neither skill.
 
 - **Behaviour-preserving and local:** fix it, measure again, and keep the fix only if the gain clears the noise and justifies its complexity.
   The project's tests must still pass; a fix that changes what a user sees belongs in the next group instead.

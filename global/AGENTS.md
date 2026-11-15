@@ -66,7 +66,7 @@ Existing behaviour is protected by a recorded decision, by my answer in an inten
 by a guarantee I rated must keep under the `audit-premises` skill, or by the stakes record.
 Any other yields to the simpler design, as does a requirement an agent took from it,
 unless I would see or hear the change or it changes what saved data means: those come to me first, as above.
-Where a change leaves any other behaviour, or the code behind it, as it was, say why it still earns its place; "keep existing behaviour" alone is not a reason.
+Where a change deliberately leaves any other behaviour, or the code behind it, as it was, say why it still earns its place; "keep existing behaviour" alone is not a reason.
 A requirement in my own words is changed only by asking me.
 
 Where a contract has no stakes record, the session I am talking to, in a repository I own, drafts one from that evidence as a pull request for me to correct, if none is open.
@@ -105,7 +105,7 @@ End each report with what is waiting on me, or say that nothing is.
 
 A check you ask me to make, such as listening, looking or testing in the DAW, comes with what its result decides and what it costs me;
 measure instead where a measurement can stand in, and batch the checks for when I am at the machine.
-A check you ask of me does not hold a merge unless I asked for it to.
+A check you ask of me does not hold a merge unless I asked for it to; a change I would see or hear still waits for my answer, as above.
 When you offer a PR for merging, say which reviews ran and who ran them, and whether you recommend merging it.
 
 Within the task, take reversible next steps yourself rather than ending on "Want me to…?", and run a command you could run yourself, such as an install, a restart or a test, rather than handing it to me;

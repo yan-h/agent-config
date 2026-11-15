@@ -10,7 +10,7 @@
 # --repo PATH (repeatable): a project for the sweep to cover. A rerun keeps the
 # projects already registered, so only a new machine or project needs it.
 # --cloud: installs ask-api into /usr/local/bin instead, and leaves out the sweep,
-# the status line and Remote Control, for the setup script of a Claude Code cloud environment.
+# the status line, transcript retention and Remote Control, for the setup script of a Claude Code cloud environment.
 set -u
 
 repo=$(cd "$(dirname "$0")/.." && pwd -P)

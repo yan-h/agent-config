@@ -15,7 +15,7 @@ No configuration means no guessed artifact or cache paths.
 
 `./session-lifecycle.sh run -- <command>`, which the global defaults require for commands that write compilation output, holds one workspace lock outside `target/` and invalidates an old completion record before starting.
 Custom Cargo target/build directories are unsupported; keep their caches rather than guessing.
-Cleanup also takes an exclusive flock on each debug/release profile's `.cargo-lock` without replacing that file; Cargo 1.99.1, which the configured projects pin, takes it shared between its exclusive `.cargo-build-lock` and `.cargo-artifact-lock`, so a build waits for cleanup and cleanup refuses during a build. Revisit that when the configured projects change Cargo version, output layout or locking behavior.
+Cleanup also takes an exclusive flock on each debug/release profile's `.cargo-lock` without replacing that file; the configured projects pin Cargo 1.92, which holds that lock for the whole build, and 1.99.1, which takes it shared between its exclusive `.cargo-build-lock` and `.cargo-artifact-lock`, so a build waits for cleanup and cleanup refuses during a build. Revisit that when the configured projects change Cargo version, output layout or locking behavior.
 
 A project's loader runs under `lifecycle.py load`, which hands it the catalog lock so a retention sweep cannot retire the publication it is copying.
 Write a loader to build before it enters `load` and only select and copy under it:
