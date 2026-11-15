@@ -11,7 +11,7 @@ it does not run the procedure below by hand instead.
 `disable-model-invocation` above enforces that in hosts that honour it;
 Codex does not, so in Codex this paragraph is the rule itself.
 
-This audit follows the sections of the `audit-shared` skill named below, installed beside this one; if it is not installed, say so and stop.
+This audit follows the sections of [the `audit-shared` skill](../audit-shared/SKILL.md) named below, installed beside this one; if it is not installed, say so and stop.
 Start by reading the project's local contract as its "Read the contract" section describes; build profiles, benchmark and profiling commands and validation gates come from it too.
 Measure the build users run, not a debug build, unless the contract says otherwise.
 

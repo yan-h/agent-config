@@ -11,9 +11,9 @@ it does not run the procedure below by hand instead.
 `disable-model-invocation` above enforces that in hosts that honour it;
 Codex does not, so in Codex this paragraph is the rule itself.
 
-This audit uses the `audit-shared` skill's "Read the contract", "Map the areas" and "Record the answers" sections, installed beside this one;
+This audit uses [the `audit-shared` skill](../audit-shared/SKILL.md)'s "Read the contract", "Read the intent records", "Map the areas" and "Record the answers" sections, installed beside this one;
 if it is not installed, say so and stop.
-Start by reading the project's local contract, with its intent records, as the first of those describes.
+Start by reading the project's local contract and its intent records as the first two describe.
 The `propose-rework` skill uses the rules and the tester brief by name; rename them only together with that skill.
 
 ## What this audit is

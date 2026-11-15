@@ -11,13 +11,13 @@ skills/audit-merges/SKILL.md 1223
 skills/audit-merges/references/merge-auditor.md 717
 skills/audit-performance/SKILL.md 1114
 skills/audit-performance/references/surveyor.md 563
-skills/audit-premises/SKILL.md 3002
+skills/audit-premises/SKILL.md 3005
 skills/audit-premises/references/inventory.md 338
 skills/audit-premises/references/reader.md 669
 skills/audit-premises/references/rules.md 851
 skills/audit-premises/references/stances.md 818
 skills/audit-premises/references/tester.md 694
-skills/audit-shared/SKILL.md 699
+skills/audit-shared/SKILL.md 712
 skills/design-review/SKILL.md 737
 skills/design-review/references/design-pass.md 552
 skills/propose-rework/SKILL.md 2457

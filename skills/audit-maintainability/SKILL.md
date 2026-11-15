@@ -11,7 +11,7 @@ it does not run the procedure below by hand instead.
 `disable-model-invocation` above enforces that in hosts that honour it;
 Codex does not, so in Codex this paragraph is the rule itself.
 
-This audit follows the sections of the `audit-shared` skill named below, installed beside this one; if it is not installed, say so and stop.
+This audit follows the sections of [the `audit-shared` skill](../audit-shared/SKILL.md) named below, installed beside this one; if it is not installed, say so and stop.
 Start by reading the project's local contract as its "Read the contract" section describes.
 A recorded decision is weighed, and superseded or put to the owner, as the global preferences say; a finding that one costs more than its reasons still justify cites the paid-for changes that show it.
 
