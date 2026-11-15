@@ -164,10 +164,12 @@ def repo_root() -> Path | None:
 
 
 def shown_path(path: Path, root: Path | None) -> str:
+    """Repository-relative inside the root; outside it the bare file name,
+    so a request never carries a local absolute path."""
     path = path.resolve()
     if root is not None and path.is_relative_to(root.resolve()):
         return str(path.relative_to(root.resolve()))
-    return str(path)
+    return path.name
 
 
 def read_text(path: Path) -> str | None:
