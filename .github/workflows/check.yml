@@ -1,0 +1,10 @@
+name: check
+on: pull_request
+jobs:
+  check:
+    # macOS: session-lifecycle's scripts run on the owner's Mac, and only a
+    # Mac's /usr/bin/python3 is the 3.9 floor that check.py tests them under.
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check.py
