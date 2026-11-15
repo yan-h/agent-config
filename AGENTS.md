@@ -35,5 +35,20 @@ projects and host tools.
   of other skills, and history that no longer changes behaviour.
 - Run `python3 scripts/check.py` before committing.
 
+## Stakes record
+
+- **Use:** Yan alone, on one Mac and in Claude Code cloud sessions, under
+  Claude Code and Codex. The global file is also linked for Gemini CLI,
+  Antigravity and Zed, where nothing here is tested.
+- **Severe:** the session-lifecycle scripts or the worktree reclaimer
+  deleting unmerged work or a build not yet loaded; a hook or installed
+  setting that breaks every session; a skill that merges, or writes to an
+  issue, without the owner's own word.
+- **Cheap:** a sentence in a skill that misleads one session; an install
+  that fails and says so.
+- **Unsupported case:** a script refuses with a message and a nonzero exit.
+  `install.sh --cloud` alone always exits 0, since a failing setup would
+  stop a cloud session from starting.
+
 Do not add example skills or placeholder resources. A new skill should begin
 with a real repeated workflow and a description precise enough to route it.

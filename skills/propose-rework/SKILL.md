@@ -105,7 +105,8 @@ For a candidate the `audit-premises` skill tested, spike only what the audit's r
 Compare the describer's account with the target. Every difference is one of:
 
 - **a guarantee given up,** judged by its rating: a must-keep is a regression the design must remove;
-  a would-trade or unrated one is a yes/no question for the owner, with what a user loses on which real cases and what happens on either answer;
+  a would-trade one, or an unrated one the global preferences bring to the owner, is a yes/no question, with what a user loses on which real cases and what happens on either answer;
+  any other unrated one is listed;
   a don't-care is listed;
 - **a fix,** citing the record, issue or intent entry that makes today's behaviour a defect: listed as a fact; without such a citation it is a question with a recommended yes;
 - **a regression** the design must remove.
@@ -121,7 +122,7 @@ one on the whole design, and one on each piece the verdict rests on that could f
 Check each attack's central claim against the code yourself before acting on it.
 
 An attack lands when it would change the verdict, a must-keep, a question for the owner or the point of no return,
-or when it shows a failure that a check the design relies on passes over or never runs; anything else is corrected and not attacked again.
+or when it shows a failure that a check the design relies on passes over or never runs; anything else is corrected, or goes unprotected as the global preferences say of what a project guarantees, and is not attacked again.
 Before any further round, report the design open, with what the next attack would aim at, when a second reshape answers an attack on the same piece,
 when it now removes less than it did entering the first round, or when the third round's attack lands, listing every attack:
 one design ran a third round on a piece already reshaped twice, and reshaped it a third time.

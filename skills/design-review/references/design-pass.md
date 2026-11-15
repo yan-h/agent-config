@@ -6,9 +6,10 @@ First state the problem the change solves, in terms of behaviour rather than cod
 Then ask how you would solve that problem in this codebase if the change did not exist, reading beyond the diff as far as the answer needs.
 The best alternative often changes existing code the diff only works around.
 
-Price what the issue requires of the change before taking it as given: how often each required case occurs in the owner's use, by the project's stakes record, and what going without it costs.
-A must-keep taken from existing behaviour, not from the owner's answer, is a question for the owner and not a constraint:
-design passes on two reworks took their issues' requirements as given, and about half of each rework's mechanisms later proved to protect cases the owner never meets.
+Do not take what the issue requires of the change as given.
+Judge each requirement, and each must-keep it took from existing behaviour, as the global preferences say of what a project guarantees,
+and raise as an alternative the design that goes without those nothing there protects:
+design passes on two reworks took their issues' requirements as given.
 
 Compare the change against that design. Look in particular for:
 
@@ -39,7 +40,7 @@ Lead with a one-line verdict: merge as is, adjust within this change, merge and 
 
 Then:
 
-- **Correctness:** each confirmed defect, and each uncertain one marked as such, with how often its case occurs in the owner's use and what it costs when it does,
+- **Correctness:** each confirmed defect, and each uncertain one marked as such, with whether its case lies inside the use the stakes record states and the worst it does,
   naming the alternative that would remove it if one would.
 - **Design:** the current approach in a few sentences, then the alternatives ranked by lasting net benefit, counting the defects each removes, each with its tradeoff as above.
 - **Questions:** decisions that belong to the owner, with a recommendation for each,

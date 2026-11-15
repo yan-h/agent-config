@@ -11,7 +11,7 @@ whether another design, perhaps a larger change now, would leave the code simple
 The target is the PR, branch or path the invocation names, or the current branch's diff against the primary branch when it names none.
 In Claude that text is `$ARGUMENTS`; in Codex it is the text following `$design-review`.
 
-Read the project's local contract, and the issue or PR description behind the change, before starting.
+Read the project's local contract, the intent records of the areas the change touches, and the issue or PR description behind it, before starting.
 What counts as maintainable depends on where the project is going: its roadmap, its recorded decisions, and the scale it must support.
 A recorded decision the change collides with is weighed as the global preferences say and becomes a question for the owner; none is reopened here otherwise, except as follows.
 A decision this change is the first to build is part of the design under review, not settled ground:
@@ -22,9 +22,8 @@ One pass patched a just-accepted selection rule instead, and after the merge the
 
 Run a correctness review in parallel with the design pass, in a fresh subagent:
 brief it to run the review tool the project contract names, or the host's review command, or where neither exists to review the diff against the project contract.
-Give it the project's stakes record, and have it say of each finding whether its case lies inside the use the record states.
-Name the commit in the brief, and have the reviewer make a scratch worktree of it outside any checkout (`git worktree add <path> <commit>`), pass that path to the review command, check out nothing in its own working directory, and remove the worktree when done.
-Claude Code's `code-review` forks, and twice in one run the fork checked out the reviewed commit in the coordinating session's worktree under a brief that only forbade checkouts there; no brief that named a scratch path had one.
+Give it the project's stakes record, and have it say of each finding whether its case lies inside the use the record states, and the worst the case does.
+Name the commit, and brief it as the global delegation guidance says of a subagent that shares a checkout.
 Do not run that tool in your own session: Claude Code's `/code-review` loads into the context that calls it,
 and five audited runs that ran it there had the author review its own change, two of whose reports then claimed independent reviewers.
 

@@ -1,6 +1,6 @@
 ---
 name: review-and-merge
-description: Review one pull request, or each of a set the owner names, for correctness and design if its diff warrants a review, fix what the review confirms, wait for its checks, then merge it. Only when the owner's own message names review-and-merge, never because a PR looks ready.
+description: Review one pull request, or each of a set the owner names, for correctness and design if its diff warrants a review, fix what the review confirms and the project's stakes pay for, wait for its checks, then merge it. Only when the owner's own message names review-and-merge, never because a PR looks ready.
 ---
 
 # Review if warranted, then merge
@@ -60,21 +60,18 @@ An alternative that is a question waits for its answer, and so do the defects on
 one run spent three review rounds patching what such an alternative, filed as a follow-up, would have removed.
 File every other alternative placed in a follow-up as an issue, and link it from the PR.
 An alternative that proves unworkable once tried is reported with what defeated it, not filed.
-Price every other finding the review confirms before fixing it, from the project's stakes record as the global preferences say:
-how often its case occurs in the owner's use, and what it costs when it does (lost data, wrong output, a warning, a log line).
-Fix it when that outweighs the fix's lasting cost in lines, state and rules every caller must remember; otherwise state it in the PR description as a known limitation, with its price.
-An uncertain finding, or one whose case is rare, defaults to the limitation, though a rare case that loses data can still earn its fix.
+Every other confirmed finding is fixed, or goes unprotected, as the global preferences say of what a project guarantees;
+list those that go unprotected in the PR description, each with its case and cost.
+Confirm or dismiss an uncertain finding where a check can; one that stays uncertain is answered in the PR description as uncertain, and is not listed as a limitation.
 One run fixed every confirmed finding, so each rare case became machinery (a fallback settle that changed nothing visible, an arm-intent window, a backlog peek),
-and about half the mechanisms of two of its reworks later proved to protect cases the owner never meets; cutting them took 120 production and 700 test lines from one.
+and much of the 120 production and 700 test lines later cut from one rework had been added that way.
 Check what a review claims before acting on it or writing it into the PR: a design pass's guess, pasted into a PR body unchecked, became a false claim a later audit corrected.
 Keep fixes inside the PR's scope; anything else found along the way goes where the project contract sends it,
 and where it says nothing is reported, not fixed here.
 
-**Re-read.** After each round of changes, have the correctness review read the new diff:
+**Re-read.** After each round that changed code, have the correctness review read the new diff, until a round changes nothing:
 in three audited runs re-reads found two, three and five new defects in fixes.
-Where the change touches a part the stakes record names as able to fail severely, re-read until a round confirms nothing new.
-Elsewhere re-read once and price what it finds like any other finding; the fixes that follow are not re-read. One rework read to nothing took five rounds.
-Where the contract has no stakes record, say with the review decision which parts you take as severe.
+Its findings are settled like any other, so a round whose findings earn no fix ends the loop.
 When the changes or the owner's answers alter the design, by superseding a decision or adding a mechanism, rerun the design pass on the whole change.
 When a round finds defects in the previous round's fix twice running, stop patching and look for the alternative that removes them.
 
@@ -100,5 +97,5 @@ Confirm the merge landed on the remote primary branch before reporting, and clea
 
 ## Report
 
-The merge commit, whether the PR was reviewed and why, who ran each pass (a fresh subagent or an API call) on which model, what the review changed, the lines it added to the diff first reviewed and the rounds it ran, the findings left as limitations with their price, the design verdict, the adjustments made for it, the questions taken to the owner and how each was settled, and any follow-up issues filed.
+The merge commit, whether the PR was reviewed and why, who ran each pass (a fresh subagent or an API call) on which model, what the review changed, the lines it added to the diff first reviewed and the rounds it ran, the findings left unprotected with their case and cost, the design verdict, the adjustments made for it, the questions taken to the owner and how each was settled, and any follow-up issues filed.
 If the PR is left open, say so and name what blocks it.
