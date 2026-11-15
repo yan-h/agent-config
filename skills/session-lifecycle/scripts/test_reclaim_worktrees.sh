@@ -1132,6 +1132,38 @@ check_unconfigured() {
   fi
 }
 
+# A worktree with no commits of its own, as a paused subagent's is, waits
+# COMMITLESS_IDLE_MINUTES; one with commits waits only MIN_IDLE_MINUTES (#93).
+check_commitless_idle() {
+  desc="a worktree with no commits of its own outlasts the ordinary idle gate"
+  work="$TMP/commitless"
+  main="$work/main"
+  (
+    init_repo "$main" || exit 1
+    printf '/.claude/worktrees/\n' > .gitignore
+    git add .gitignore
+    git commit -q -m base || exit 1
+    git worktree add -q -b paused .claude/worktrees/paused HEAD 2>/dev/null || exit 1
+    git worktree add -q -b stale .claude/worktrees/stale HEAD 2>/dev/null || exit 1
+  ) || { fail "$desc: could not build the fixture"; return; }
+  stamp() {
+    python3 -c 'import sys,time; print(time.strftime("%Y%m%d%H%M", time.localtime(time.time() - 60 * int(sys.argv[1]))))' "$1"
+  }
+  find "$main/.claude/worktrees/paused" -depth -exec touch -t "$(stamp 60)" {} \; 2>/dev/null
+  find "$main/.claude/worktrees/stale" -depth -exec touch -t "$(stamp 200)" {} \; 2>/dev/null
+
+  out=$(cd "$main" && CLAUDE_PROJECT_DIR="$main" RECLAIM_FORCE=1 \
+    RECLAIM_NO_NETWORK=1 RECLAIM_MIN_IDLE_MINUTES=10 \
+    RECLAIM_COMMITLESS_IDLE_MINUTES=120 "$SCRIPT" </dev/null 2>&1)
+
+  if [ -d "$main/.claude/worktrees/paused" ] && [ ! -d "$main/.claude/worktrees/stale" ]; then
+    echo "✓ $desc"
+  else
+    fail "$desc"
+    printf '%s\n' "${out:-(no output at all)}" | sed 's/^/    /' >&2
+  fi
+}
+
 # ROOT, the main checkout and the session's cwd must resolve the same in all
 # three ways this script is run:
 #   hook   SessionStart, through a repository's thin `.claude/reclaim-worktrees.sh`
@@ -1262,6 +1294,7 @@ check_unprintable_path 'w\b' "a worktree with a backslash in its name is held"
 check_fresh_liveness remove
 check_fresh_liveness prune
 check_unconfigured
+check_commitless_idle
 check_wrapper
 
 echo

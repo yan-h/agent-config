@@ -113,7 +113,8 @@
 #     show cwds, every worktree is kept, and so is one whose path has a
 #     character lsof may not print verbatim. It is asked again on a fresh
 #     listing right before the removal. See the end of usable, and still_free
-#   - nothing near its top level was touched in the last MIN_IDLE_MINUTES
+#   - nothing near its top level was touched in the last MIN_IDLE_MINUTES, or
+#     COMMITLESS_IDLE_MINUTES when it has no commits of its own
 #
 # A worktree's cache is PRUNED (tier 1) on the same ownership, session,
 # live-lock and process-cwd checks, plus: the repository is configured (see
@@ -207,6 +208,12 @@ remove_owned_worktree() {
 }
 
 MIN_IDLE_MINUTES=${RECLAIM_MIN_IDLE_MINUTES:-120}
+# A worktree resolved only by sitting on main's history has no commits of its
+# own, which is what a fresh or paused session's looks like, and an Agent-tool
+# subagent's (`agent-a<hex>`) can carry no lock and no cwd between commands
+# (#93). It waits a day by default, so a working session's pause survives;
+# tier 1 still prunes its cache meanwhile.
+COMMITLESS_IDLE_MINUTES=${RECLAIM_COMMITLESS_IDLE_MINUTES:-$((MIN_IDLE_MINUTES * 12))}
 # The prune gate is depth behind the liveness checks (see prune_caches), so
 # it only has to outlast one build step, and a running build keeps writing
 # under target/debug. An hour clears that easily. An eight-hour gate once let a disk
@@ -752,8 +759,8 @@ usable() {
   # What it cannot see is a session with no process: one the app has closed
   # and may later resume. Nor an Agent tool worktree (`agent-a<hex>`) whose
   # lock is gone: its subagent runs inside the parent session's process, so
-  # nothing has its cwd there between commands, and a paused subagent's clean
-  # worktree with no commits, idle MIN_IDLE_MINUTES, reads as free. A listing
+  # nothing has its cwd there between commands. COMMITLESS_IDLE_MINUTES is
+  # what holds a clean one with no commits of its own. A listing
   # that cannot show its control keeps every worktree from both tiers, as a
   # lock this script cannot read does, so a machine without a working lsof
   # reclaims nothing.
@@ -871,8 +878,10 @@ remove_worktree() {
   # Belt and braces for work that is committed but still being used: maxdepth
   # keeps this cheap, and catches both source edits and a running build's
   # writes to target/{debug,release}.
-  if [ -n "$(find "$path" -maxdepth 2 -newermt "-${MIN_IDLE_MINUTES} minutes" -print -quit 2>/dev/null)" ]; then
-    note "no-remove $name: touched in the last ${MIN_IDLE_MINUTES}m"
+  idle=$MIN_IDLE_MINUTES
+  case $how in ancestor*) idle=$COMMITLESS_IDLE_MINUTES ;; esac
+  if [ -n "$(find "$path" -maxdepth 2 -newermt "-${idle} minutes" -print -quit 2>/dev/null)" ]; then
+    note "no-remove $name: touched in the last ${idle}m"
     return 1
   fi
 
