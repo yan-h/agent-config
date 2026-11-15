@@ -3,8 +3,7 @@
 Find where one workload or area spends time or memory a user would notice,
 and return candidates the calling agent can measure.
 
-You are read-only.
-Do not edit files, commit, or open a pull request.
+You are read-only: no edits, commits or pull requests.
 You may profile to locate cost, but the calling agent takes the timings that decide findings;
 do not report your own timings as a finding's numbers.
 Build only in a temporary directory of your own, removed when you finish, and never swap any shared installed build.
@@ -22,20 +21,14 @@ A slow pattern off the hot path is not a finding, however slow it looks.
 ## What found things
 
 1. **Work that grows faster than its input.**
-   Nested loops over collections that grow with the workload, linear search inside a loop, repeated sorting, string or buffer rebuilding.
    Work out the size at which each starts to matter and whether the product reaches it.
-2. **Work repeated for the same result.**
-   Derived values recomputed per frame, request or item; the same input parsed twice; a cache that exists but misses.
+2. **Work repeated for the same result**, including a cache that exists but misses.
    Before proposing a cache, find out how often the input actually repeats,
    and what invalidates it: a stale cache is a correctness bug.
-3. **The shape of I/O.**
-   One query or request per item where one batch would do, many small writes, blocking I/O on an interactive thread or event loop.
-4. **Memory.**
-   Large values copied where a borrow or view would do, collections that only grow, references that keep dead data alive.
-5. **Concurrency.**
-   Lock contention, independent work done serially, more threads than cores.
-6. **Startup.**
-   Work done eagerly for features the session may never use.
+3. **The shape of I/O:** per-item requests where one batch would do, blocking I/O on an interactive thread or event loop.
+4. **Memory:** copies where a view would do, collections that only grow, dead data kept alive.
+5. **Concurrency:** contention, independent work done serially.
+6. **Startup:** work done eagerly for features the session may never use.
 7. **GPU work.**
    Overdraw from padded or overlapping geometry, full-screen passes that could be skipped or run at lower resolution,
    a pass redrawing pixels an earlier one already produced, and bandwidth from large or high-precision targets.

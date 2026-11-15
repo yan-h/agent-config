@@ -10,7 +10,7 @@ Where you were also given earlier audits' measurements of the area, size from th
 A guarantee is a promise a user would name, such as "a saved file opens in every later version", not the mechanism that keeps it; the mechanism goes under it.
 Group by what a user would name, so an area yields tens of entries, not hundreds.
 Find the ones no record states as well as the recorded: what the tests assert, what the code goes out of its way to preserve, what the docs promise, and what a fix in history restored.
-Those are the ones agents hold fixed without asking, and the ones the owner gave up in the first project.
+Those are the ones agents hold fixed without asking.
 Mark a guarantee that is not this area's alone as product-wide.
 A guarantee already rated is listed only where the code no longer keeps it as the rating records.
 
@@ -24,4 +24,4 @@ A guarantee already rated is listed only where the code no longer keeps it as th
 
 ## Report
 
-The list ordered by lines, about 2,000 words at most; then what you read whole and what you did not check.
+The list ordered by the lines that exist only to keep each, largest first, about 2,000 words at most; then what you read whole and what you did not check.

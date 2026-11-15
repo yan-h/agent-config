@@ -7,8 +7,8 @@ disable-model-invocation: true
 
 # What the audit skills share
 
-`audit-drift`, `audit-maintainability`, `audit-performance` and `audit-premises` follow the sections below by name, and `propose-rework` also follows this skill's "Record the answers" section.
-A section binds only the skills that name it, so each of its sentences must hold for every one of them; change a section only with all of them in view.
+`audit-drift`, `audit-maintainability`, `audit-performance` and `audit-premises` follow the sections below by name, and `propose-rework` follows this skill's "Record the answers" section.
+A section binds only the skills that name it, and each of its sentences must hold for every one of them; change one only with all of them in view.
 
 ## Read the contract
 
@@ -18,20 +18,19 @@ where it says nothing about intent records, use `docs/intent/<area>.md`.
 
 ## Map the areas
 
-Use the area map from the last area-based audit's tracking issue if there is one, so findings from different audits line up and the owner's corrections carry over;
+Use the area map from the last area-based audit's tracking issue if there is one, so findings line up across audits and the owner's corrections carry over;
 otherwise map the project into areas as the owner would name them —
-features and parts of the product, not crates or directories — usually six to twelve.
-Each should be small enough for one auditor to verify in a sitting.
+features and parts of the product, not crates or directories — usually six to twelve,
+each small enough for one auditor to verify in a sitting.
 
 ## Read the intent records
 
 Read each area's intent record if it exists: the owner's answers from earlier audits.
-It is the one place the owner's picture of that area is written down;
-a finding that contradicts it is the strongest kind, and a question it already answers is not asked again.
+A finding that contradicts it is the strongest kind, and a question it already answers is not asked again.
 
 ## Report so it can be taken piecemeal
 
-One tracking issue per run (a Markdown file in the repository if the project has no tracker), titled with the kind of audit and the date:
+One tracking issue per run, titled with the kind of audit and the date:
 
 - **An index first:** a table of every area with its question count, the issues filed for it, and a status the owner's answers tick off.
 - **Then one self-contained section per area:**
@@ -47,8 +46,8 @@ follow the `sweep-issues` skill's sections from "Triage" through "Fix" with thos
 Following the sweep's sections does not invoke that skill; if it is not installed, say so and leave the fixes filed.
 
 Triage holds the audit's sorting to the sweep's bar; the report's questions and its rework candidates are outside the sweep.
-When a fix the audit called mechanical proves wrong once built or reviewed, say on its issue what was tried and why it failed, and link the draft:
-the issue is what the next sweep and the next audit read.
+When a fix the audit called mechanical proves wrong once built or reviewed, say on its issue what was tried and why it failed, and link the draft,
+since the next sweep and audit read the issue, not the draft.
 
 ## Review and merge the fixes
 
@@ -61,8 +60,8 @@ Following those sections invokes neither skill; if either is not installed, say 
 Whenever the owner answers an area's questions — in this session, a later one, or on the tracking issue —
 the session receiving them writes them into that area's intent record, in the form the project contract sets,
 or where it sets none, one line per decision: the behaviour, the owner's call, the date and any issue it produced.
-A "that's fine" is worth recording too, and so is a struck necessity row, as a keep; it is what stops the next audit asking again.
+Record a "that's fine" too, and a struck necessity row as a keep, so the next audit does not ask again.
 Nothing the owner did not answer goes in: the record is the owner's picture, not the describer's.
 
-Tick the area in the index, file what the answers call for,
+Tick the area in the index (an issue edit, so on the owner's word in chat as the global preferences say), file what the answers call for,
 and land the intent records by the project's PR conventions.

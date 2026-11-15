@@ -2,18 +2,30 @@
 
 Find where one area of the product has drifted from intent:
 code that every change kept for a locally good reason, whose reason no longer holds or never paid for it.
-Read `SKILL.md` beside this file for the kinds and the worked example, and the area's intent record if the caller names one.
+Read the area's intent record if the caller names one.
 
 Audit the primary branch, read-only.
 Version-control history, PR titles and bodies, and issues open and closed are all available;
 use the issues only to drop findings already filed, at the end, and for whether a case was ever reported.
 
+## What drift looks like
+
+The typical shape: a mechanism added for one case is extended to others by analogy, and its setting removed and frozen at full strength;
+the first case later gets a better method and leaves, the PR that moved it says the rest "keep their existing behaviour",
+and the mechanism stays with no reason holding it up and a control that can no longer reach its own end, while tests asserting it rather than the behaviour keep passing.
+
+Its kinds: an orphaned mechanism, whose motivating case went while it stays for the others;
+a mechanism the stakes record does not pay for, though its reason holds;
+a frozen or captured value that stopped fitting once something beside it moved;
+a test guarding a mechanism rather than a behaviour, or a fixture that cannot reach its case;
+intent restated wrongly and then built on, as when a handoff or cleanup keeps the data and loses the model;
+and prose describing something removed.
+
 ## Before anything else
 
 Pull the area's fresh defaults: what a new user or a new document starts with.
-Which tests matter, and which behaviour is the COMMON case, follows from them.
-In the first trial two findings only became visible against the shipped defaults,
-and every test of one feature turned out to run on a configuration the product does not ship.
+Which tests matter, and which behaviour is the COMMON case, follows from them;
+tests often run on a configuration the product does not ship.
 
 ## What found things (spend the time here)
 
@@ -36,10 +48,8 @@ and every test of one feature turned out to run on a configuration the product d
 ## Cheap sweeps (real, but noisy)
 
 - Identifiers and labels a PR deleted that comments or docs still name.
-  About half noise in the first trial.
 - Scoping lines — "keep", "preserve", "unchanged", "existing", "comments only", "byte-identical" —
-  but only in PRs that REMOVE a setting, feature or target.
-  Across every PR it was ninety hits for two findings; those two were the best evidence of intent the trial had.
+  but only in PRs that REMOVE a setting, feature or target: across all PRs they are almost all noise, and in those PRs they are among the strongest evidence of intent.
   For each, name what was kept and trace it to where it was added.
 
 ## Report
@@ -49,7 +59,6 @@ and every test of one feature turned out to run on a configuration the product d
   and whether the fix is mechanical or needs the owner's call — phrased as a yes/no question when it does.
 - **Necessity table**, from step 1: mechanism · reason · whether the stated use reaches it, with the evidence · the worst without it · production and test lines · keep, simplify or cut.
   One row for every simplify and cut, and for each keep that was close.
-- **Sweep hits you dismissed**, one line each with why.
 - **Tests flagged**, with the reason.
 - **Method notes:** which steps found things, which were noise, what you would change.
 

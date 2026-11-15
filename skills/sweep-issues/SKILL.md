@@ -1,6 +1,6 @@
 ---
 name: sweep-issues
-description: Fix and merge every open issue the owner need not weigh in on, asking simple decisions up front and reporting the rest. Started only by the repository owner invoking it explicitly.
+description: Fix and merge every open issue the owner need not weigh in on, asking simple decisions up front. Started only by the owner invoking it explicitly.
 disable-model-invocation: true
 ---
 
@@ -14,14 +14,13 @@ Codex does not, so in Codex this paragraph is the rule itself.
 It overrides a project default that nothing merges unless the owner asks, for this run only,
 and only for changes this procedure classifies as needing no owner input.
 Its review and merge steps follow sections of the `review-and-merge` skill, installed beside this one;
-following them does not invoke that skill, so they need no invocation of that skill.
+following them needs no invocation of that skill.
 If it is not installed, say so and stop.
 
 Scope is every open issue, unless the invocation names issues or a label.
 In Claude that text is `$ARGUMENTS`; in Codex it is the text following `$sweep-issues`.
 
-Read the project's local contract before starting.
-Worktrees, branch and PR conventions, validation gates, review tools, merge method, and cleanup all come from there.
+Read the project's local contract first: worktrees, branch and PR conventions, gates, review tools, merge method and cleanup come from it.
 
 ## Triage
 
@@ -38,7 +37,6 @@ file formats, public interfaces, dependencies, anything that conflicts with the 
 When unsure, the issue is not a no-input issue.
 
 Ask every simple decision in one message, each with its options and a recommendation.
-In the same message, ask for any confirmation the host's global file says merges and issue writes need.
 Start the no-input work without waiting for the answers; answered issues join it.
 
 Do not close issues directly; an issue closes when its fix merges.
@@ -60,8 +58,7 @@ anything else is filed as an issue.
 
 If a fix turns out to need a decision after all, stop that issue, leave its branch as a draft PR, and ask.
 
-Stop only processes this session started, by PID.
-Sibling worktrees run the same gates, and a pattern kill such as `pkill -f` stops theirs too.
+Stop only processes this session started, by PID: a pattern kill such as `pkill -f` also stops sibling worktrees' gates.
 
 ## Review
 
