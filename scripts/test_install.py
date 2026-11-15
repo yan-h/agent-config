@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """install.sh's settings step, run alone on temporary files: what it does to
-autoMode in settings.json with this checkout's global/claude/auto-mode.json."""
+autoMode and the SessionStart pull hook in settings.json with this checkout's
+global/claude/auto-mode.json."""
 import json
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -40,6 +42,24 @@ with tempfile.TemporaryDirectory() as tmp:
     assert got["permissions"] == {"allow": ["Bash(ls:*)"]}
     assert got["autoMode"]["allow"] == ["$defaults", "mine"] + [TAG + e for e in rules["allow"]]
     assert got["autoMode"]["soft_deny"] == ["mine alone"], "the owner's list gained defaults or kept a stale entry"
+
+    # Every machine gets the SessionStart hook that pulls this checkout, so a
+    # merged rule reaches the next session there too.
+    pull = f"git -C {shlex.quote(str(ROOT))} pull -q --ff-only || true"
+    def pulls(settings_file):
+        starts = json.loads(settings_file.read_text())["hooks"]["SessionStart"]
+        return [h["command"] for g in starts for h in g["hooks"]]
+    assert pulls(fresh) == [pull], pulls(fresh)
+    cloud = tmp / "cloud.json"
+    assert step(cloud, cloud="true").returncode == 0 and pulls(cloud) == [pull]
+    # A moved checkout's hook is rewritten in place; another repository's stays.
+    other = "git -C /elsewhere/other pull -q --ff-only || true"
+    moved = tmp / "moved.json"
+    moved.write_text(json.dumps({"hooks": {"SessionStart": [
+        {"hooks": [{"type": "command", "command": f"git -C /old/{ROOT.name} pull -q --ff-only || true"}]},
+        {"hooks": [{"type": "command", "command": other}]}]}}))
+    assert step(moved).returncode == 0
+    assert pulls(moved) == [pull, other], pulls(moved)
 
     bad = tmp / "repo/global/claude"
     bad.mkdir(parents=True)

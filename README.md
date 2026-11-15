@@ -130,7 +130,9 @@ If a host requires settings-backed text instead of a file, keep the shared
 source authoritative and refresh that setting when the source changes.
 
 Edits through any link change the versioned file; commit and push them to
-save them on GitHub. Other machines receive updates when you pull this repository.
+save them on GitHub. The `SessionStart` hook `install.sh` adds pulls this checkout
+(fast-forward only) when a session starts, so every machine picks up merged edits
+then; a new or removed skill, or a change to the auto mode rules, needs `install.sh` rerun.
 Keep credentials, session history, caches, and private information out of
 this public repository.
 
@@ -173,15 +175,14 @@ this public repository.
   owner names which guarantees an inventory finds must be kept, and the rest
   stay open; area readers and six cross-cutting stances propose; red teams,
   experiments and fact-finding test; a candidate whose shape an attack breaks
-  is reshaped before it is cut down, and reshaped forms are attacked, up to
-  three attacks in all, until an attack changes nothing the owner would decide.
+  is reshaped before it is cut down, and each reshaped form is attacked once,
+  further rounds left to `propose-rework`.
   Reports tested candidates for `propose-rework` as one current-state
   document. An inventory, two waves of agents and a last round, several
   million tokens.
   Owner-invoked.
 - `propose-rework` — design one large rework, from an audit's candidate or a
-  named problem, as a costed proposal: the owner rates the guarantees an
-  inventory finds, the design starts from the outcome, a spike tests the
+  named problem, as a costed proposal: the design starts from the outcome, a spike tests the
   riskiest assumption, and fresh red teams attack the design, which is
   reshaped before it is cut down. Reports a target, a smaller change and doing
   nothing, behaviour changes as plain owner questions, and a lean incremental
@@ -231,10 +232,10 @@ git clone --depth 1 https://github.com/yan-h/agent-config.git ~/projects/agent-c
 ~/projects/agent-config/scripts/install.sh --cloud
 ```
 
-`--cloud` puts `ask-api` in `/usr/local/bin`, always exits 0 (a failing setup
-script stops the environment from starting), and adds a `SessionStart` hook
-that pulls the checkout. The environment reuses a snapshot of the setup for up
-to about 7 days, so the pull is what keeps skill instructions current; a new or
+`--cloud` puts `ask-api` in `/usr/local/bin` and always exits 0 (a failing setup
+script stops the environment from starting). The environment reuses a snapshot
+of the setup for up to about 7 days, so the session-start pull is what keeps
+skill instructions current; a new or
 removed skill, and a change to the auto mode rules, appear only once the snapshot
 is rebuilt, which editing the setup script forces. For `ask-api`, add `ASK_API_KEY=<key>` to the environment
 variables, from a key of its own in a spend-limited workspace: anyone who uses

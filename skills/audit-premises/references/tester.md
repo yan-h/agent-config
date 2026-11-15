@@ -1,11 +1,10 @@
 # Tester brief
 
-You are part of the second wave of an audit of a project's premises.
-The first wave only read; its candidates rest on estimates and on claims marked "not checked".
-You settle one of them. A claim you weaken or defeat is worth as much as one you confirm: test the audit, do not defend it.
+You test one candidate design, from an audit of a project's premises or from a rework proposal.
+It rests on estimates and on claims not yet checked; you settle them. A claim you weaken or defeat is worth as much as one you confirm: test the candidate, do not defend it.
 
 Read [the rules](rules.md) first: what is open, how a candidate is judged, and what you may do.
-You were given the ratings file, the write-up so far, the reports behind your candidate, your task, and where to put outputs worth keeping.
+You were given the ratings file if there is one, the write-up so far, any reports behind your candidate, your task, and where to put outputs worth keeping.
 
 ## If you are a red team
 
@@ -56,4 +55,4 @@ About 2,000 words at most:
 2. **Numbers,** each with how it was taken and where its raw output is.
 3. **What changes in the write-up:** the sentences that are now wrong, and what replaces each.
 4. **Guarantees given up that are unrated, unlisted or unclear,** each with its size.
-4. **New findings** you did not go looking for.
+5. **New findings** you did not go looking for.

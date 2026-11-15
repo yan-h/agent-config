@@ -14,7 +14,7 @@ Codex does not, so in Codex this paragraph is the rule itself.
 It overrides a project default that nothing merges unless the owner asks, for this run only,
 and only for changes this procedure classifies as needing no owner input.
 Its review and merge steps follow sections of the `review-and-merge` skill, installed beside this one;
-following them does not invoke that skill, so they need no further permission.
+following them does not invoke that skill, so they need no invocation of that skill.
 If it is not installed, say so and stop.
 
 Scope is every open issue, unless the invocation names issues or a label.
@@ -29,12 +29,12 @@ Read every issue in scope, with its comments and linked PRs, and sort each into 
 
 - **No input:** the right fix is clear from the issue, the code, and the project's stated direction.
 - **One simple decision:** a single choice between concrete options stands between the issue and a fix.
-- **Needs input:** anything open-ended, or anything touching the areas below beyond what the issue already settles.
+- **Needs input:** anything open-ended, or anything touching the areas below beyond what the owner's own words already settle, as `review-and-merge`'s "Review" section counts them.
 
-An issue asking for code the project's stakes record does not pay for, as the global preferences say of what a project guarantees, is in none of them: leave it unfixed and recommend closing it in the report.
+An issue an agent wrote asking for code the project's stakes record does not pay for, as the global preferences say of what a project guarantees, is in none of them: leave it unfixed and recommend closing it in the report.
 
 The owner weighs in on user-visible behaviour and design, removing features or options,
-file formats, public interfaces, dependencies, and anything that conflicts with the roadmap or a recorded decision.
+file formats, public interfaces, dependencies, anything that conflicts with the roadmap, and a collision with a recorded decision where the global preferences make it the owner's.
 When unsure, the issue is not a no-input issue.
 
 Ask every simple decision in one message, each with its options and a recommendation.

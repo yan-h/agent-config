@@ -12,7 +12,7 @@ it does not run the procedure below by hand instead.
 Codex does not, so in Codex this paragraph is the rule itself.
 
 Read the project's local contract before starting.
-Worktrees, branch and PR conventions, and where intent records live all come from there;
+Worktrees, branch and PR conventions, and where intent records live and their form all come from there;
 where it says nothing about intent records, use `docs/intent/<area>.md`.
 
 The `propose-rework` skill uses the describer brief by name; rename it only together with that skill.
@@ -21,7 +21,8 @@ The `propose-rework` skill uses the describer brief by name; rename it only toge
 
 Code that no longer serves the owner's intent although every change on the way was locally reasonable.
 It is a different axis from a merge audit:
-not a bug born where two branches meet, but a reason that moved while the code it justified stayed.
+not a bug born where two branches meet, but a reason that moved while the code it justified stayed,
+or a reason that never paid for that code.
 
 The shape it takes, from the case that prompted this skill:
 a mechanism was added for one case, extended to others by analogy, and its setting removed and frozen at full strength.
@@ -34,8 +35,6 @@ The kinds seen so far:
 
 - **Orphaned mechanism:** its motivating case was removed or replaced, and it stays for the others.
 - **Mechanism the stakes record does not pay for,** as the global preferences say of what a project guarantees, though its reason holds.
-  Asked this, about half of two reworks' mechanisms protected a case never observed, a platform the owner does not run, or a flood of over 2,048 events at the moment of stopping,
-  and much of that had been added to answer review findings.
 - **Frozen or captured value that stopped fitting** once something beside it moved.
 - **Test guarding a mechanism rather than a behaviour, or a fixture that cannot reach its case.**
 - **Intent restated wrongly, then built on:** a handoff or cleanup keeps the data and loses the model.
@@ -47,7 +46,8 @@ The text after the invocation names one area (`$ARGUMENTS` in Claude, the text a
 a feature or part of the product as the owner names it.
 
 With no area, audit every area.
-First map the project into areas as the owner would name them —
+Use the area map from the last area-based audit's tracking issue if there is one, so findings from different audits line up and the owner's corrections carry over;
+otherwise map the project into areas as the owner would name them —
 features and parts of the product, not crates or directories — usually six to twelve.
 Each should be small enough for one auditor to verify in a sitting.
 Put the map at the top of the report so the owner can correct its boundaries next time.
@@ -60,14 +60,15 @@ a finding that contradicts it is the strongest kind, and a question it already a
 
 Both read-only, on the primary branch.
 Pass each its brief from `references/` and the area, and tell them never to swap any shared installed build.
-The auditor also gets the area's intent record; the describer gets nothing else.
+The auditor also gets the area's intent record and the project's stakes record; the describer gets nothing else.
 
 - **Describer** (`references/describer.md`): writes how the area BEHAVES from the current code alone.
   Blind on purpose: in the first trial it found the known live case with none of the history the auditor had.
-- **Auditor** (`references/auditor.md`): traces the area's mechanisms to the PRs that added them and asks whether each reason still holds.
+- **Auditor** (`references/auditor.md`): traces the area's mechanisms to the PRs that added them and asks whether each reason still holds and ever paid for the mechanism.
 
 The auditor's work is consequential judgement; the describer's is lighter.
-In the first trial, before the auditor priced necessity, one area cost about 190k tokens for the describer and 275k for the auditor, twelve minutes of wall clock.
+Per area, a describer has cost about 115k to 220k tokens and an auditor 210k to 300k, across the first trial and three later full runs, the latest of which priced necessity;
+the first trial's area took twelve minutes of wall clock.
 A full run is several million tokens; invoking with no area is the owner accepting that.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
 
@@ -85,7 +86,8 @@ Then sort what survived:
   or it has a consequence the owner would notice.
 - **Necessity rows:** sort each simplification or cut in the auditor's table as the global preferences say of what a project guarantees.
   One that is yours to decide joins the area's mechanical issue.
-  The owner's go into the report as a table, largest removal first and ten rows at most, saying for each what the owner would see when the case occurs.
+  The owner's go into the report as a table, largest removal first and ten rows at most, saying for each what the owner would see when the case occurs;
+  rows past ten go in the area's grouped issue, marked as the owner's.
   That table counts as one of the area's questions: the owner takes it whole or strikes rows.
 
 **Never hand the owner a raw description.**
@@ -106,9 +108,10 @@ Put the areas with the most consequential questions first.
 
 The audit ends at its report unless the owner's own message asks for its fixes to be made, or made and merged.
 Then, once the report is filed, sweep the issues this run filed:
-follow the `sweep-issues` skill from its "Triage" section with those issues as the scope,
-stopping before "Merge" and leaving draft pull requests when the owner asked only for fixes.
-Following those sections does not invoke that skill; if it is not installed, say so and leave the fixes filed.
+follow the `sweep-issues` skill's sections from "Triage" through "Fix" with those issues as the scope,
+then take each pull request through the `review-and-merge` skill's sections from "Decide whether to review" through "Review", its design pass included, because the audit designed these fixes itself,
+and merge them as `sweep-issues`' "Merge" section describes, or leave draft pull requests when the owner asked only for fixes.
+Following those sections invokes neither skill; if either is not installed, say so and leave the fixes filed.
 
 Triage holds the audit's sorting to the sweep's bar; the report's questions and its rework candidates are outside the sweep.
 When a fix the audit called mechanical proves wrong once built or reviewed, say on its issue what was tried and why it failed, and link the draft:
@@ -117,8 +120,8 @@ in one run three such fixes were built and reverted, and the issue is what the n
 ## Record the answers
 
 Whenever the owner answers an area's questions — in this session, a later one, or on the tracking issue —
-the session receiving them writes them into that area's intent record, one line per decision:
-the behaviour, the owner's call, the date and any issue it produced.
+the session receiving them writes them into that area's intent record, in the form the project contract sets,
+or where it sets none, one line per decision: the behaviour, the owner's call, the date and any issue it produced.
 A "that's fine" is worth recording too, and so is a struck necessity row, as a keep; it is what stops the next audit asking again.
 Nothing the owner did not answer goes in: the record is the owner's picture, not the describer's.
 

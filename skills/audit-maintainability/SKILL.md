@@ -12,9 +12,9 @@ it does not run the procedure below by hand instead.
 Codex does not, so in Codex this paragraph is the rule itself.
 
 Read the project's local contract before starting, with its roadmap and recorded decisions.
-Worktrees, branch and PR conventions, and where intent records live all come from there;
+Worktrees, branch and PR conventions, and where intent records live and their form all come from there;
 where it says nothing about intent records, use `docs/intent/<area>.md`.
-A recorded decision is weighed as the global preferences say; one that paid-for changes show costs more than its reasons still justify becomes a question for the owner, citing those changes.
+A recorded decision is weighed, and superseded or put to the owner, as the global preferences say; a finding that one costs more than its reasons still justify cites the paid-for changes that show it.
 
 This audit shares its area map, report layout and answer records with the `audit-drift` skill, installed beside this one.
 Read that skill's `SKILL.md` for the sections named below; if it is not installed, say so and stop.
@@ -36,8 +36,7 @@ Every finding cites the commits or PRs that paid for it, or the roadmap item it 
 The text after the invocation names one area (`$ARGUMENTS` in Claude, the text after `$audit-maintainability` in Codex).
 
 With none, audit every area.
-Use the area map from the last area-based audit's tracking issue if there is one, so findings from different audits line up;
-otherwise map the project as the `audit-drift` skill's "Choose the scope" section describes.
+Take the area map as the `audit-drift` skill's "Choose the scope" section describes.
 Read each area's intent record if it exists.
 Earlier audits' "checked and healthy" lists hold only for what they checked:
 a performance audit's clean list says nothing about structure, so pass an auditor only what bears on its question.
@@ -63,12 +62,13 @@ a project that renamed its crates otherwise splits each file's history in two an
 `--max-count N` takes the last N changes instead of a date. It reports:
 
 - **Hotspots:** the files changed most often, beside their size.
+  Use them to locate an area's files, not as evidence of cost: three runs' method notes called the counts noise.
 - **Change coupling:** files in different directories that keep changing together.
-- **Fix clusters:** beside each hotspot, how many of its changes have a fix-like subject.
-  A rough signal at best — in the first trial most hits were feature PRs or predated a rewrite.
-  Prefer the project's bug label or linked bug issues where it has them, and read each commit before citing it.
 - **Widest changes:** the changes that touched the most files.
   Hand the auditor the file lists of those that changed a single concept, such as adding or removing one setting.
+
+Beside the map, list the PRs since the last maintainability audit that consolidated code, such as copies of a rule replaced by one shared one:
+searching after each for copies written since is, with one-concept file lists, what found things run after run.
 
 Exclude generated files, lockfiles and prose the project regenerates.
 For an area's slice pass every file and directory it spans; an area that does not map onto paths gets the whole map, and the auditor picks its files from it.
@@ -78,7 +78,7 @@ For an area's slice pass every file and directory it spans; an area that does no
 Read [the auditor brief](references/auditor.md) completely before delegating.
 Split an area whose share of the changes is too large for one auditor to read closely into sub-areas along its own seams, such as looks, model and gestures, and controls:
 in one audit an auditor held 191 of 282 changes and came back with two small fixes, where a later hunt split three ways found six refactors there.
-Give each auditor that brief, its area, its part of the history map, the area's intent record, and the project contract.
+Give each auditor that brief, its area, its part of the history map, the consolidating PRs in its area, the area's intent record, and the project contract.
 The auditor's work is consequential judgement; size it by the global subagent guidance.
 Run a few areas at a time rather than every agent at once, so each area's results are verified while the next ones run.
 
@@ -91,12 +91,13 @@ Reproduce each live defect an auditor reports, including those seen in passing; 
 
 Then sort what survived:
 
-- **Mechanical:** behaviour-preserving, local, and needing no decision — a dead path, a duplicated helper with an obvious survivor.
+- **Mechanical:** behaviour-preserving, local, and needing no decision of the owner's — a dead path, a duplicated helper with an obvious survivor,
+  a recorded decision the global preferences let the session supersede.
   File one grouped issue per area, skipping anything an open issue already covers.
 - **Rework candidates:** findings grouped by a shared design cause, or needing a change across areas or interfaces.
   One paragraph each: the cause, the evidence, a sketch of the target, a rough upfront cost, and what it removes.
   The owner can take one into the `propose-rework` skill.
-- **Needs the owner's call:** a fix that changes behaviour, a public interface or a recorded decision.
+- **Needs the owner's call:** a fix that changes behaviour or a public interface, or supersedes a recorded decision the global preferences leave to the owner.
   At most five questions per area, each answerable yes or no, each with what you would do on either answer.
 - **Seen and left:** debt with no history of cost and no roadmap pull, one line each,
   so the next audit does not rediscover it.

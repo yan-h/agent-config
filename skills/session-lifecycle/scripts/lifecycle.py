@@ -179,8 +179,10 @@ def publish(repo, store, cfg, state):
 
 @contextlib.contextmanager
 def cargo_locks(repo):
-    # These projects pin Cargo 1.92, whose profile lock uses flock. Keep the
-    # lock inode/profile directory intact so a waiting Cargo sees the same lock.
+    # These projects pin Cargo 1.92, which flocks .cargo-lock, and 1.99.1,
+    # which flocks .cargo-build-lock, then .cargo-lock shared, then .cargo-artifact-lock, so holding .cargo-lock
+    # exclusively excludes a build. Keep the lock inode/profile directory
+    # intact so a waiting Cargo sees the same lock.
     target = inside(repo, 'target')
     with contextlib.ExitStack() as stack:
         for profile in ('debug', 'release'):

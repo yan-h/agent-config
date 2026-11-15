@@ -13,17 +13,17 @@ a target written as "replace today's seven collision answers… with a column mo
 
 This skill borrows from two skills installed beside it; if either is not installed, say so and stop.
 From `audit-drift`: the describer brief and "Record the answers" section.
-From `audit-premises`: [its rules](../audit-premises/references/rules.md), for what a guarantee is, how each rating judges a design and how a broken design is reshaped;
-its inventory brief and "Rate the guarantees" section; and its tester brief.
+From `audit-premises`: [its rules](../audit-premises/references/rules.md), for what a guarantee is, how each rating judges a design and how a broken design is reshaped,
+and its tester brief.
 
 Read the project's local contract before starting, with its roadmap, recorded decisions, the owner's standing preferences, and the intent records of every area the rework touches.
-A recorded decision is weighed as the global preferences say; a rework that collides with one says so and makes it a question.
+A recorded decision the rework collides with is weighed, and superseded or put to the owner, as the global preferences say.
 
 Upfront cost is treated as the global preferences say: the report states it, and the verdict rests on what lasts.
 That holds inside the design too: a piece of the target is not cut, deferred or shrunk for scope, and a piece that fails a spike or an attack is reshaped before it is cut down — widened, combined with another candidate or given a different mechanism, as the rules say.
 In one run the owner had to ask whether the revised design had reshaped rather than cut; it had made three cuts, one "for scope".
 
-If this run is itself a subagent that cannot start agents, do the describer's and the guarantee inventory's work yourself, describer first,
+If this run is itself a subagent that cannot start agents, do the describer's work yourself,
 and stop after "Behaviour that changes", returning the design marked unattacked for the session that started you to attack.
 
 ## Ground the problem
@@ -42,32 +42,18 @@ A candidate the `audit-premises` skill tested arrives with this done: its sectio
 
 ## Map what exists, in parallel
 
-Run two read-only agents while you read the design yourself:
+Run one read-only agent, the describer, while you read the design yourself:
+the describer brief of the `audit-drift` skill (`references/describer.md` in that skill), applied to the part being reworked.
+For an internal part, the behaviour to describe is what its callers observe at its interface.
+An earlier audit's describer report on the part serves instead while the code it describes is unchanged.
+The places it finds where the code and its own comments disagree are worth fixing whatever the verdict.
 
-- **Describer:** the describer brief of the `audit-drift` skill (`references/describer.md` in that skill), applied to the part being reworked;
-  for an internal part, the behaviour to describe is what its callers observe at its interface.
-  An earlier audit's describer report on the part serves instead while the code it describes is unchanged.
-  The places it finds where the code and its own comments disagree are worth fixing whatever the verdict.
-- **Guarantees:** `audit-premises`' inventory brief, with the part as its one area.
+While it runs, ask the owner for consent to write the proposal, and the spike's outputs, to the tracker, in the words the host's global file says such writes need;
+without it, they go in a Markdown design document on a branch, as a draft pull request where the project has them.
 
-A candidate from `audit-premises` arrives with a ratings file; run the guarantee inventory only for what the target touches that the file leaves out.
-
-## Rate the guarantees
-
-Rate them as `audit-premises`' "Rate the guarantees" section says, with the part as its one area and its inventory already run;
-here the later guarantee question is the report's behaviour questions.
-In the same message, ask the two things this run needs before it writes or plans:
-
-- consent to write the proposal, and the spike's outputs, to the tracker, in the words the host's global file says such writes need;
-  without it, they go in a Markdown design document on a branch, as a draft pull request where the project has them;
-- whether behaviour and speed must hold between the migration's steps, or only at its end.
-
-Without ratings, runs kept today's behaviour by default and the owner gave it up afterwards:
-one rework was built and merged to preserve a part's state across edits, and the same day, after the owner asked "what if we relax the requirements?", a change dropped that state and 957 lines.
-
-With the owner absent, use a ratings file the starting session passed, as an audit's would be; every guarantee not rated in it is open as the rules say, and goes into the report with its size.
-A rating given before its price was known is revisited once the price shows:
-when a must-keep is why a design fails or needs a second spike, show the owner what it rules out before designing again.
+Guarantees are not rated up front. A rating stands only where the intent records hold one or a candidate from `audit-premises` arrived with a ratings file;
+every other guarantee is open as the rules say, and one the target gives up is judged as "Behaviour that changes" says.
+Tolerances for the run are taken only where the owner states them.
 
 ## Design
 
@@ -113,11 +99,8 @@ Compare the describer's account with the target. Every difference is one of:
 
 ## Attack the design
 
-Seven of the fourteen runs before this step existed had an attack or independent review added, by the owner or by the agent, and every one found something the report would otherwise have carried:
-a headline figure from a spike that changed nothing, a watchdog the shipped change needed, notes stranded by a swap the spike's test passed by accident, about eight defeated claims in one design.
-
 Start fresh red teams with `audit-premises`' tester brief and rules, telling each that it is the red team, that its candidate is this design and the write-up is the design document, and giving it
-the ratings file, the design, the spike's results, the behaviour differences and a path for its report, not your reasoning:
+the `audit-premises` ratings file if the candidate came with one, the ratings the intent records hold, any tolerances the owner stated, the design, the spike's results, the behaviour differences and a path for its report, not your reasoning:
 one on the whole design, and one on each piece the verdict rests on that could fail alone. State the number of agents before each round.
 Check each attack's central claim against the code yourself before acting on it.
 
@@ -128,27 +111,31 @@ when it now removes less than it did entering the first round, or when the third
 one design ran a third round on a piece already reshaped twice, and reshaped it a third time.
 Otherwise attack the answer where it revised the design, with one red team at what it revised and what that touches: up to three rounds for the design, reshapes included.
 An answer that only adds or rewords a question for the owner earns no round.
-This rule has not yet run. Under the earlier one, every second round in four designs landed, one with a failure that passed all 224 of the plugin's tests;
-a rework that cut its second round met seven defects in the build, two of which, besides a local one, a second attack would plausibly have caught,
-one of them a claim assigned to a randomised test that held, and reworked no merged step.
+
+Seven of the fourteen runs before this step existed had an attack or independent review added, and every one found something the report would otherwise have carried,
+among them a headline figure from a spike that changed nothing, a watchdog the shipped change needed and about eight defeated claims in one design.
+Under the earlier stopping rule every second round in four designs landed, one with a failure that passed all 224 of the plugin's tests;
+a rework that cut its second round met seven defects in the build, two of which a second attack would plausibly have caught, though none reworked a merged step.
+The stopping rule above has not yet run.
 
 ## Map the migration surface
 
 If the verdict leans toward the rework, run one read-only agent, a lookup a light model can do:
 every caller, entry point, persisted format, public interface, configuration key and test that touches the part.
 Run before the attack, it mapped migrations that never happened: in two runs whose verdicts went elsewhere it took seven and twelve minutes and fed one sentence between them.
-A finding the design did not account for is a landed attack.
+A finding the design did not account for is a landed attack, answered as an attack is; where no round is left, the design is reported open with the finding.
 
 For persisted data, file formats and public interfaces, say how existing data and callers migrate or stay compatible.
 
 ## Migration
 
-Plan the fewest steps that each land on their own with the project's gate passing, and hold behaviour and speed between them only as the owner answered.
+Plan the fewest steps that each land on their own with the project's gate passing.
+The target's behaviour and speed hold at the migration's end, and between its steps only where the owner said they must.
 Plan the safeguards lean, as the global preferences say.
 Pin with tests only the must-keeps that existing tests do not cover; pin nothing the rework deletes.
 
-Where the outcome is judged by ear or eye, or the target adds a capability, the first step is the smallest build the owner can try, and the plan stops there for the owner's verdict:
-in one run that stop is what redirected the design.
+Where the outcome is judged by ear or eye, or the target adds a capability, the first step is the smallest build the owner can try, since in one run his verdict on it redirected the design.
+The plan stops there for that verdict only where the owner asked for the stop, as the global preferences say of a check asked of him.
 Each step names the decision records and intent entries it edits.
 A flag or compatibility layer introduced for the migration gets its own removal step.
 Name the point of no return, if there is one, and what must be true before passing it.
@@ -176,10 +163,9 @@ Lead with a one-line verdict — do the rework, do the smaller change, or leave 
   One rework estimated at 300 lines removed landed 940 added, its 860 lines of event-sequence enumeration and file scanner costed at about 60.
 - **Open work and side findings:** what happens to each open issue and pull request on the part, and the describer's comment fixes.
 
-Put the questions to the owner as the global preferences say, each in what a user hears or sees with one concrete case:
-in six runs the owner asked for a report to be explained more simply, and twice to be taken through the questions one at a time.
+Put the questions to the owner as the global preferences say, each in what a user hears or sees with one concrete case.
 A step that rests on an unanswered question does not start.
-When the owner answers, offer to record the answers as `audit-drift`'s "Record the answers" section describes.
+When the owner answers, record the answers as `audit-drift`'s "Record the answers" section describes; this report has no index to tick.
 
 Change no code beyond the spike.
 If the owner takes the proposal, offer to carry out the whole migration from a fresh session by the project's procedure for multi-PR work,

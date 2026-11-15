@@ -3,13 +3,14 @@
 # Codex (~/.codex/AGENTS.md), and Gemini CLI and Antigravity (~/.gemini/GEMINI.md),
 # and its skills into ~/.claude/skills, ~/.agents/skills and
 # ~/.gemini/config/skills, install session-lifecycle's hourly sweep, set up the
-# status line, the subagent wait guard, auto mode's standing rules and ask-api, and
+# status line, the subagent wait guard, auto mode's standing rules, a SessionStart
+# hook that pulls this checkout and ask-api, and
 # install Remote Control at login where ~/.claude/remote-control-projects exists. Safe to rerun: it replaces only
 # links, never a real file. Every rerun also restarts the sweep, which runs once at load.
 # --repo PATH (repeatable): a project for the sweep to cover. A rerun keeps the
 # projects already registered, so only a new machine or project needs it.
-# --cloud: also installs ask-api into /usr/local/bin and adds a SessionStart hook
-# that pulls this checkout, for the setup script of a Claude Code cloud environment.
+# --cloud: installs ask-api into /usr/local/bin instead, and leaves out the sweep,
+# the status line, transcript retention and Remote Control, for the setup script of a Claude Code cloud environment.
 set -u
 
 repo=$(cd "$(dirname "$0")/.." && pwd -P)
@@ -69,8 +70,9 @@ fi
 # a year of transcript retention, which a cloud container does not outlive,
 # the PreToolUse hook that refuses subagents' waits past their five-minute prompt
 # cache, whose matcher a rerun keeps current, auto mode's standing rules from
-# global/claude/auto-mode.json, and in the cloud the SessionStart hook
-# that pulls this checkout, matched by its git command and folder name so a moved checkout updates it.
+# global/claude/auto-mode.json, and the SessionStart hook that pulls this checkout,
+# so a merged rule reaches the next session; the hook is matched by its git command
+# and folder name so a moved checkout updates it.
 settings="$HOME/.claude/settings.json"
 $cloud || link "$repo/global/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$repo/global/claude/subagent-wait-guard.sh" "$HOME/.claude/subagent-wait-guard.sh"
@@ -121,25 +123,24 @@ for g in mine:
     g["matcher"] = matcher
 if not mine:
     groups.append({"matcher": matcher, "hooks": [{"type": "command", "command": guard}]})
-if sys.argv[2] == "true":
-    repo = sys.argv[3]
-    pull = f"git -C {shlex.quote(repo)} pull -q --ff-only || true"
-    def pulls_this(command):
-        # A checkout moved to a new path keeps its folder name; a hook that
-        # pulls another repository the same way is someone else's.
-        try:
-            words = shlex.split(command)
-        except ValueError:
-            return False
-        return (len(words) == 8 and words[:2] == ["git", "-C"]
-                and words[3:] == ["pull", "-q", "--ff-only", "||", "true"]
-                and os.path.basename(words[2].rstrip("/")) == os.path.basename(repo))
-    starts = settings["hooks"].setdefault("SessionStart", [])
-    mine = [h for g in starts for h in g.get("hooks", []) if pulls_this(h.get("command", ""))]
-    for h in mine:
-        h["command"] = pull
-    if not mine:
-        starts.append({"hooks": [{"type": "command", "command": pull}]})
+repo = sys.argv[3]
+pull = f"git -C {shlex.quote(repo)} pull -q --ff-only || true"
+def pulls_this(command):
+    # A checkout moved to a new path keeps its folder name; a hook that
+    # pulls another repository the same way is someone else's.
+    try:
+        words = shlex.split(command)
+    except ValueError:
+        return False
+    return (len(words) == 8 and words[:2] == ["git", "-C"]
+            and words[3:] == ["pull", "-q", "--ff-only", "||", "true"]
+            and os.path.basename(words[2].rstrip("/")) == os.path.basename(repo))
+starts = settings["hooks"].setdefault("SessionStart", [])
+mine = [h for g in starts for h in g.get("hooks", []) if pulls_this(h.get("command", ""))]
+for h in mine:
+    h["command"] = pull
+if not mine:
+    starts.append({"hooks": [{"type": "command", "command": pull}]})
 if json.dumps(settings, sort_keys=True) != before:
     with open(path + ".tmp", "w") as f:
         json.dump(settings, f, indent=2)
@@ -149,7 +150,7 @@ if json.dumps(settings, sort_keys=True) != before:
     os.replace(path + ".tmp", path)
 EOF
 then
-  echo "install: the status line, transcript retention, auto mode rules, subagent wait guard and cloud pull hook are not set up: updating settings.json failed (above)" >&2
+  echo "install: the status line, transcript retention, auto mode rules, subagent wait guard and pull hook are not set up: updating settings.json failed (above)" >&2
   status=1
 fi
 # Without jq the status line is blank and the wait guard allows every call.

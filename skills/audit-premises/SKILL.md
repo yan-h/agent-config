@@ -16,7 +16,7 @@ Worktrees, branch and PR conventions, and where intent records live all come fro
 where it says nothing about intent records, use `docs/intent/<area>.md`.
 This audit uses the `audit-drift` skill's "Choose the scope" and "Record the answers" sections, installed beside this one;
 if it is not installed, say so and stop.
-The `propose-rework` skill uses the rules and the inventory and tester briefs by name; rename them only together with that skill.
+The `propose-rework` skill uses the rules and the tester brief by name; rename them only together with that skill.
 
 ## What this audit is
 
@@ -30,7 +30,8 @@ The output is tested rework candidates for the `propose-rework` skill. This audi
 
 ## Before starting
 
-**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the last round below adds up to three red teams for each form the verdict rests on.
+**Cost.** The first run used 27 agents over two waves, about 260k tokens each, 7 million in all besides the coordinating session; the second used 40, after the owner had been told 30 to 35.
+Count one inventory agent per area besides the waves, and one red team for each form the verdict rests on in the last round below.
 Invoking the skill is the owner accepting a run of that order. State the number of agents before the inventory and before each wave, so the owner can interrupt.
 The owner's must-keeps shrink the second wave: readers report what a must-keep rules out as that guarantee's price, which the second wave does not test.
 In the first project, rating every guarantee with sizes in hand removed most of the planned agents before any ran; naming only must-keeps prunes less, so expect a larger second wave.
@@ -79,20 +80,15 @@ Every guarantee the owner does not name stays unrated, and comes back to the own
 The owner may rate more now, but is not walked through the list one guarantee at a time:
 that spends the owner's attention on guarantees no candidate touches, and asks before the size is known, where the guarantee question comes with a reader's size.
 The default leans open for the reason the rules give under "What is open".
-Ask too for the run's tolerances where they depart from the standing preferences in the global file and the project contract:
+Do not ask for the run's tolerances; take them only where the owner states them, departing from the standing preferences in the global file and the project contract:
 what counts first, how much machinery an edge case may keep, how loose performance targets may be, and how much change in output is acceptable.
 
-Write the ratings file: each guarantee in user terms with its rating, or marked unrated, and any accepted form, then the run's tolerances.
+Write the ratings file: each guarantee in user terms with its rating, or marked unrated, and any accepted form, then any tolerances the owner stated.
 Leave out the inventory's code pointers, which would anchor the clean-room designer. Every later agent gets the file's path.
 Record each rating the owner gave in the intent record of every area the guarantee touches, as the `audit-drift` skill's "Record the answers" section describes but with no index to tick;
 record a don't-care as open to giving up in a rework, not as leave to remove the guarantee outside one. The run's tolerances are not recorded there.
 When the owner changes a rating, update the file and the record before the next agent starts, and recheck the candidates that rested on the old rating;
 the owner reversed one within the same session in the first project.
-
-Both areas rated so far were rated with sizes from a full earlier run in hand, which is why the inventory gets earlier audits' measurements;
-whether an inventory sizes guarantees well enough without them is untested.
-Say in the report how many must-keeps the owner named before the first wave, whether the inventory had earlier measurements, and where readers' sizes disagreed with the inventory's;
-naming only must-keeps up front is untried too.
 
 ## First wave: readers who propose
 
@@ -132,7 +128,7 @@ No form goes to a red team while a guarantee it gives up is unrated or flagged u
 For those forms only, show the owner what each gives up, with the sizes readers reported, and what each must-keep has ruled out so far, so the owner can release one;
 then ask the question asked before the first wave: which must be kept, and in what form.
 What is shown and not named becomes "would trade (not named)" in the ratings file, not in the intent records, since the owner rated nothing.
-Ask it before the second wave and before every round of the last one. A rating changed here is handled as "Rate the guarantees" says.
+Ask it before the second wave and before the last round. A rating changed here is handled as "Rate the guarantees" says.
 
 ## Second wave: test, and reshape what breaks
 
@@ -158,7 +154,7 @@ Check a defeat's central claim too: a red team is an agent handed a hypothesis, 
 A prototype worth keeping goes on a branch as a draft pull request, which the report lists:
 an ignored directory in a worktree that can be reclaimed is where the first run nearly left its only copy.
 
-## Recombine, and attack until a form holds
+## Recombine, and attack each form once
 
 Take each red team's verdict in turn:
 
@@ -170,24 +166,18 @@ Take each red team's verdict in turn:
 
 Build the combined forms whose pieces answer each other's objections.
 A reshaped or combined form is a new candidate, whoever designed it. Send one fresh red team, briefed as in the second wave with the current ratings file, at each form the report's verdict would rest on,
-aimed at what the form adds or revises and what that touches.
-Keep a ledger per form: for each round, what the attack hit, and what the form removes compared with the form that entered the first round.
+aimed at what the form adds or revises and what that touches; a combined form is attacked whole, which the first project's combined rework never was.
+State the running total of agents before the round.
 
-A form holds when an attack changes nothing the owner would decide: what it finds is work `propose-rework` would do in designing the form,
+A form holds when its attack changes nothing the owner would decide: what it finds is work `propose-rework` would do in designing the form,
 not an attack on the problem, a lost must-keep, or a guarantee given up that is unrated or unclear.
 A would-trade guarantee it gives up is a question in the report and does not stop it holding, and neither does any other new or reworded question for the owner that leaves the form as it was.
 "Survives in a new shape" is a reshape, not a hold.
-A form that does not hold is reshaped by the verdicts above and attacked again: up to three attacks in all for each form that entered the first round, its reshapes included.
-Stop sooner, and report the form open, when a second reshape answers an attack on the same piece, the sign of a premise left unresolved,
-or when the form now removes less than the one that entered the first round, which is reported beside it: reshaping toward what survives is the shrinking the rules warn of.
-A smaller form accepted by the verdict above is exempt, having shown it leaves nothing lasting in place.
-State the round and the running total of agents before each round.
-A form stopped by the cap, by either stop or by the owner is reported as open, with every attack and what the next would aim at; no answering shape sets it aside with every attack recorded.
+Each form is attacked once here, and further rounds belong to `propose-rework`:
+a form that does not hold is reported open, with its attack, the shape that would answer it and what the next attack would aim at, and goes to that skill as a standing candidate does.
+Where that shape removes less than the form attacked, report the two side by side, unless it is a smaller form the verdict above accepts: reshaping toward what survives is the shrinking the rules warn of.
+A form defeated on the problem ends, and one with no answering shape is set aside with its attack recorded, as the verdicts above say.
 Every other reshaped or combined form is marked untested wherever it appears.
-
-The first project stopped too early here: its combined rework was never attacked whole, the design that followed was attacked once,
-and the claims revised to answer that attack, the ones most in need of one, never were.
-Say in the report how many rounds each form took.
 
 ## Report
 
@@ -202,6 +192,9 @@ Written as the current state:
 - **Defeated or set aside,** one line each with the reason, so it is not proposed again unchanged.
 - **Load-bearing and right:** what no candidate touches and why.
 - **Measurements,** issues filed on the way, open prototype pull requests, and what nobody checked.
+- **How the rating went:** how many must-keeps the owner named before the first wave, whether the inventory had earlier audits' measurements, and where readers' sizes disagreed with the inventory's.
+  Both areas rated so far had sizes from a full earlier run in hand, which is why the inventory gets those measurements;
+  whether an inventory sizes guarantees well enough without them is untested, and so is naming only must-keeps up front.
 - **Record:** the area map, each agent's report unedited, and where local outputs are.
 
 Write what stands, not how the audit got there.

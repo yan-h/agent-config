@@ -21,7 +21,7 @@ Compare the change against that design. Look in particular for:
   and name those the change missed as defects and the single owner as the alternative
   (two audits of one project traced eleven of thirteen live defects to a change that reached one copy);
 - special cases a better representation or boundary would remove;
-- edge-case handling out of proportion to how often the case occurs and what it costs when it does;
+- edge-case code the stakes record does not pay for;
 - invariants every caller must remember, where the type or module could hold them instead;
 - abstractions, options or extension points with one user and no planned second;
 - changes that will force edits in several places the next time this area moves;

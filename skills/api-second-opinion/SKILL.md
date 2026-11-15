@@ -8,10 +8,8 @@ description: Ask Claude Fable (or another Claude model) over the Claude API for 
 `ask-api` sends one question, with the context you choose, to the Claude API and prints the answer.
 It bills the API key's credits, which Claude Code itself cannot spend, so the call costs the owner's subscription nothing.
 The credits are an allowance of about $200 a month, about $6.50 a day, that does not carry over: credit left at the month's end is lost, not saved.
-Over its first two weeks, 34 calls cost $0.67 to $9.77, $2.19 on average, about $5 a day, with design passes on code included.
-Questions averaged $1.35 and reviews of code $4.54: output costs about $1 for a question and $2 for a review, and the rest is $1 per 100k tokens of input.
+Under Fable 5.2, questions average $1.48 and reviews of code $2.77, input costing $0.80 per 100k tokens.
 So the credits can take every call that does a Fable subagent's work about as well, leaving Fable quota, which runs out first, for work that needs tools.
-Send the context the question needs rather than everything nearby.
 Only the session that owns the task calls it, not a subagent, so one session sees the task's whole spend.
 
 ```sh
@@ -26,7 +24,7 @@ Use another model only when the owner asks: in Claude Code a subagent runs any o
 Stdin is read only with `--stdin`.
 `--effort` defaults to `high`, and `xhigh` with `--review`; `--max-tokens` to 128000, the current models' most, since thinking counts against it and a lower cap can spend it all thinking and return no answer, still billed.
 Run it in the background with a one-hour limit on the shell command (in Claude Code, `run_in_background` with `timeout: 3600000`).
-Calls are long: by 2026-11-13, 13 reviews took a median of 9.7 minutes and as long as 13.2, six of them past 10, and 34 questions a median of 4.6 and as long as 10.5.
+Calls are long: reviews take about 10 minutes and as long as 13.
 A run the shell kills is cut off mid-answer, so the tokens streamed so far are billed while nothing reaches the log below.
 The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go in the system prompt; `--no-instructions` leaves them out.
 
@@ -34,7 +32,7 @@ The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go
 
 Call it without being asked in two cases where the answer is judgement rather than search and you can name and send the context it turns on.
 First, before you put a design, a plan or an architectural recommendation to the owner for a decision, unless the choice is small or easily reversed:
-the owner asked "worth asking Fable?" about forty times in four weeks, while November's credits stood at $71 of $200 on the 14th.
+the owner asked "worth asking Fable?" about forty times in four weeks.
 Second, wherever you would otherwise brief a Fable subagent and one answer would serve about as well:
 
 - the design pass on a change, with `--review` and, with `-f`, the files beyond the diff that the design turns on;
@@ -87,9 +85,10 @@ Exit codes: 3 means the model declined (there is no automatic fallback, because 
 
 ## What the credits pay for
 
-The owner's API credits cover the API, the Batch API, the Agent SDK, the Playground and Managed Agents, not Claude Code:
+The owner's API credits do not cover Claude Code:
 Claude Code started with the key as `ANTHROPIC_API_KEY` fails with "credit balance too low", so do not route a session through it.
-The balance is prepaid, so running out makes calls fail rather than charge, as long as auto-reload stays off under the Console's Billing settings.
+The balance is prepaid, so running out makes calls fail rather than charge, as long as auto-reload stays off under the Console's Billing settings;
+once the credits have run out, give the question to a subagent, Fable where the call stood in for one.
 
 ## Setup
 

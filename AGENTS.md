@@ -5,8 +5,8 @@ projects and host tools.
 
 - Put shared global defaults in `global/AGENTS.md` and link each host's
   supported global instruction file to that source.
-- Put host-specific global defaults in `global/<host>/AGENTS.md` only when
-  needed; do not duplicate shared guidance there. Claude's file is
+- Put host-specific global defaults in `global/<host>/` only when needed;
+  do not duplicate shared guidance there. Claude's file is
   `global/claude/CLAUDE.md`: it imports the shared file with `@../AGENTS.md`
   and adds Claude-only sections below the import. Claude's status line is
   `global/claude/statusline.sh`, linked from `~/.claude/statusline.sh`.
@@ -31,15 +31,18 @@ projects and host tools.
 - Make every sentence change what an agent does. State each rule once, in
   the broadest file it applies to, and refer to it elsewhere instead of
   restating it. Keep the reasons and evidence behind rules an agent might
-  otherwise simplify away; cut narration, hedges, restated rules, summaries
-  of other skills, and history that no longer changes behaviour.
+  otherwise simplify away; in the two always-loaded files,
+  `global/AGENTS.md` and `global/claude/CLAUDE.md`, a rule keeps one reason
+  clause, and its counts and further anecdotes stay in the pull request
+  that measured them. Cut narration, hedges, restated rules, summaries of
+  other skills, and history that no longer changes behaviour.
 - Run `python3 scripts/check.py` before committing.
 
 ## Stakes record
 
 - **Use:** Yan alone, on one Mac and in Claude Code cloud sessions. The
   skills are written for Claude Code and Codex; the global file is also
-  linked for Gemini CLI, Antigravity and Zed.
+  linked for Gemini CLI and Antigravity.
 - **Load:** several sessions and subagents at once on the one Mac, each in
   its own worktree, across a few projects.
 - **Severe:** the session-lifecycle scripts or the worktree reclaimer
@@ -48,6 +51,8 @@ projects and host tools.
   closes an issue, without the owner's own word.
 - **Cheap:** a sentence in a skill that misleads one session; an install
   that fails and says so.
+- **Unprotected:** a session-start pull that hangs delays that session until
+  the host's hook timeout; a failed pull is ignored (#108).
 - **Unsupported case:** a script that already detects one refuses with a
   message and a nonzero exit.
   `install.sh --cloud` alone always exits 0, since a failing setup would
