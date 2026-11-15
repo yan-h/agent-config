@@ -30,11 +30,9 @@ projects and host tools.
   progressive disclosure.
 - Make every sentence change what an agent does. State each rule once, in
   the broadest file it applies to, and refer to it elsewhere instead of
-  restating it. Keep the reasons and evidence behind rules an agent might
-  otherwise simplify away; in the two always-loaded files,
-  `global/AGENTS.md` and `global/claude/CLAUDE.md`, a rule keeps one reason
-  clause, and its counts and further anecdotes stay in the pull request
-  that measured them. Cut narration, hedges, restated rules, summaries of
+  restating it. A rule an agent might otherwise simplify away keeps one
+  reason clause, in a skill as in the global files; its counts and further
+  anecdotes stay in the pull request that measured them. Cut narration, hedges, restated rules, summaries of
   other skills, and history that no longer changes behaviour.
 - Run `python3 scripts/check.py` before committing.
 - Keep each Markdown file under `global/` and `skills/` within its word

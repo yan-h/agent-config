@@ -8,6 +8,7 @@ skill's "Record the answers" section says. Nothing the owner did not answer is h
 
 - **A word ceiling for every rule file, enforced by `scripts/check.py` and run on every pull request.** Yes. 2026-11-14, drift audit #103 (G1); tracked in #105.
 - **This repository is pulled when a session starts on the Mac, as in cloud sessions.** Yes. 2026-11-14, #103 (G2); in #104.
+- **Evidence in skills.** As in the always-loaded files: each rule keeps one reason clause, and counts and further anecdotes stay in the pull request. 2026-11-15, PR #116.
 
 ## What goes to the owner
 
