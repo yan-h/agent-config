@@ -22,6 +22,8 @@ One pass patched a just-accepted selection rule instead, and after the merge the
 
 Run a correctness review in parallel with the design pass, in a fresh subagent:
 brief it to run the review tool the project contract names, or the host's review command, or where neither exists to review the diff against the project contract.
+Name the commit in the brief, and have the reviewer make a scratch worktree of it outside any checkout (`git worktree add <path> <commit>`), pass that path to the review command, check out nothing in its own working directory, and remove the worktree when done.
+Claude Code's `code-review` forks, and twice in one run the fork checked out the reviewed commit in the coordinating session's worktree under a brief that only forbade checkouts there; no brief that named a scratch path had one.
 Do not run that tool in your own session: Claude Code's `/code-review` loads into the context that calls it,
 and five audited runs that ran it there had the author review its own change, two of whose reports then claimed independent reviewers.
 
