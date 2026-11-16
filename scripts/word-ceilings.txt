@@ -21,6 +21,6 @@ skills/audit-shared/SKILL.md 696
 skills/design-review/SKILL.md 566
 skills/design-review/references/design-pass.md 576
 skills/propose-rework/SKILL.md 2249
-skills/review-and-merge/SKILL.md 1357
+skills/review-and-merge/SKILL.md 1409
 skills/session-lifecycle/SKILL.md 963
 skills/sweep-issues/SKILL.md 746
