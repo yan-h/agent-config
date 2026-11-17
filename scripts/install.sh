@@ -180,10 +180,10 @@ elif ! $cloud; then
 fi
 
 # design-review's Codex passes call `codex`, which ChatGPT.app ships without putting
-# on PATH. Its launcher follows links to the bundle; a codex installed some other
-# way is left in charge.
+# on PATH. Its launcher follows links to the bundle. Any codex already on PATH,
+# this link from an earlier run included, is left in charge.
 app_codex=/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex
-if ! $cloud && [ -x "$app_codex" ] && { [ -L "$bin/codex" ] || ! command -v codex >/dev/null; }; then
+if [ -x "$app_codex" ] && ! command -v codex >/dev/null; then
   link "$app_codex" "$bin/codex"
 fi
 

@@ -35,7 +35,7 @@ State the decision and its reason in one line before acting on it.
 ## Review
 
 Run the correctness review as the `design-review` skill's Correctness section describes,
-and alongside it that skill's design pass as its Design section says, by a fresh subagent or one `ask-api --review` call, and Codex's passes as its "Codex beside Claude" section says.
+and alongside it that skill's design pass as its Design section says, by a fresh subagent or one `ask-api --review` call.
 A pass already run on this change as `design-review` describes, asked for or not, counts as that pass: take its findings through the steps below, and the commits since through the re-read.
 A pass run any other way does not: an author's own `/code-review` missed a bug the full review then found.
 When both have returned, take these steps in order.
@@ -90,5 +90,5 @@ Confirm the merge landed on the remote primary branch before reporting, and clea
 
 ## Report
 
-The merge commit; whether the PR was reviewed and why; who ran each pass (a fresh subagent or an API call) on which model; what the review changed, the lines it added to the diff first reviewed and the rounds it ran; the findings left unprotected with their case and cost, and any fixed that you would have left; the design verdict; the questions taken to the owner and how each was settled; and any follow-up issues filed.
+The merge commit; whether the PR was reviewed and why; who ran each pass (a fresh subagent, an API call or Codex) on which model; what the review changed, the lines it added to the diff first reviewed and the rounds it ran; the findings left unprotected with their case and cost, and any fixed that you would have left; the design verdict; the questions taken to the owner and how each was settled; and any follow-up issues filed.
 If the PR is left open, say so and name what blocks it.
