@@ -34,6 +34,17 @@ Its question carries the owner's words and leaves your view out as a brief does.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).
 
+## Codex beside Claude
+
+While the owner trials Codex as a reviewer (tracked in #124), a Claude session also has Codex review the change, in parallel with Claude's passes; in Codex, or where `codex` is not on PATH, skip this section and say so in the report.
+Add a detached worktree of the reviewed head at a scratch path outside every checkout, and from it run both in the background, each with `-c model=gpt-6.2-sol -c model_reasoning_effort=xhigh -c sandbox_mode=read-only`:
+`codex review --base <merge base with the freshly fetched primary branch>`, whose standard output is its correctness review,
+and `codex exec -o <file> -`, given on standard input the brief the Design section gives a fresh agent, with the absolute path of `references/design-pass.md` in place of the file, as its design pass.
+Remove the worktree once both return.
+
+Codex's findings and verdict go through the same steps as Claude's, and the report marks each finding Claude, Codex or both.
+Then comment on #124: the PR, each finding so marked with whether it was confirmed, dismissed or left uncertain, and each side's design verdict.
+
 ## Report
 
 Report as that file says.

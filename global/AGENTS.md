@@ -101,7 +101,7 @@ My attention is a fixed cost too: work that would have me start or follow severa
 ## Subagent delegation
 
 Delegate independent subtasks to your host's own subagents where that improves speed or quality, without asking, unless I say not to for a task;
-launch no other agent product or CLI unless I ask, though `ask-api` from the `api-second-opinion` skill, one API call without tools, is not one.
+launch no other agent product or CLI unless I ask or one of my skills says to, though `ask-api` from the `api-second-opinion` skill, one API call without tools, is not one.
 Delegate only what needs little of your context and can return a compact result: an independent research path, a separate area, or a check that should not see your reasoning.
 Keep coupled work, whose results feed your next step, in your own loop with parallel tool calls.
 Choose each subagent's model and effort explicitly, by the quality the task needs and what a weaker result would cost to catch and redo, at the relative costs your host's global file lists where it lists them;
