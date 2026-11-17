@@ -19,6 +19,7 @@ brief it to run the review tool the project contract names, or the host's review
 Have it say of each finding whether its case lies within the use and load the stakes record states, and the worst the case does.
 Name the commit, and brief it as the global delegation guidance says of a subagent that shares a checkout.
 Do not run that tool in your own session: Claude Code's `/code-review` loads into the context that calls it, so the author reviews its own change.
+Codex's passes start alongside it, as "Codex beside Claude" says.
 
 ## Design
 
@@ -33,6 +34,18 @@ add with `-f` those intent records and the files beyond the diff that the design
 Its question carries the owner's words and leaves your view out as a brief does.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).
+
+## Codex beside Claude
+
+While the owner trials Codex as a reviewer (yan-h/agent-config#124), a Claude session reviewing a PR or branch also has Codex review it.
+Add a detached worktree of the reviewed head at a scratch path outside every checkout, and from it start both in the background with a one-hour limit, each with `-c model=gpt-6.2-sol -c review_model=gpt-6.2-sol -c model_reasoning_effort=xhigh -c sandbox_mode=read-only -c approval_policy=never`:
+`codex review --base <merge base with the freshly fetched primary branch>`, whose standard output is its correctness review,
+and `codex exec -o <file outside the worktree> -`, given on standard input the brief the Design section gives a fresh agent, with the absolute path of `references/design-pass.md` in place of the file, as its design pass.
+Wait for both before acting on any pass, then remove the worktree; a run that cannot start, fails or times out is reported as such and holds nothing.
+
+Codex reads the first reviewed head once, and its verdict steers nothing: a finding from either side that a check confirms is handled like any other, and Codex's verdict and alternatives are reported beside Claude's.
+When the run ends, comment on the reviewed PR, headed "Codex trial", or put it in the report where there is no PR:
+each finding marked Claude, Codex or both, whether it was confirmed, dismissed or left uncertain and by what check, and each side's verdict, with the model each ran on.
 
 ## Report
 

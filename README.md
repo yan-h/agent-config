@@ -53,8 +53,9 @@ file itself to `~/.codex/AGENTS.md` for Codex and `~/.gemini/GEMINI.md` for
 Gemini CLI and Antigravity, links every skill into `~/.claude/skills`, `~/.agents/skills` and `~/.gemini/config/skills`,
 installs session-lifecycle's hourly sweep for each `--repo` (see
 [Session lifecycle installation](#session-lifecycle-installation)), sets up the
-status line, Remote Control at login (both below) and `ask-api` (see
-`skills/api-second-opinion`). Rerun it after adding or removing
+status line, Remote Control at login (both below), `ask-api` (see
+`skills/api-second-opinion`) and, where ChatGPT.app is installed and no other
+`codex` is on PATH, a `codex` link in `~/.local/bin` for `design-review`'s Codex passes. Rerun it after adding or removing
 a skill; it replaces only links, skips any real file in the way, and keeps the
 projects already registered.
 

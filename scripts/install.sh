@@ -4,7 +4,7 @@
 # and its skills into ~/.claude/skills, ~/.agents/skills and
 # ~/.gemini/config/skills, install session-lifecycle's hourly sweep, set up the
 # status line, the subagent wait guard, auto mode's standing rules, a SessionStart
-# hook that pulls this checkout and ask-api, and
+# hook that pulls this checkout, ask-api and a codex command from ChatGPT.app, and
 # install Remote Control at login where ~/.claude/remote-control-projects exists. Safe to rerun: it replaces only
 # links, never a real file. Every rerun also restarts the sweep, which runs once at load.
 # --repo PATH (repeatable): a project for the sweep to cover. A rerun keeps the
@@ -177,6 +177,14 @@ if ! $cloud && [ -e "$rc_list" ]; then
   command -v tmux >/dev/null || { echo "install: Remote Control at login needs tmux, which is not on PATH" >&2; status=1; }
 elif ! $cloud; then
   echo "install: Remote Control at login skipped: list projects in $rc_list and rerun to enable it"
+fi
+
+# design-review's Codex passes call `codex`, which ChatGPT.app ships without putting
+# on PATH. Its launcher follows links to the bundle. Any codex already on PATH,
+# this link from an earlier run included, is left in charge.
+app_codex=/Applications/ChatGPT.app/Contents/Resources/codex-cli/bin/codex
+if [ -x "$app_codex" ] && ! command -v codex >/dev/null; then
+  link "$app_codex" "$bin/codex"
 fi
 
 # ask-api is optional: a failure here must not cost the instructions and skills above.
