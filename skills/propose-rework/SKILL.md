@@ -46,8 +46,7 @@ the describer brief of the `audit-drift` skill (`references/describer.md` in tha
 For an internal part, the behaviour to describe is what its callers observe at its interface.
 An earlier audit's describer report on the part serves instead while the code it describes is unchanged.
 
-While it runs, if the host's global file says writing the proposal and the spike's outputs to the tracker needs the owner's word, ask for it in one question;
-without a tracker, or where the owner declines, they go in a Markdown design document on a branch, as a draft pull request where the project has them.
+The proposal and the spike's outputs go to the tracker; without one, they go in a Markdown design document on a branch, as a draft pull request where the project has them.
 
 Do not rate guarantees up front or ask for tolerances. A rating stands only where the intent records hold one or a candidate from `audit-premises` arrived with a ratings file, and a tolerance only where the owner stated it;
 every other guarantee is open as the rules say, and one the target gives up is judged as "Behaviour that changes" says.

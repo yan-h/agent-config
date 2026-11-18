@@ -63,5 +63,5 @@ or where it sets none, one line per decision: the behaviour, the owner's call, t
 Record a "that's fine" too, and a struck necessity row as a keep, so the next audit does not ask again.
 Nothing the owner did not answer goes in: the record is the owner's picture, not the describer's.
 
-Tick the area in the index (an issue edit, so on the owner's word in chat as the global preferences say), file what the answers call for,
+Tick the area in the index, file what the answers call for,
 and land the intent records by the project's PR conventions.
