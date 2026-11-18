@@ -52,8 +52,8 @@ projects and host tools.
   its own worktree, across a few projects.
 - **Severe:** the session-lifecycle scripts or the worktree reclaimer
   deleting unmerged work or a build not yet loaded; a hook or installed
-  setting that breaks every session; a skill that merges, or closes an
-  issue, without the owner's own word.
+  setting that breaks every session; a skill that merges without the
+  owner's own word.
 - **Cheap:** a sentence in a skill that misleads one session; an install
   that fails and says so.
 - **Unprotected:** a session-start pull that hangs delays that session until

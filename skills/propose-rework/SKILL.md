@@ -156,4 +156,4 @@ When the owner answers, record the answers as `audit-shared`'s "Record the answe
 
 Change no code beyond the spike.
 If the owner takes the proposal, offer to carry out the whole migration from a fresh session, not this run's context, which the owner once stopped a builder for using, by the project's procedure for multi-PR work,
-asking up front for its merges and tracker writes in the words the host's global file says they need.
+asking up front for its merges in the words the host's global file says they need.
