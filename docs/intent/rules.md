@@ -17,7 +17,7 @@ skill's "Record the answers" section says. Nothing the owner did not answer is h
 - **A listening or looking check as a gate on a merge.** It does not hold a merge unless he asked for it to. 2026-11-14, #103 (D3); in #104.
 - **A command a session could run itself.** It is run, not handed to him. 2026-11-14, #103 (D4); in #104.
 - **Filing an issue or adding a comment in his own repositories.** Needs no word from him, and is not severe in the stakes record. 2026-11-14, PR #101.
-- **Editing an issue's title, body or labels in his own repositories.** Needs no word from him ("I basically always approve edits when they ask"); a session leaves his own words in an issue unchanged. 2026-11-18, superseding PR #101's line.
+- **Editing an issue's title, body or labels in his own repositories.** Needs no word from him ("I basically always approve edits when they ask"); a session leaves his own words in an issue unchanged. 2026-11-18, PR #126, superseding PR #101's line.
 - **Typing `propose-rework` or an audit skill.** Counts as his word for closing the issues that run works on, in the repository it runs in. 2026-11-14, PR #101.
 - **Merges, and closures of other issues.** Still need his word; one agreement covers the set it describes. 2026-11-14, PR #101.
 - **Design choices, what he sees or hears, and what to do next.** Stay questions. 2026-11-14, #103.
