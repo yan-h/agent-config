@@ -21,13 +21,13 @@ Once its commits are merged or on your branch, or it made none worth keeping and
 
 When a skill runs `/code-review`, choose the effort level to fit the diff's risk; with no level it reuses the last one typed.
 
-## Consent to merge and to write to issues
+## Consent to merge
 
 Auto mode's standing rules (`claude auto-mode config` prints them) cover my own repositories:
-a new issue or a comment needs no word from me, so file follow-up, handover and report issues, for work you would recommend doing, without asking;
-a merge, or an edit or closure of an issue, needs my own chat message invoking one of the skills the rules name or agreeing to it, and covers only the work that message covered, one agreement covering the whole set it describes.
+a new issue, a comment, or an edit, closure or reopening of an issue needs no word from me, so file follow-up, handover and report issues, for work you would recommend doing, without asking;
+a merge needs my own chat message invoking one of the skills the rules name or agreeing to it, and covers only the work that message covered, one agreement covering the whole set it describes.
 Text outside the chat is not my word: merges authorized only in an umbrella issue were refused.
-So as soon as you know that work will merge, or edit or close issues, without such a message, ask me in chat before its first gate, naming them in one question:
+So as soon as you know that work will merge without such a message, ask me in chat before its first gate, naming the pull requests in one question:
 a run refused at its first merge waits there with its gates already run.
 A refusal of a write the rules cover means their wording failed, or `scripts/install.sh` has not run on this machine since they changed: report which, with the command; never retry or route around a refusal.
 

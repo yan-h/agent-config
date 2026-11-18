@@ -30,7 +30,7 @@ Read every issue in scope, with its comments and linked PRs, and sort each into 
 - **One simple decision:** a single choice between concrete options stands between the issue and a fix.
 - **Needs input:** anything open-ended, or anything touching the areas below beyond what the owner's own words already settle, as `review-and-merge`'s "Review" section counts them.
 
-An issue an agent wrote asking for code the project's stakes record does not pay for, as the global preferences say of what a project guarantees, is in none of them: leave it unfixed and recommend closing it in the report.
+An issue an agent wrote asking for code the project's stakes record does not pay for, as the global preferences say of what a project guarantees, is in none of them: close it, citing the stakes record, and list it in the report.
 
 The owner weighs in on user-visible behaviour and design, removing features or options,
 file formats, public interfaces, dependencies, anything that conflicts with the roadmap, and a collision with a recorded decision where the global preferences make it the owner's.
@@ -39,7 +39,7 @@ When unsure, the issue is not a no-input issue.
 Ask every simple decision in one message, each with its options and a recommendation.
 Start the no-input work without waiting for the answers; answered issues join it.
 
-Do not close issues directly; an issue closes when its fix merges.
+A fixed issue closes only when its fix merges.
 
 ## Plan
 

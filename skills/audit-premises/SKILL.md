@@ -32,8 +32,7 @@ counting one inventory agent per area and one red team for each form the verdict
 Run both waves or neither: the first wave alone ranks confidently and wrongly, with four of one run's top five later defeated or cut to a third or less.
 
 **Where the report lives.** The run writes to the tracker: one tracking issue, each agent's report as a comment on it, an issue for each defect reproduced on the way, and later rewrites of the tracking issue's body.
-Before any agent runs, ask in one question for any of those writes the host's global file says need the owner's word.
-Without a tracker, or where the owner declines, the report is a Markdown file in the repository with each agent's report as a file beside it,
+Without a tracker, the report is a Markdown file in the repository with each agent's report as a file beside it,
 on a branch, as a draft pull request where the project has them, and a defect is a section of the report instead of an issue.
 
 **What earlier runs settled.** Read the last premises audit's report, the open rework issues, and the declined candidates in the intent records.

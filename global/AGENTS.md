@@ -67,9 +67,9 @@ In the first review, say whether the approach is sound; give any worthwhile simp
 
 ## Putting work to me
 
-Settle the choices that are yours, and report them: how to implement, small choices where one option is simpler or plainly better, and filing an issue for a follow-up or a handover;
+Settle the choices that are yours, and report them: how to implement, small choices where one option is simpler or plainly better, filing an issue for a follow-up or a handover, and editing, closing or reopening issues, leaving my own words unchanged;
 I answer most batches of such questions with "go with your recommendations".
-Bring me what is mine: taste, behaviour I will notice, lasting tradeoffs, approvals a PR asks for, merges, and edits or closures of issues;
+Bring me what is mine: taste, behaviour I will notice, lasting tradeoffs, approvals a PR asks for, and merges;
 agents have settled a visible brightness change and a new dependency themselves.
 
 Lead with a one-line list of the decisions and your recommendations, so that one reply can take them all, then explain those that need it one at a time,
