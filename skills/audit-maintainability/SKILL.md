@@ -93,7 +93,7 @@ Then sort what survived:
 Lay the report out as the `audit-shared` skill's "Report so it can be taken piecemeal" section describes,
 with the rework candidates ranked together after the index, by lasting net benefit, since they often cross areas.
 List the auditors' drift items in their area's section, for the next drift audit.
-When the owner asks for the fixes too, make them as that skill's "Fix what needs no answer, when the owner asks" section describes;
+When the owner asks for the fixes too, make them as that skill's "Fix what needs no answer" section describes;
 a rework candidate is built only once the owner has taken it.
 Record the owner's answers as that skill's "Record the answers" section describes;
 a rework the owner has declined is recorded with the reason in every area it touches, so it is not proposed again unchanged.

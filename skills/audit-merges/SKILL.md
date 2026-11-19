@@ -7,12 +7,12 @@ disable-model-invocation: true
 # Audit the combined merge range
 
 **The owner starts this,** since whether a batch is worth a multi-agent run is a judgement about what the owner is spending.
-A session that has just watched branches land says the range looks worth auditing and stops there, rather than running the procedure below by hand.
+A session that thinks a range worth auditing says so and stops there.
 Codex ignores `disable-model-invocation`, so there this paragraph is the rule itself.
 
 Audit the code that has landed on the repository's primary branch since the last audit for bugs that no single branch could have contained:
 each branch was developed against the primary branch it started from, so a per-branch review cannot see failures created only when two are combined.
-Read the combined diff, not the PRs one at a time.
+Read the combined diff, not each PR.
 
 ## Choose the range
 
@@ -30,8 +30,7 @@ git log --oneline --first-parent -12
 git diff --stat <since>..HEAD
 ```
 
-`--first-parent` matters:
-without it, the list can fill with branch catch-up merges rather than work landing on the primary branch.
+`--first-parent` keeps branch catch-up merges out of the list.
 
 If the range is trivially small—one or two merges touching disjoint files—report that and stop.
 
@@ -58,7 +57,7 @@ Before filing, search the open issues and the closed ones the owner declined,
 and add to or link the one that covers it instead of filing again:
 a clean audit leaves no marker, so the next one finds the same things.
 
-Follow the repository's local contract for worktrees, validation, commits, and pull requests.
+Follow the local contract for worktrees, validation, commits and pull requests.
 
 ### Repair the prose agents execute; file the rest
 
@@ -67,11 +66,11 @@ Follow the repository's local contract for worktrees, validation, commits, and p
 and any step in another document that one of these sends a session to run.
 A wrong path or false claim there misroutes the next agent, and nothing else checks it.
 
-**File, and do not fix,** drift in reference documentation and long-form design notes:
+**File, rather than fix in the audit's pull request,** drift in reference documentation and long-form design notes:
 one grouped issue per audit, naming each file and the claim that no longer holds.
 Fixed in the audit's pull request, this drift, the easiest thing to find, buries the defects the audit exists to catch.
 Where the search shows a document's drift filed before, file, as an issue of its own for the owner, the question whether that document still earns its place,
-so the grouped issue needs no decision and `sweep-issues` can take it.
+so the grouped issue needs no decision.
 
 Comments in source files follow the code they sit beside:
 repair one in a file the audit is already changing, file it with the drift otherwise.
@@ -96,8 +95,12 @@ Where the range's fixes return to a mechanism that earlier fixes also corrected,
 repeated corrections are the debt that audit exists to find.
 
 Title the pull request `Merge audit <since>..<end>: <what it fixes>`, with `<end>` the abbreviated hash of the primary-branch commit the audit read rather than the branch's own head.
-Like any pull request it merges only on the owner's word, and the marker exists only once it lands:
-the commit that lands on the primary branch must keep that subject, since the next audit starts from it.
+It merges only on the owner's word, and the commit that lands on the primary branch must keep that subject, since the next audit starts from it.
 
-If nothing is found, report the range and the specific clean list and make no code change.
+If nothing is found, report the range and the specific clean list, and open no audit pull request.
 A clean audit leaves no marker anywhere: the next audit surveying the range again is a cheaper failure than a marker outside the history that can skip work.
+
+## Fix what it filed
+
+Once the report is out, fix, unasked, the filed issues that need no answer as [the `audit-shared` skill](../audit-shared/SKILL.md)'s "Fix what needs no answer" section describes, or say it is not installed, and add their pull requests to the report.
+Keep them apart from the audit's and not titled `Merge audit`, so they neither bury its findings nor pose as its marker.

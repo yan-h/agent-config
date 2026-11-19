@@ -7,7 +7,7 @@ disable-model-invocation: true
 
 # What the audit skills share
 
-`audit-drift`, `audit-maintainability`, `audit-performance` and `audit-premises` follow the sections below by name, and `propose-rework` follows this skill's "Record the answers" section.
+`audit-drift`, `audit-maintainability`, `audit-merges`, `audit-performance` and `audit-premises` follow the sections below by name, and `propose-rework` follows this skill's "Record the answers" section.
 A section binds only the skills that name it, and each of its sentences must hold for every one of them; change one only with all of them in view.
 
 ## Read the contract
@@ -38,10 +38,9 @@ One tracking issue per run, titled with the kind of audit and the date:
 
 Put the areas with the most consequential questions first, and the area map at the top of the report so the owner can correct its boundaries next time.
 
-## Fix what needs no answer, when the owner asks
+## Fix what needs no answer
 
-The audit ends at its report unless the owner's own message asks for its fixes to be made, or made and merged.
-Then, once the report is filed, sweep the issues this run filed:
+Once the report is filed, sweep the issues this run filed:
 follow the `sweep-issues` skill's sections from "Triage" through "Fix" with those issues as the scope, then this skill's "Review and merge the fixes" section.
 Following the sweep's sections does not invoke that skill; if it is not installed, say so and leave the fixes filed.
 

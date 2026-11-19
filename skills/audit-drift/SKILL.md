@@ -64,5 +64,5 @@ Keep at most five questions per area, each answerable yes or no, each with what 
 ## Report, fix what needs no answer, and record the answers
 
 Lay the report out as the `audit-shared` skill's "Report so it can be taken piecemeal" section describes.
-When the owner asks for the fixes too, make them as its "Fix what needs no answer, when the owner asks" section describes.
+When the owner asks for the fixes too, make them as its "Fix what needs no answer" section describes.
 Record the owner's answers as its "Record the answers" section describes.
