@@ -140,7 +140,8 @@ this public repository.
 ## Included skills
 
 - `audit-merges` — inspect a combined merge range for defects that emerge
-  only when otherwise-correct branches interact. Owner-invoked: a session
+  only when otherwise-correct branches interact, and fix, without merging,
+  what it filed that needs no owner input. Owner-invoked: a session
   never starts one for itself, and a host that can enforce that should.
 - `sweep-issues` — fix and merge every open issue that needs no owner input,
   asking simple decisions up front and reporting the rest. Owner-invoked, and
@@ -182,8 +183,8 @@ this public repository.
   document. An inventory, two waves of agents and a last round, several
   million tokens.
   Owner-invoked.
-- `audit-shared` — the sections the drift, maintainability, performance and
-  premises audits follow by name: the area map, intent records, the tracking
+- `audit-shared` — the sections the drift, maintainability, merges,
+  performance and premises audits follow by name: the area map, intent records, the tracking
   issue's layout, sweeping an audit's fixes, and recording the owner's
   answers. Not a command: hidden from Claude's menu and never loaded on its own.
 - `propose-rework` — design one large rework, from an audit's candidate or a

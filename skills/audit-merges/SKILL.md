@@ -57,8 +57,10 @@ since items listed only in pull request bodies get no follow-up, while filed one
 Before filing, search the open issues and the closed ones the owner declined,
 and add to or link the one that covers it instead of filing again:
 a clean audit leaves no marker, so the next one finds the same things.
+Then, unasked, fix those that need no answer as [the `audit-shared` skill](../audit-shared/SKILL.md)'s "Fix what needs no answer" section describes,
+in pull requests apart from the audit's and not titled `Merge audit`, so they neither bury its findings nor pose as its marker.
 
-Follow the repository's local contract for worktrees, validation, commits, and pull requests.
+Follow the local contract for worktrees, validation, commits and pull requests.
 
 ### Repair the prose agents execute; file the rest
 
@@ -71,7 +73,7 @@ A wrong path or false claim there misroutes the next agent, and nothing else che
 one grouped issue per audit, naming each file and the claim that no longer holds.
 Fixed in the audit's pull request, this drift, the easiest thing to find, buries the defects the audit exists to catch.
 Where the search shows a document's drift filed before, file, as an issue of its own for the owner, the question whether that document still earns its place,
-so the grouped issue needs no decision and `sweep-issues` can take it.
+so the grouped issue needs no decision.
 
 Comments in source files follow the code they sit beside:
 repair one in a file the audit is already changing, file it with the drift otherwise.
@@ -90,14 +92,13 @@ a defect nobody reaches is real but unranked, and competes better as an issue th
 ## Report the result
 
 If there are findings, describe each one with the observable line above, then what breaks, the real-world trigger, the reproduction, and the fix.
-List the issues filed and the suspicions dropped, with their reasons.
+List the issues filed, the fix pull requests, and the suspicions dropped, with their reasons.
 Also name the areas and hypotheses checked clean, and record the `<since>..HEAD` range and the pull requests or merges it contains.
 Where the range's fixes return to a mechanism that earlier fixes also corrected, name it and those PRs and say a maintainability audit of it looks due:
 repeated corrections are the debt that audit exists to find.
 
 Title the pull request `Merge audit <since>..<end>: <what it fixes>`, with `<end>` the abbreviated hash of the primary-branch commit the audit read rather than the branch's own head.
-Like any pull request it merges only on the owner's word, and the marker exists only once it lands:
-the commit that lands on the primary branch must keep that subject, since the next audit starts from it.
+It merges only on the owner's word, and the commit that lands on the primary branch must keep that subject, since the next audit starts from it.
 
-If nothing is found, report the range and the specific clean list and make no code change.
+If nothing is found, report the range and the specific clean list, and open no audit pull request.
 A clean audit leaves no marker anywhere: the next audit surveying the range again is a cheaper failure than a marker outside the history that can skip work.
