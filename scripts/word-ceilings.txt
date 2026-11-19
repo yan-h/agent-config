@@ -7,7 +7,7 @@ skills/audit-drift/references/auditor.md 701
 skills/audit-drift/references/describer.md 204
 skills/audit-maintainability/SKILL.md 1068
 skills/audit-maintainability/references/auditor.md 832
-skills/audit-merges/SKILL.md 1035
+skills/audit-merges/SKILL.md 1032
 skills/audit-merges/references/merge-auditor.md 682
 skills/audit-performance/SKILL.md 1027
 skills/audit-performance/references/surveyor.md 509
