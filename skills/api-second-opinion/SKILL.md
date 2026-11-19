@@ -70,14 +70,15 @@ Treat the answer as a lead, not a verdict.
 Check each finding against the code before reporting it, and report which held, which did not and why, and the cost line `ask-api` printed.
 Report a call the owner did not ask for in the same way, with why you made it: they did not see it start, and a cloud session's log is lost with its machine.
 Check first the code the model says it was not shown: its claims about what it saw are usually sound, and its open questions are where findings hide.
-Exit code 3 means the model declined; there is no automatic fallback, because its second attempt would escape the cost guard: hand the question to a subagent or answer it yourself, if it is still worth answering.
+Exit code 3 means the model declined: hand the question to a subagent or answer it yourself, if still worth answering.
 Exit code 4 means the answer was cut off at `--max-tokens`.
 
 ## What the credits pay for
 
 The credits do not cover Claude Code: a session started with the key as `ANTHROPIC_API_KEY` fails with "credit balance too low", so do not route one through it.
-The balance is prepaid, so running out makes calls fail rather than charge while auto-reload stays off in the Console's Billing settings;
-once the credits have run out, give the question to a subagent, Fable where the call stood in for one.
+The balance is prepaid, so running out makes calls fail rather than charge while auto-reload stays off in the Console's Billing settings.
+Exit code 5, from the free token count before sending, means it has run out: do not check first.
+Then brief a subagent from what you gathered, Fable where the call stood in for one.
 
 ## Setup
 

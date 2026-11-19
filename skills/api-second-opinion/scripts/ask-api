@@ -458,6 +458,10 @@ def main(argv: list[str]) -> int:
         ).input_tokens
     except anthropic.NotFoundError:
         fail(f"model {model} was not found (retired?); --model fable or opus picks the newest")
+    except anthropic.BadRequestError as error:  # the free count fails first, so nothing is billed
+        if "credit balance" not in str(error):
+            raise
+        fail("the API credits have run out; nothing was sent or billed", 5)
     worst, refusal = guard(
         price, input_tokens, args.max_tokens, args.max_cost, args.max_input, args.yes
     )
