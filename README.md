@@ -114,7 +114,11 @@ starts, so after a change run `tmux kill-window -t claude-rc:<project>` and the 
 brings that server back, ending only that project's sessions.
 To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-control` rather than
 running the script from a Claude session, where tmux would belong to the app.
-Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.
+Each rerun also ends any session whose transcript has gone unwritten for a day
+(`CLAUDE_RC_IDLE_HOURS` changes that), since a server keeps every session until it is archived
+and refuses new ones at its capacity of 32; the session's worktree and transcript stay.
+Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit and ended session is logged there too.
+To see what the next run would end, run it once with `CLAUDE_RC_REAP_DRY_RUN=1`.
 
 Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.
