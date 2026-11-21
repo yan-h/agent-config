@@ -201,9 +201,9 @@ this public repository.
   second opinion or review with chosen context to Claude Fable (or another
   model) over the API, billed to API credits rather than the subscription,
   behind input and worst-case cost guards. On the owner's request, or unasked
-  before a design or plan goes to the owner for decision, wherever it would
-  do a Fable subagent's judgement about as well, and on Opus for a change's
-  design pass; correctness reviews go to a subagent.
+  before a design or plan goes to the owner for decision and wherever it would
+  do a Fable subagent's judgement about as well, on Opus for a change's design
+  pass; correctness reviews go to a subagent.
 
 ## Add a skill
 

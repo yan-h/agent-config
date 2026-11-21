@@ -134,7 +134,7 @@ def guard(
     if input_tokens > max_input:
         return worst, (
             f"{input_tokens:,} input tokens is over the {max_input:,} limit; narrow "
-            "the context, or ask a Fable subagent, which reads only what it needs"
+            "the context, or ask a subagent, which reads only what it needs"
         )
     if worst is None:
         return None, "no price is known for this model; pass --yes to send anyway"

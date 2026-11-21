@@ -35,7 +35,7 @@ State the decision and its reason in one line before acting on it.
 ## Review
 
 Run the correctness review as the `design-review` skill's Correctness section describes,
-and alongside it that skill's design pass as its Design section says, by a fresh subagent or one `ask-api --review` call.
+and alongside it that skill's design pass as its Design section says.
 A pass already run on this change as `design-review` describes, asked for or not, counts as that pass: take its findings through the steps below, and the commits since through the re-read.
 A pass run any other way does not: an author's own `/code-review` missed a bug the full review then found.
 When both have returned, take these steps in order.

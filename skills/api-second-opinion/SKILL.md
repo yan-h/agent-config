@@ -1,6 +1,6 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable over the Claude API, billed to prepaid credits rather than the subscription, for a design answer, second opinion or design review. When the owner asks for an API call or a second opinion; unasked wherever a Fable subagent would otherwise judge from context you can name and send, before a design or plan goes to the owner for decision, and on Opus for a change's design pass; never from a subagent.
+description: Ask Claude Fable over the Claude API, billed to prepaid credits rather than the subscription, for a design answer, second opinion or design review. When the owner asks for an API call or a second opinion; unasked wherever a Fable subagent would otherwise judge from context you can name and send, and before a design or plan goes to the owner for decision; never from a subagent.
 ---
 
 # A second opinion over the API
@@ -37,6 +37,7 @@ a design written as a proposal, before its code; a correctness or performance di
 Keep the subagent when the work needs exploring, running or editing, or when one call cannot carry everything the answer turns on:
 a correctness review hunts through callers, tests and definitions the diff does not show, which a subagent can open and an API call cannot.
 Where an Opus subagent would serve, because Fable would answer the same way, use that rather than the API.
+A skill that routes work here, as `design-review` does, sets the model and the fallback; this section covers the rest.
 
 ## Choosing the context
 
@@ -50,7 +51,7 @@ A `--review` sends its diff with 10 lines of context and attaches changed files 
 ## Reviewing a design
 
 When the owner asks for a review over the API, the call stands in for the `design-review` skill's whole review, correctness included.
-Unasked, it stands in only for that skill's design pass, on Opus as that skill says; the correctness review still runs beside it.
+Unasked, it stands in only for that skill's design pass; the correctness review still runs beside it.
 Every call sends that skill's `references/design-pass.md` in the system prompt, and `--review` asks for its report shape.
 
 For a design not yet written as code, put the problem and its constraints first in a file, then the proposal, marked as yours rather than the owner's, then numbered questions, then the code excerpts it rests on, and pass it with `--stdin` or `-f`.
