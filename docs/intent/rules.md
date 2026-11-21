@@ -32,7 +32,7 @@ skill's "Record the answers" section says. Nothing the owner did not answer is h
 - **Who settles a review question that is the owner's.** Only his own words: chat, an issue or comment he wrote, a recorded decision, an intent record, the global preferences. An agent-written issue or PR description does not. 2026-11-14, #103 (B1); in #104.
 - **"Autonomously", and a fix the stakes record pays for.** The fix is made, or the PR stays open. 2026-11-14, #103 (B2); in #104.
 - **The unasked API call before a design reaches the owner.** Kept at November 2026's pace of spending; when the month's credits run out, sessions fall back to a subagent. 2026-11-14, #103 (B3).
-- **Which model runs a change's design pass.** Opus: an `ask-api -m opus` call while the credits last, an Opus subagent after. Fable stays for architecture choices, reworks and designs going to the owner, which nothing has yet compared. 2026-11-20, PR #PRNUM.
+- **Which model runs a change's design pass.** Opus: an `ask-api -m opus` call while the credits last, an Opus subagent after. Fable stays for architecture choices, reworks and designs going to the owner, which nothing has yet compared. 2026-11-20, PR #130.
 
 ## Audits
 
