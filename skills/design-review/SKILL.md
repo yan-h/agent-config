@@ -29,8 +29,10 @@ Leave your own view of the change out: no alternatives you suspect, no list of t
 Passes given the author's view patched what they were pointed at and returned the author's own suspicion as their top finding.
 Do not edit the checked-out tree while it reads, or it reviews a tree that moves under it.
 Run that agent on Opus, which matched Fable on the same input: one `ask-api --review -m opus` call, or, where that call cannot run or carry the context, a subagent (Opus in Claude);
-add with `-f` those intent records and the files beyond the diff that the design turns on, chosen as the `api-second-opinion` skill's "Choosing the context" section says, because the model cannot open them.
+add with `-f` those intent records and the files beyond the diff that the design turns on, as the `api-second-opinion` skill says, because the model cannot open them.
 Its question carries the owner's words and leaves your view out as a brief does.
+When an Opus pass's verdict is to rethink the approach, or it recommends a rework or a choice between architectures, one Fable `ask-api` call given the pass's context and report checks that conclusion before the owner sees it:
+those are the judgements that skill keeps on Fable.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).
 
