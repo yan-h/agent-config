@@ -203,8 +203,8 @@ this public repository.
   behind input and worst-case cost guards. On the owner's request, or unasked
   before a design or plan goes to the owner for decision and wherever it would
   do a Fable subagent's judgement about as well. `design-review` sends it a
-  change's design pass on Opus, and an architectural verdict back to Fable for
-  a check; correctness reviews go to a subagent.
+  change's design pass on Opus, or on Fable where the agent judges the change
+  needs it; correctness reviews go to a subagent.
 
 ## Add a skill
 
