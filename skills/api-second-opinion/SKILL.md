@@ -1,6 +1,6 @@
 ---
 name: api-second-opinion
-description: Ask Claude Fable over the Claude API, billed to prepaid credits rather than the subscription, for a design answer, second opinion or design review. When the owner asks for an API call or a second opinion; unasked wherever a Fable subagent would otherwise judge from context you can name and send, a change's design pass included, and before a design or plan goes to the owner for decision; never from a subagent.
+description: Ask Claude Fable over the Claude API, billed to prepaid credits rather than the subscription, for a design answer, second opinion or design review. When the owner asks for an API call or a second opinion; unasked wherever a Fable subagent would otherwise judge from context you can name and send, and before a design or plan goes to the owner for decision; never from a subagent.
 ---
 
 # A second opinion over the API
@@ -19,7 +19,7 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 ```
 
 `--model` takes `fable` (the default), `opus` or `sonnet`, each meaning the newest active model of that line, or a full model ID to pin one.
-Use another model only when the owner asks: in Claude Code a subagent runs any of them with tools, from quota rather than credits.
+Use another model only when the owner or a skill asks: in Claude Code a subagent runs any of them with tools, from quota rather than credits.
 `--max-tokens` defaults to 128000, the current models' most: thinking counts against it, and a lower cap can spend it all thinking and return no answer, still billed.
 Run it in the background with a one-hour limit on the shell command (in Claude Code, `run_in_background` with `timeout: 3600000`):
 reviews take about 10 minutes and up to 13, and a run the shell kills is billed for what it streamed while nothing reaches the log.
@@ -31,12 +31,13 @@ Call it without being asked in two cases where the answer is judgement rather th
 First, before you put a design, a plan or an architectural recommendation to the owner for a decision, unless the choice is small or easily reversed:
 the owner kept asking whether it was worth asking Fable.
 Second, wherever you would otherwise brief a Fable subagent and one answer would serve about as well:
-the design pass on a change, with `--review` and the files beyond the diff it turns on; choosing between architectures, or judging a rework's lasting costs against its gains;
+choosing between architectures, or judging a rework's lasting costs against its gains;
 a design written as a proposal, before its code; a correctness or performance diagnosis that has stalled once the evidence is gathered.
 
 Keep the subagent when the work needs exploring, running or editing, or when one call cannot carry everything the answer turns on:
 a correctness review hunts through callers, tests and definitions the diff does not show, which a subagent can open and an API call cannot.
 Where an Opus subagent would serve, because Fable would answer the same way, use that rather than the API.
+A skill that routes work here, as `design-review` does, sets the model and the fallback; this section covers the rest.
 
 ## Choosing the context
 
@@ -78,7 +79,7 @@ Exit code 4 means the answer was cut off at `--max-tokens`.
 The credits do not cover Claude Code: a session started with the key as `ANTHROPIC_API_KEY` fails with "credit balance too low", so do not route one through it.
 The balance is prepaid, so running out makes calls fail rather than charge while auto-reload stays off in the Console's Billing settings.
 Exit code 5, from the free token count before sending, means it has run out: do not check first.
-Then brief a subagent from what you gathered, Fable where the call stood in for one.
+Then brief a subagent from what you gathered, on the model the call used.
 
 ## Setup
 

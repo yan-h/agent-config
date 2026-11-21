@@ -28,10 +28,11 @@ If you wrote or shaped it, brief a fresh agent with the change at a named commit
 Leave your own view of the change out: no alternatives you suspect, no list of things to weigh, no cost prior, no fix direction for a defect you know of (state the defect alone), and no choice of yours described as the owner's; send design-pass.md itself, not a summary.
 Passes given the author's view patched what they were pointed at and returned the author's own suspicion as their top finding.
 Do not edit the checked-out tree while it reads, or it reviews a tree that moves under it.
-It is consequential judgement; size it by the global subagent guidance.
-Where that guidance picks Fable and the `api-second-opinion` skill's test for an unasked call holds, one `ask-api --review` call is the pass instead:
-add with `-f` those intent records and the files beyond the diff that the design turns on, chosen as that skill's "Choosing the context" section says, because the model cannot open them.
+Run that agent on Opus, which matched Fable on the same input: one `ask-api --review -m opus` call, or, where that call cannot run or carry the context, a subagent (Opus in Claude);
+add with `-f` those intent records and the files beyond the diff that the design turns on, as the `api-second-opinion` skill says, because the model cannot open them.
 Its question carries the owner's words and leaves your view out as a brief does.
+Of an Opus pass's conclusions, only a rethink verdict and a recommended rework or architecture choice are architectural recommendations that the `api-second-opinion` skill's first unasked case checks with Fable;
+a rethink that check disputes still reaches the owner, with both answers.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).
 
