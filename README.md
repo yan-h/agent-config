@@ -203,9 +203,8 @@ this public repository.
   behind input and worst-case cost guards. On the owner's request, or unasked
   before a design or plan goes to the owner for decision and wherever it would
   do a Fable subagent's judgement about as well, a plan's design choice
-  included. `design-review` sends it a risky or hard change's design pass, and
-  Opus passes from the 22nd while credits last; other Opus passes and
-  correctness reviews go to a subagent.
+  included. `design-review` sends it a risky or hard change's design pass; Opus
+  passes and correctness reviews go to a subagent.
 
 ## Add a skill
 
