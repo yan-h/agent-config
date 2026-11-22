@@ -46,6 +46,6 @@ which exits at once, as if failed, while no checks are registered.
 
 Subscription Fable 5.2 uses about three times Opus 5.5's quota per token, and fills its own weekly limit about twice as fast as the all-models one, so heavy Fable use runs out there first.
 By API price per token, Sonnet costs 1/2 of Opus, and Haiku 1/40 up to a 100k-token prompt and 1/8 beyond, which a subagent that reads many files reaches.
-Fable through the `api-second-opinion` skill spends API credits instead of quota, a monthly allowance, not carried over, that can run out first, so it buys Fable alone (that skill has the figures):
+Fable through the `api-second-opinion` skill spends API credits instead of quota, a monthly allowance, not carried over, that can run out first, so it buys Fable first (that skill has the figures):
 wherever a Fable subagent would do the work, make one API call instead if it would do about as well, as that skill's test for an unasked call says.
 Choose Fable over Opus for a subagent where its better judgement is worth that quota price.
