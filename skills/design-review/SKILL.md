@@ -29,8 +29,9 @@ Leave your own view of the change out: no alternatives you suspect, no list of t
 Passes given the author's view patched what they were pointed at and returned the author's own suspicion as their top finding.
 Do not edit the checked-out tree while it reads, or it reviews a tree that moves under it.
 Run that agent as an Opus subagent, since Opus matched Fable on the same input.
-Where you judge the change hard enough to need Fable, send one `ask-api --review` call instead, or brief a Fable subagent where that call cannot run or carry the context;
-to the call add with `-f` those intent records and the files beyond the diff that the design turns on, as the `api-second-opinion` skill says, because the model cannot open them.
+Run it on Fable where a missed defect costs most, a change touching a case its stakes record calls severe, persistence, concurrency or a public interface, or one you judge as hard:
+one `ask-api --review` call, a Fable subagent where that call cannot carry the context, or an Opus subagent once the credits have run out.
+To that call add with `-f` those intent records and the files beyond the diff that the design turns on, as the `api-second-opinion` skill says, because the model cannot open them.
 Its question carries the owner's words and leaves your view out as a brief does.
 
 The pass itself, and the shape of the report, are in [references/design-pass.md](references/design-pass.md).

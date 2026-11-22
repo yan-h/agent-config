@@ -202,8 +202,8 @@ this public repository.
   model) over the API, billed to API credits rather than the subscription,
   behind input and worst-case cost guards. On the owner's request, or unasked
   before a design or plan goes to the owner for decision and wherever it would
-  do a Fable subagent's judgement about as well. `design-review` sends it a
-  change's design pass where the agent judges the change needs Fable; Opus
+  do a Fable subagent's judgement about as well, a plan's design choice
+  included. `design-review` sends it a risky or hard change's design pass; Opus
   passes and correctness reviews go to a subagent.
 
 ## Add a skill

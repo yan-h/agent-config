@@ -19,7 +19,7 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 ```
 
 `--model` takes `fable` (the default), `opus` or `sonnet`, each meaning the newest active model of that line, or a full model ID to pin one.
-Use another model only when the owner asks: the credits save the most quota on Fable, and in Claude Code a subagent runs the others with tools.
+Use another model only when the owner or a skill asks: the credits save the most quota on Fable, and in Claude Code a subagent runs the others with tools.
 `--max-tokens` defaults to 128000, the current models' most: thinking counts against it, and a lower cap can spend it all thinking and return no answer, still billed.
 Run it in the background with a one-hour limit on the shell command (in Claude Code, `run_in_background` with `timeout: 3600000`):
 reviews take about 10 minutes and up to 13, and a run the shell kills is billed for what it streamed while nothing reaches the log.
@@ -27,12 +27,14 @@ The project's `AGENTS.md` (or `CLAUDE.md`) and the owner's global preferences go
 
 ## When to call it unasked
 
-Call it without being asked in two cases where the answer is judgement rather than search and you can name and send the context it turns on.
+Call it without being asked in three cases where the answer is judgement rather than search and you can name and send the context it turns on.
 First, before you put a design, a plan or an architectural recommendation to the owner for a decision, unless the choice is small or easily reversed:
 the owner kept asking whether it was worth asking Fable.
 Second, wherever you would otherwise brief a Fable subagent and one answer would serve about as well:
 choosing between architectures, or judging a rework's lasting costs against its gains;
 a design written as a proposal, before its code; a correctness or performance diagnosis that has stalled once the evidence is gathered.
+Third, before building a plan that chooses between designs of differing lasting cost (a data model, an interface, state ownership, a mechanism other code relies on) which the owner did not choose:
+a design pass's rethink otherwise arrives after the build. Wait for the answer, and once the credits have run out, skip it.
 
 Keep the subagent when the work needs exploring, running or editing, or when one call cannot carry everything the answer turns on:
 a correctness review hunts through callers, tests and definitions the diff does not show, which a subagent can open and an API call cannot.
