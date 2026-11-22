@@ -19,7 +19,7 @@ git log -p -5 -- src/take.rs | ask-api --stdin "What has this file's churn been 
 ```
 
 `--model` takes `fable` (the default), `opus` or `sonnet`, each meaning the newest active model of that line, or a full model ID to pin one.
-Use another model only when the owner or a skill asks: in Claude Code a subagent runs any of them with tools, from quota rather than credits.
+Use another model only when the owner asks: the credits save the most quota on Fable, and in Claude Code a subagent runs the others with tools.
 `--max-tokens` defaults to 128000, the current models' most: thinking counts against it, and a lower cap can spend it all thinking and return no answer, still billed.
 Run it in the background with a one-hour limit on the shell command (in Claude Code, `run_in_background` with `timeout: 3600000`):
 reviews take about 10 minutes and up to 13, and a run the shell kills is billed for what it streamed while nothing reaches the log.
