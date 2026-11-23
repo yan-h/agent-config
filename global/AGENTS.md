@@ -65,6 +65,9 @@ A code-review request covers correctness, performance, simplicity and maintainab
 Treat a diff's choice to keep something unchanged as a question.
 In the first review, say whether the approach is sound; give any worthwhile simpler or faster alternative with its benefit and cost, apart from the necessary fixes, and name a design cause several defects share.
 
+A pull request gets two review rounds: a round is every pass on one head and the fixes after it, my own changes included, counted across sessions in its description; a fresh build starts the count again.
+Start no third, since each round's fixes gave the next more to find: put to me the rounds, the lines added since the first, the findings split into defects the stakes record pays for and behaviour that is mine, and your recommendation, such as a fresh build with my examples and the confirmed findings as its tests.
+
 ## Putting work to me
 
 Settle the choices that are yours, and report them: how to implement, small choices where one option is simpler or plainly better, filing an issue for a follow-up or a handover, and editing, closing or reopening issues, leaving my own words unchanged;

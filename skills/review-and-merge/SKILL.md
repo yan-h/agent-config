@@ -64,11 +64,11 @@ Check what a review claims before acting on it or writing it into the PR: an unc
 Keep fixes inside the PR's scope; anything else found along the way goes where the project contract sends it,
 and where it says nothing is reported, not fixed here.
 
-**Re-read.** After each round of fixes, put that round's changes through the test under "Decide whether to review"; where it calls for one, have the correctness review read them alone, asking only whether they broke something the stakes record pays for, until a round changes nothing:
+**Re-read.** Put the fixes through the test under "Decide whether to review"; where it calls for one, have the correctness review read them alone, asking only whether they broke something the stakes record pays for:
 re-reads keep finding defects in fixes.
 A re-read is not a fresh review of the whole change, and what it finds that the record calls cheap is listed, not fixed: whole re-reads keep finding smaller things until the owner stops them.
-When the changes or the owner's answers alter the design, by superseding a decision or adding a mechanism the design pass has not tried, rerun the design pass on the whole change, once.
-When a round finds defects in the previous round's fix twice running, stop patching and look for the alternative that removes them.
+When the changes or the owner's answers alter the design, by superseding a decision or adding a mechanism the design pass has not tried, the design pass reruns on the whole change beside it.
+Each re-read is a round under the global preferences' limit of two, which says what follows the second.
 
 **Gate.** Commit and push, then run the build and gate the project contract owes once, on the head that will merge, as the global rules say.
 
