@@ -41,19 +41,16 @@ The pass itself, and the shape of the report, are in [references/design-pass.md]
 A Claude session reviewing a PR or branch also has each reviewer below whose command is on PATH review it, with two passes started in the background with a one-hour limit:
 a correctness review of the diff against the merge base with the freshly fetched primary branch,
 and a design pass given the brief the Design section gives a fresh agent, with the absolute path of `references/design-pass.md` in place of the file.
-Each runs from its own copy of the reviewed head at a scratch path outside every checkout.
-Wait for all before acting on any pass, then remove the copies; a run that cannot start, fails or times out is reported as such and holds nothing.
+Wait for all before acting on any pass; a run that cannot start, fails or times out is reported as such and holds nothing.
 
 - **Codex** (`codex`): over 44 reviews, each of its two passes and each of Claude's found confirmed defects no other pass did (yan-h/agent-config#124).
-  From a detached worktree, run both with `-c model=gpt-6.2-sol -c review_model=gpt-6.2-sol -c model_reasoning_effort=xhigh -c sandbox_mode=read-only -c approval_policy=never`:
+  From a detached worktree of the reviewed head at a scratch path outside every checkout, removed once both end, run both with `-c model=gpt-6.2-sol -c review_model=gpt-6.2-sol -c model_reasoning_effort=xhigh -c sandbox_mode=read-only -c approval_policy=never`:
   `codex review --base <merge base>`, whose standard output is its correctness review, and `codex exec -o <file outside the worktree> -`, given the design brief on standard input.
-- **Gemini** (`agy`), on trial (yan-h/agent-config#137): from a clone with no remote, made by `git init` and `git fetch --no-tags <checkout> <full head SHA> <full base SHA>`,
-  since sandboxed git cannot reach a worktree's shared `.git` and `agy` then retries the command unsandboxed.
-  Run each pass as `agy --sandbox --settings '{"permissions":{"deny":["write_file","edit_file","write_to_file"]}}' --model gemini-4-neon-xhigh --output-format json --print-timeout 3600s -p="<brief>"`, writing standard output to a file outside the clone; its file tools otherwise write anywhere.
-  The correctness brief asks for a review of `git diff <base> HEAD` with each finding's file, line, failure and confidence.
-  The sandbox has no network, so both briefs carry the PR description.
-  A pass counts only where the JSON's `status` is `SUCCESS`, since a cancelled run exits 0.
-  When the run ends, comment on the reviewed PR headed "Gemini trial", or put it in the report where there is no PR, as that issue says.
+- **Gemini** (`agy`), on trial (yan-h/agent-config#137): run each pass as `scripts/gemini-pass <checkout> <full head SHA> <full merge base SHA> <brief file> <output file>`, which reviews from a clone with no remote in `agy`'s sandbox and fails unless `agy` reports success.
+  Its correctness brief is the one the Correctness section gives a fresh subagent, with the PR description.
+  The sandbox has no network, so each brief carries the text of every issue it names.
+  Once its findings are confirmed or dismissed, comment on the reviewed PR headed "Gemini trial" where the owner owns the repository, or else put it in the report:
+  each finding marked by who found it, whether it was confirmed, dismissed or left uncertain and by what check, and each reviewer's verdict with its model.
 
 Each reads the first reviewed head once, and its verdict steers nothing: a finding from any side that a check confirms is handled like any other.
 The report marks each finding with who found it, and gives each reviewer's verdict and alternatives beside Claude's, with the model each ran on.

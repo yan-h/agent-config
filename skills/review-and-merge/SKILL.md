@@ -90,5 +90,5 @@ Confirm the merge landed on the remote primary branch before reporting, and clea
 
 ## Report
 
-The merge commit; whether the PR was reviewed and why; who ran each pass (a fresh subagent, an API call, Codex or Gemini) on which model; what the review changed, the lines it added to the diff first reviewed and the rounds it ran; the findings left unprotected with their case and cost, and any fixed that you would have left; the design verdict; the questions taken to the owner and how each was settled; and any follow-up issues filed.
+The merge commit; whether the PR was reviewed and why; who ran each pass (a fresh subagent, an API call or another reviewer) on which model; what the review changed, the lines it added to the diff first reviewed and the rounds it ran; the findings left unprotected with their case and cost, and any fixed that you would have left; the design verdict; the questions taken to the owner and how each was settled; and any follow-up issues filed.
 If the PR is left open, say so and name what blocks it.
