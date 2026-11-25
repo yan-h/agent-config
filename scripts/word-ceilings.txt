@@ -18,9 +18,9 @@ skills/audit-premises/references/rules.md 759
 skills/audit-premises/references/stances.md 795
 skills/audit-premises/references/tester.md 666
 skills/audit-shared/SKILL.md 677
-skills/design-review/SKILL.md 825
+skills/design-review/SKILL.md 1001
 skills/design-review/references/design-pass.md 576
 skills/propose-rework/SKILL.md 2221
-skills/review-and-merge/SKILL.md 1396
+skills/review-and-merge/SKILL.md 1397
 skills/session-lifecycle/SKILL.md 963
 skills/sweep-issues/SKILL.md 745
