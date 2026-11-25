@@ -58,6 +58,9 @@ projects and host tools.
   that fails and says so.
 - **Unprotected:** a session-start pull that hangs delays that session until
   the host's hook timeout; a failed pull is ignored (#108).
+- **Unprotected:** in the Gemini review trial (#137), a command `agy` retries
+  outside its sandbox once its own classifier approves runs with the owner's
+  access ("accept the sandbox").
 - **Unsupported case:** a script that already detects one refuses with a
   message and a nonzero exit.
   `install.sh --cloud` alone always exits 0, since a failing setup would

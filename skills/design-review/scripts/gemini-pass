@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+"""gemini-pass: run one Gemini review pass through Antigravity's CLI (agy).
+
+  gemini-pass CHECKOUT HEAD_SHA BASE_SHA BRIEF_FILE OUTPUT_FILE
+
+Reviews from a throwaway clone with no remote, so agy's sandboxed git works
+and has no reason to retry a command outside the sandbox, where it could
+write to the shared repository. Writes the review to OUTPUT_FILE and exits 0
+only when agy reports success; agy itself exits 0 for a cancelled run.
+"""
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+
+MODEL = "gemini-4-neon-xhigh"
+TIMEOUT = 3500  # seconds, inside the caller's one-hour limit
+SETTINGS = {"permissions": {"deny": ["write_file", "edit_file", "write_to_file"]}}
+PREAMBLE = (
+    "The change under review runs from base {base} to HEAD ({head}) in the "
+    "repository at your working directory: `git diff {base} HEAD`. "
+    "Change no files and post nothing; there is no network.\n\n"
+)
+
+
+def main(argv):
+    if len(argv) != 6:
+        sys.exit("usage: gemini-pass CHECKOUT HEAD_SHA BASE_SHA BRIEF_FILE OUTPUT_FILE")
+    checkout, head, base, brief_file, output_file = argv[1:]
+    checkout = os.path.abspath(checkout)  # git fetch runs from inside the clone
+    with open(brief_file, encoding="utf-8") as f:
+        prompt = PREAMBLE.format(base=base, head=head) + f.read()
+    clone = tempfile.mkdtemp(prefix="gemini-pass-")
+    try:
+        git = ["git", "-C", clone]
+        subprocess.run(["git", "init", "-q", clone], check=True)
+        subprocess.run([*git, "fetch", "-q", "--no-tags", checkout, head, base], check=True)
+        subprocess.run([*git, "checkout", "-q", "--detach", head], check=True)
+        run = subprocess.run(
+            ["agy", "--sandbox", "--disable-slash-commands", "--settings", json.dumps(SETTINGS),
+             "--model", MODEL, "--output-format", "json", f"--print-timeout={TIMEOUT}s", f"-p={prompt}"],
+            cwd=clone, capture_output=True, text=True,
+        )
+    finally:
+        shutil.rmtree(clone, ignore_errors=True)
+    try:
+        result = json.loads(run.stdout)
+    except json.JSONDecodeError:
+        result = {}
+    if result.get("status") != "SUCCESS" or not result.get("response"):
+        sys.exit(f"gemini-pass: agy failed (exit {run.returncode}): "
+                 f"{result.get('error') or run.stderr.strip()[-500:] or 'no output'}")
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(result["response"])
+    print(f"gemini-pass: {MODEL}, {result.get('duration_seconds', 0):.0f}s, "
+          f"{result.get('usage', {}).get('total_tokens', '?')} tokens")
+
+
+if __name__ == "__main__":
+    main(sys.argv)
