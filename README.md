@@ -116,7 +116,8 @@ To run it now, use `launchctl kickstart gui/$(id -u)/com.yan.claude-remote-contr
 running the script from a Claude session, where tmux would belong to the app.
 Its log is `~/.claude/remote-control-at-login.log`; a run that changes nothing writes nothing, and each server exit is logged there too.
 The app counts every session that is not archived against a server's capacity of 32, and ending a session's process does not archive it,
-so the scheduled task "Archive idle Remote Control sessions" archives every one idle for a day, twice a day; archiving keeps a worktree that holds work.
+so archive finished sessions by hand in the app; archiving keeps a worktree that holds work.
+An agent cannot do it unattended: the host asks for approval on every `archive_session` call, whatever the settings or permission mode.
 
 Use the actual checkout path if it differs from the example.
 The import resolves relative to the linked file's real location, so it follows the checkout.
