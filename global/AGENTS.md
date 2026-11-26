@@ -110,6 +110,7 @@ Delegate only what needs little of your context and can return a compact result:
 Keep coupled work, whose results feed your next step, in your own loop with parallel tool calls.
 Choose each subagent's model and effort explicitly, by the quality the task needs and what a weaker result would cost to catch and redo, at the relative costs your host's global file lists where it lists them;
 inherit the parent's where losing context could affect correctness.
+Run reviews, design passes and audit surveys at xhigh: at high, a review missed defects that xhigh then caught.
 
 Local builds share one machine: watch load against core count and cap concurrent builds to fit.
 Run a full gate only on the head that will land: finish review and its fixes first, then gate once.
