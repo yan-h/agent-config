@@ -18,8 +18,8 @@ Run a correctness review in parallel with the design pass, in a fresh subagent:
 brief it to run the review tool the project contract names, or the host's review command, or where neither exists to review the diff against the project contract.
 Have it say of each finding whether its case lies within the use and load the stakes record states, and the worst the case does.
 Name the commit, and brief it as the global delegation guidance says of a subagent that shares a checkout.
-Do not run that tool in your own session: Claude Code's `/code-review` loads into the context that calls it, so the author reviews its own change.
-The other reviewers' passes start alongside it, as "Reviewers beside Claude" says.
+Do not run that tool in your own session: Claude Code's `/code-review` loads into the calling context, so the author reviews its own change.
+With reviewers beside Claude, brief it to run the host's review command at xhigh, which fits in their wait: lower, it missed what they caught.
 
 ## Design
 
@@ -41,19 +41,19 @@ The pass itself, and the shape of the report, are in [references/design-pass.md]
 A Claude session reviewing a PR or branch also has each reviewer below whose command is on PATH review it, with two passes started in the background with a one-hour limit:
 a correctness review of the diff against the merge base with the freshly fetched primary branch,
 and a design pass given the brief the Design section gives a fresh agent, with the absolute path of `references/design-pass.md` in place of the file.
-Wait for all before acting on any pass; a run that cannot start, fails or times out is reported as such and holds nothing.
+Wait for all before acting on any pass; a run that cannot start, fails or times out is reported and holds nothing.
 
-- **Codex** (`codex`): over 44 reviews, each of its two passes and each of Claude's found confirmed defects no other pass did (yan-h/agent-config#124).
+- **Codex** (`codex`): over 44 reviews, each of its passes and of Claude's found confirmed defects no other did (yan-h/agent-config#124).
   From a detached worktree of the reviewed head at a scratch path outside every checkout, removed once both end, run both with `-c model=gpt-6.2-sol -c review_model=gpt-6.2-sol -c model_reasoning_effort=xhigh -c sandbox_mode=read-only -c approval_policy=never`:
   `codex review --base <merge base>`, whose standard output is its correctness review, and `codex exec -o <file outside the worktree> -`, given the design brief on standard input.
 - **Gemini** (`agy`), on trial (yan-h/agent-config#137): run each pass as `scripts/gemini-pass <checkout> <full head SHA> <full merge base SHA> <brief file> <output file>`, which reviews from a clone with no remote in `agy`'s sandbox and fails unless `agy` reports success.
   Its correctness brief is the one the Correctness section gives a fresh subagent, with the PR description.
   The sandbox has no network, so each brief carries the text of every issue it names.
   Once its findings are confirmed or dismissed, comment on the reviewed PR headed "Gemini trial" where the owner owns the repository, or else put it in the report:
-  each finding marked by who found it, whether it was confirmed, dismissed or left uncertain and by what check, and each reviewer's verdict with its model.
+  each finding marked by who found it, whether it was confirmed, dismissed or left uncertain and by what check, and each verdict with its model.
 
 Each reads the first reviewed head once, and its verdict steers nothing: a finding from any side that a check confirms is handled like any other.
-The report marks each finding with who found it, and gives each reviewer's verdict and alternatives beside Claude's, with the model each ran on.
+The report marks who found each finding, and gives each reviewer's verdict and alternatives beside Claude's, with its model.
 
 ## Report
 
