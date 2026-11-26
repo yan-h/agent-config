@@ -19,7 +19,6 @@ brief it to run the review tool the project contract names, or the host's review
 Have it say of each finding whether its case lies within the use and load the stakes record states, and the worst the case does.
 Name the commit, and brief it as the global delegation guidance says of a subagent that shares a checkout.
 Do not run that tool in your own session: Claude Code's `/code-review` loads into the calling context, so the author reviews its own change.
-With reviewers beside Claude, brief it to run the host's review command at xhigh, which fits in their wait: lower, it missed what they caught.
 
 ## Design
 

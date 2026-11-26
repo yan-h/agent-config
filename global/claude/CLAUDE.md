@@ -19,7 +19,7 @@ Once its commits are merged or on your branch, or it made none worth keeping and
 
 ## Code review effort
 
-When a skill runs `/code-review`, choose the effort level to fit the diff's risk; with no level it reuses the last one typed.
+When a skill runs `/code-review`, run it at xhigh; with no level it reuses the last one typed.
 
 ## Consent to merge
 
