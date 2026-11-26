@@ -73,33 +73,3 @@ while IFS= read -r line || [[ -n $line ]]; do
   fi
   note "started $name in $dir"
 done <"$list"
-
-# A server keeps every session's process until the session is archived, and refuses new
-# sessions at its capacity (32 by default), which the app shows as a disconnected computer.
-# So end each session idle for CLAUDE_RC_IDLE_HOURS (default 24), judged by when its transcript
-# was last written; a session left running for longer has nothing in flight. Its worktree and
-# transcript stay. CLAUDE_RC_REAP_DRY_RUN=1 logs what would end without ending it.
-idle_min=$(( ${CLAUDE_RC_IDLE_HOURS:-24} * 60 ))
-for pane in $(tmux list-panes -s -t "$session" -F '#{pane_pid}' 2>/dev/null); do
-  for server in $(pgrep -P "$pane"); do
-    for proc in $(pgrep -P "$server"); do
-      id=${${(z)"$(ps -o args= -p "$proc")"}[(r)cse_*]}
-      [[ -n $id ]] || continue
-      cwd=$(lsof -a -p "$proc" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p')
-      # Claude names a project's transcript folder after its path, every other character a dash.
-      transcripts=(~/.claude/projects/${cwd//[^A-Za-z0-9]/-}/*.jsonl(N.om))
-      # Newest first, so a newer transcript that only mentions the id can make a session look
-      # busier than it is, never idler.
-      transcript=
-      for t in $transcripts; do grep -qF -- "$id" "$t" && { transcript=$t; break; }; done
-      # Without a transcript there is nothing to judge idleness by, so the session stays.
-      [[ -n $transcript ]] || continue
-      [[ -n $(find "$transcript" -mmin +$idle_min) ]] || continue
-      if [[ -n ${CLAUDE_RC_REAP_DRY_RUN:-} ]]; then
-        note "would end idle session $id (pid $proc) in $cwd"
-      else
-        kill -TERM "$proc" && note "ended idle session $id (pid $proc) in $cwd"
-      fi
-    done
-  done
-done
