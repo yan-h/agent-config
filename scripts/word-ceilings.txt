@@ -1,4 +1,4 @@
-global/AGENTS.md 2178
+global/AGENTS.md 2234
 global/claude/CLAUDE.md 717
 global/claude/agents/resumable.md 144
 skills/api-second-opinion/SKILL.md 1382
@@ -21,6 +21,6 @@ skills/audit-shared/SKILL.md 677
 skills/design-review/SKILL.md 949
 skills/design-review/references/design-pass.md 576
 skills/propose-rework/SKILL.md 2221
-skills/review-and-merge/SKILL.md 1397
+skills/review-and-merge/SKILL.md 1404
 skills/session-lifecycle/SKILL.md 963
-skills/sweep-issues/SKILL.md 745
+skills/sweep-issues/SKILL.md 733
