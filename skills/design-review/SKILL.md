@@ -45,11 +45,9 @@ Wait for all before acting on any pass; a run that cannot start, fails or times 
 - **Codex** (`codex`): over 44 reviews, each of its passes and of Claude's found confirmed defects no other did (yan-h/agent-config#124).
   From a detached worktree of the reviewed head at a scratch path outside every checkout, removed once both end, run both with `-c model=gpt-6.2-sol -c review_model=gpt-6.2-sol -c model_reasoning_effort=xhigh -c sandbox_mode=read-only -c approval_policy=never`:
   `codex review --base <merge base>`, whose standard output is its correctness review, and `codex exec -o <file outside the worktree> -`, given the design brief on standard input.
-- **Gemini** (`agy`), on trial (yan-h/agent-config#137): run each pass as `scripts/gemini-pass <checkout> <full head SHA> <full merge base SHA> <brief file> <output file>`, which reviews from a clone with no remote in `agy`'s sandbox and fails unless `agy` reports success.
+- **Gemini** (`agy`): run each pass as `scripts/gemini-pass <checkout> <full head SHA> <full merge base SHA> <brief file> <output file>`, which reviews from a clone with no remote in `agy`'s sandbox and fails unless `agy` reports success.
   Its correctness brief is the one the Correctness section gives a fresh subagent, with the PR description.
   The sandbox has no network, so each brief carries the text of every issue it names.
-  Once its findings are confirmed or dismissed, comment on the reviewed PR headed "Gemini trial" where the owner owns the repository, or else put it in the report:
-  each finding marked by who found it, whether it was confirmed, dismissed or left uncertain and by what check, and each verdict with its model.
 
 Each reads the first reviewed head once, and its verdict steers nothing: a finding from any side that a check confirms is handled like any other.
 The report marks who found each finding, and gives each reviewer's verdict and alternatives beside Claude's, with its model.

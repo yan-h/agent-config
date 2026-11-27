@@ -30,7 +30,9 @@ skill's "Record the answers" section says. Nothing the owner did not answer is h
 ## Review-and-merge chain
 
 - **Whether each PR of a set must work on its own before the next merges.** No ("I don't care about intermediate states working"): the set gates once on its combination and merges together. 2026-11-27.
-
+- **The effort of Claude's review and design passes.** High where Codex or Gemini read the same change beside them, xhigh otherwise; audit surveys stay at xhigh. 2026-11-27, #146, superseding PR #143's xhigh for every review.
+- **Gemini beside Claude's reviews.** Kept after its trial (#137), without the per-PR trial comment. 2026-11-27, #146.
+- **Sizing the reviewer panel by a change's risk.** No: Codex and Gemini read every change that gets a review, since their quota is spare. 2026-11-27, #146.
 - **Who settles a review question that is the owner's.** Only his own words: chat, an issue or comment he wrote, a recorded decision, an intent record, the global preferences. An agent-written issue or PR description does not. 2026-11-14, #103 (B1); in #104.
 - **"Autonomously", and a fix the stakes record pays for.** The fix is made, or the PR stays open. 2026-11-14, #103 (B2); in #104.
 - **The unasked API call before a design reaches the owner.** Kept at November 2026's pace of spending; when the month's credits run out, sessions fall back to a subagent. 2026-11-14, #103 (B3).
