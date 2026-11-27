@@ -114,6 +114,8 @@ Run reviews, design passes and audit surveys at xhigh: at high, a review missed 
 
 Local builds share one machine: watch load against core count and cap concurrent builds to fit.
 Run a full gate only on the head that will land: finish review and its fixes first, then gate once.
+A set of pull requests merging together lands as one head, the primary branch with each merged in order, since states between them need not work:
+gate that once in a scratch tree, then merge them in order as their own checks pass side by side, bringing the primary branch into one only on a conflict.
 
 Brief a read-only subagent that shares a checkout not to change its branch or files, and to probe, build and run any review command only in a scratch copy at a path you name, passing that path to the command and removing the copy when done:
 a brief that only forbade checkouts had the host's review command check out the reviewed commit in the coordinating session's worktree.

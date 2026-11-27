@@ -69,11 +69,9 @@ a sweep takes only issues whose fix is already clear, so a design question means
 
 ## Merge
 
-Merge in the planned order, starting each PR only once the previous one has landed.
-Before each, bring the current primary branch in by the project's method and rerun the gates;
-then wait for the checks and merge as `review-and-merge`'s "Wait for the checks" and "Merge" sections describe.
+Merge the sweep's PRs as one set, in the planned order, as the global rules say of a set and `review-and-merge`'s "Wait for the checks" and "Merge" sections describe.
 
-If bringing the primary branch in conflicts beyond the change's own scope, or the gates fail for a reason outside it, leave the PR open and report it.
+If combining a PR conflicts beyond its own scope, or the gate fails for a reason outside the set, leave that PR and those depending on it open, gate the rest again, and report it.
 
 ## Report
 
