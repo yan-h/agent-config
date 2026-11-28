@@ -56,7 +56,8 @@ def main(argv):
                  f"{run.stderr.strip()[-500:] or 'no output'}")
     if kind == "review":
         with open(output_file, "w", encoding="utf-8") as f:
-            f.write(run.stdout)
+            # Its findings cite the worktree, which is gone once this returns.
+            f.write(run.stdout.replace(os.path.realpath(tree) + "/", ""))
     if not os.path.getsize(output_file):
         sys.exit(f"codex-pass: codex {kind} wrote nothing")
     print(f"codex-pass: {kind}, {MODEL}")
