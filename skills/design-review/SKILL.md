@@ -43,8 +43,7 @@ and a design pass given the brief the Design section gives a fresh agent, with t
 Wait for all before acting on any pass; a run that cannot start, fails or times out is reported and holds nothing.
 
 - **Codex** (`codex`): over 44 reviews, each of its passes and of Claude's found confirmed defects no other did (yan-h/agent-config#124).
-  From a detached worktree of the reviewed head at a scratch path outside every checkout, removed once both end, run both with `-c model=gpt-6.2-sol -c review_model=gpt-6.2-sol -c model_reasoning_effort=xhigh -c sandbox_mode=read-only -c approval_policy=never`:
-  `codex review --base <merge base>`, whose standard output is its correctness review, and `codex exec -o <file outside the worktree> -`, given the design brief on standard input.
+  Run the correctness pass as `scripts/codex-pass review <checkout> <full head SHA> <full merge base SHA> <output file>` and the design pass as `scripts/codex-pass design <checkout> <head> <base> <output file> <brief file>`, never `codex` with flags you write, since zsh passed flags held in a variable as one word.
 - **Gemini** (`agy`): run each pass as `scripts/gemini-pass <checkout> <full head SHA> <full merge base SHA> <brief file> <output file>`, which reviews from a clone with no remote in `agy`'s sandbox and fails unless `agy` reports success.
   Its correctness brief is the one the Correctness section gives a fresh subagent, with the PR description.
   The sandbox has no network, so each brief carries the text of every issue it names.

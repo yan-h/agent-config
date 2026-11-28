@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+"""codex-pass: run one Codex review pass.
+
+  codex-pass review CHECKOUT HEAD_SHA BASE_SHA OUTPUT_FILE
+  codex-pass design CHECKOUT HEAD_SHA BASE_SHA OUTPUT_FILE BRIEF_FILE
+
+Runs from a detached worktree of HEAD_SHA in a temporary directory, removed
+afterwards. `review` writes `codex review --base BASE_SHA`'s output; `design`
+gives BRIEF_FILE to `codex exec` and writes its last message. The flags live
+here because a session that builds them into a shell variable has zsh pass
+them to codex as one word.
+"""
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+
+MODEL = "gpt-6.2-sol"
+FLAGS = [
+    "-c", f"model={MODEL}", "-c", f"review_model={MODEL}",
+    "-c", "model_reasoning_effort=xhigh",
+    "-c", "sandbox_mode=read-only", "-c", "approval_policy=never",
+]
+TIMEOUT = 3500  # seconds, inside the caller's one-hour limit
+USAGE = ("usage: codex-pass review CHECKOUT HEAD BASE OUTPUT\n"
+         "       codex-pass design CHECKOUT HEAD BASE OUTPUT BRIEF")
+
+
+def main(argv):
+    kind = argv[1] if len(argv) > 1 else ""
+    if (kind, len(argv)) not in (("review", 6), ("design", 7)):
+        sys.exit(USAGE)
+    checkout, head, base, output_file = argv[2:6]
+    output_file = os.path.abspath(output_file)
+    stdin = open(argv[6], encoding="utf-8") if kind == "design" else subprocess.DEVNULL
+    scratch = tempfile.mkdtemp(prefix="codex-pass-")
+    tree = os.path.join(scratch, "tree")
+    git = ["git", "-C", checkout]
+    try:
+        subprocess.run([*git, "worktree", "add", "-q", "--detach", tree, head], check=True)
+        if kind == "review":
+            cmd = ["codex", "review", *FLAGS, "--base", base]
+        else:
+            cmd = ["codex", "exec", *FLAGS, "-o", output_file, "-"]
+        try:
+            run = subprocess.run(cmd, cwd=tree, stdin=stdin, capture_output=True,
+                                 text=True, timeout=TIMEOUT)
+        except subprocess.TimeoutExpired:
+            sys.exit(f"codex-pass: {kind} timed out after {TIMEOUT}s")
+    finally:
+        subprocess.run([*git, "worktree", "remove", "--force", tree])
+        shutil.rmtree(scratch, ignore_errors=True)
+    if run.returncode != 0:
+        sys.exit(f"codex-pass: codex {kind} failed (exit {run.returncode}): "
+                 f"{run.stderr.strip()[-500:] or 'no output'}")
+    if kind == "review":
+        with open(output_file, "w", encoding="utf-8") as f:
+            # Its findings cite the worktree, which is gone once this returns.
+            f.write(run.stdout.replace(os.path.realpath(tree) + "/", ""))
+    if not os.path.getsize(output_file):
+        sys.exit(f"codex-pass: codex {kind} wrote nothing")
+    print(f"codex-pass: {kind}, {MODEL}")
+
+
+if __name__ == "__main__":
+    main(sys.argv)
